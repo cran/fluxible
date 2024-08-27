@@ -1,0 +1,25 @@
+#' CO2 concentration
+#'
+#' CO2 concentration with measurements meta data
+#'
+#' @format A tibble with 1251 rows and 13 variables
+#' \describe{
+#' \item{datetime}{Datetime at which CO2 concentration was recorded.}
+#' \item{temp_air}{Air temperature inside the flux chamber in Celsius.}
+#' \item{temp_soil}{Ground temperature inside the flux chamber in Celsius.}
+#' \item{conc}{CO2 concentration in ppm.}
+#' \item{PAR}{Photosynthetically active radiation inside the chamber
+#' in micromol/s/sqm.}
+#' \item{turfID}{Unique ID of the turf in which the measurement took place.}
+#' \item{type}{Type of measurement: ecosystems respiration (ER)
+#' or net ecosystem exchange (NEE).}
+#' \item{start}{Datetime at which the measurement was started.}
+#' \item{end}{Datetime at which the measurement ended.}
+#' \item{fluxID}{Unique ID for each flux.}
+#' \item{n_conc}{Number of data point per flux.}
+#' \item{ratio}{Ratio of n_conc over length of the measurement (in seconds).}
+#' \item{flag}{Data quality flags.}
+#' }
+#' @examples
+#' co2_conc
+"co2_conc"
