@@ -4,14 +4,16 @@
 \alias{flux_plot_lin}
 \title{plotting fluxes with linear fit}
 \usage{
-flux_plot_lin(slopes_df, y_text_position = 500, cut_arg = "cut")
+flux_plot_lin(slopes_df, conc_col, datetime_col, y_text_position)
 }
 \arguments{
 \item{slopes_df}{dataset containing slopes}
 
-\item{y_text_position}{position of the text box}
+\item{conc_col}{column with gas concentration}
 
-\item{cut_arg}{argument pointing rows to be cut from the measurements}
+\item{datetime_col}{column with datetime of each data point}
+
+\item{y_text_position}{position of the text box}
 }
 \description{
 plots the fluxes that were fitted

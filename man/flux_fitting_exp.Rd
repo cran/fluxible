@@ -7,22 +7,34 @@ over time, using the exponential model from Zhao et al (2018)}
 \usage{
 flux_fitting_exp(
   conc_df,
-  t_window = 20,
-  cz_window = 15,
-  b_window = 10,
-  a_window = 10,
-  roll_width = 15,
-  start_cut = 0,
-  end_cut = 0,
-  start_col = "f_start",
-  end_col = "f_end",
-  datetime_col = "f_datetime",
-  conc_col = "f_conc",
-  fluxid_col = "f_fluxID"
+  conc_col,
+  datetime_col,
+  f_start,
+  f_end,
+  f_fluxid,
+  t_window,
+  cz_window,
+  b_window,
+  a_window,
+  roll_width,
+  start_cut,
+  end_cut
 )
 }
 \arguments{
 \item{conc_df}{dataframe of gas concentration over time}
+
+\item{conc_col}{column with gas concentration}
+
+\item{datetime_col}{column with datetime of each concentration measurement
+Note that if there are duplicated datetime in the same f_fluxid only
+the first row will be kept}
+
+\item{f_start}{column with datetime when the measurement started}
+
+\item{f_end}{column with datetime when the measurement ended}
+
+\item{f_fluxid}{column with ID of each flux}
 
 \item{t_window}{enlarge focus window before and after tmin and tmax}
 
@@ -40,16 +52,6 @@ ideally same as cz_window}
 (in seconds)}
 
 \item{end_cut}{time to discard at the end of the measurements (in seconds)}
-
-\item{start_col}{column with datetime when the measurement started}
-
-\item{end_col}{column with datetime when the measurement ended}
-
-\item{datetime_col}{column with datetime of each concentration measurement}
-
-\item{conc_col}{column with gas concentration data}
-
-\item{fluxid_col}{column with ID of each flux}
 }
 \value{
 a dataframe with the slope at t zero,

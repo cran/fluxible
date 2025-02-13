@@ -12,6 +12,8 @@ Processes the raw data from closed loop flux chamber (or tent) setups into ecosy
 Useful links:
 \itemize{
   \item \url{https://plant-functional-trait-course.github.io/fluxible/}
+  \item \url{https://github.com/Plant-Functional-Trait-Course/fluxible}
+  \item Report bugs at \url{https://github.com/Plant-Functional-Trait-Course/fluxible/issues}
 }
 
 }
@@ -20,9 +22,7 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Paul Efren \email{paulefrens@gmail.com}
-  \item Michael Mustri \email{mustrim@arizona.edu}
-  \item Pekka O Niittynen \email{pekka.niittynen@helsinki.fi}
+  \item Paul Efren Santos-Andrade \email{paulefrens@gmail.com}
   \item Richard James Telford \email{richard.telford@uib.no} (\href{https://orcid.org/0000-0001-9826-3076}{ORCID})
 }
 

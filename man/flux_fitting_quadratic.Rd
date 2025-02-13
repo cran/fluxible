@@ -6,33 +6,35 @@
 \usage{
 flux_fitting_quadratic(
   conc_df,
-  start_cut = 0,
-  end_cut = 0,
-  start_col = "f_start",
-  end_col = "f_end",
-  datetime_col = "f_datetime",
-  conc_col = "f_conc",
-  fluxid_col = "f_fluxID",
-  t_zero = 0
+  conc_col,
+  datetime_col,
+  f_start,
+  f_end,
+  f_fluxid,
+  start_cut,
+  end_cut,
+  t_zero
 )
 }
 \arguments{
 \item{conc_df}{dataframe of gas concentration over time}
 
+\item{conc_col}{column with gas concentration}
+
+\item{datetime_col}{column with datetime of each concentration measurement
+Note that if there are duplicated datetime in the same f_fluxid only
+the first row will be kept}
+
+\item{f_start}{column with datetime when the measurement started}
+
+\item{f_end}{column with datetime when the measurement ended}
+
+\item{f_fluxid}{column with ID of each flux}
+
 \item{start_cut}{time to discard at the start of the measurements
 (in seconds)}
 
 \item{end_cut}{time to discard at the end of the measurements (in seconds)}
-
-\item{start_col}{column with datetime when the measurement started}
-
-\item{end_col}{column with datetime when the measurement ended}
-
-\item{datetime_col}{column with datetime of each concentration measurement}
-
-\item{conc_col}{column with gas concentration data}
-
-\item{fluxid_col}{column with ID of each flux}
 
 \item{t_zero}{time at which the slope should be calculated}
 }

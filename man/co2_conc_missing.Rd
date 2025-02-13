@@ -16,12 +16,12 @@ in micromol/s/sqm.}
 \item{turfID}{Unique ID of the turf in which the measurement took place.}
 \item{type}{Type of measurement: ecosystems respiration (ER)
 or net ecosystem exchange (NEE).}
-\item{start}{Datetime at which the measurement was started.}
-\item{end}{Datetime at which the measurement ended.}
-\item{fluxID}{Unique ID for each flux.}
-\item{n_conc}{Number of data point per flux.}
-\item{ratio}{Ratio of n_conc over length of the measurement (in seconds).}
-\item{flag}{Data quality flags.}
+\item{f_start}{Datetime at which the measurement was started.}
+\item{f_end}{Datetime at which the measurement ended.}
+\item{f_fluxid}{Unique ID for each flux.}
+\item{f_n_conc}{Number of data point per flux.}
+\item{f_ratio}{Ratio of n_conc over length of the measurement (in seconds).}
+\item{f_flag_match}{Data quality flags.}
 }
 }
 \usage{

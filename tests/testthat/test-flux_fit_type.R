@@ -14,7 +14,13 @@ test_that("fit can be set by user", {
 })
 
 test_that("fit transfer from flux_fitting", {
-  slopes_test <- suppressWarnings(flux_fitting(co2_conc, fit_type = "exp"))
+  slopes_test <- suppressWarnings(flux_fitting(
+    co2_conc,
+    conc,
+    datetime,
+    fit_type = "exp"
+  )
+  )
   expect_equal(
     flux_fit_type(slopes_test),
     "exponential"

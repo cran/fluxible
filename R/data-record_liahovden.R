@@ -7,6 +7,7 @@
 #' \item{turfID}{Unique ID of the turf in which the measurement took place.}
 #' \item{type}{Type of measurement: ecosystems respiration (ER)
 #' or net ecosystem exchange (NEE).}
+#' \item{round}{Round of measurement.}
 #' \item{start}{Datetime at which the measurement was started.}
 #' }
 #' @examples

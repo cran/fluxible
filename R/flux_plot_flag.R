@@ -3,21 +3,20 @@
 #' for the part of the rows to be kept, and cut flag for rows to be discarded
 #' @param slopes_df as provided in flux_plot
 #' @param param_df as provided by flux_param
-#' @param cut_arg argument pointing rows to be cut from the measurements
 #' @importFrom dplyr select left_join mutate case_when
 
 flux_plot_flag <- function(slopes_df,
-                           param_df,
-                           cut_arg = "cut") {
+                           param_df) {
   slopes_df <- slopes_df |>
     select(!c("f_quality_flag")) |>
-    left_join(param_df, by = "f_fluxID") |>
+    left_join(param_df, by = "f_fluxid") |>
     mutate(
       f_quality_flag = case_when(
-        f_cut == ((cut_arg)) ~ f_cut,
-        f_cut != ((cut_arg)) ~ f_quality_flag
+        f_cut == "cut" ~ f_cut,
+        f_cut != "cut" ~ f_quality_flag
       )
     )
+  # print_col needs to have only 1 row/fluxID
 
   slopes_df
 }

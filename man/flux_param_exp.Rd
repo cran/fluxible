@@ -4,12 +4,12 @@
 \alias{flux_param_exp}
 \title{prepares text to print for flux_plot function}
 \usage{
-flux_param_exp(slopes_df, cut_arg = "cut")
+flux_param_exp(slopes_df, conc_col)
 }
 \arguments{
 \item{slopes_df}{the slopes_df that is being provided to flux_plot}
 
-\item{cut_arg}{argument pointing rows to be cut from the measurements}
+\item{conc_col}{column with gas concentration}
 }
 \description{
 creates a df with quality flags and quality diagnostics

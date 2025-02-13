@@ -13,10 +13,10 @@ flux_fit_type <- function(df,
                             "linear",
                             "quadratic"
                           )) {
-  if (is.null(((fit_type)))) {
+  if (is.null(fit_type)) {
     fit_type <- attributes(df)$fit_type
   } else {
-    fit_type <- match.arg(((fit_type)), ((fit_type_list)))
+    fit_type <- match.arg(fit_type, fit_type_list)
   }
   fit_type
 }

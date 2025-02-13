@@ -6,23 +6,25 @@
 \usage{
 flux_quality(
   slopes_df,
+  conc_col,
+  f_fluxid = f_fluxid,
+  f_slope = f_slope,
+  f_time = f_time,
+  f_start = f_start,
+  f_end = f_end,
+  f_fit = f_fit,
+  f_cut = f_cut,
+  f_pvalue = f_pvalue,
+  f_rsquared = f_rsquared,
+  f_b = f_b,
+  force_discard = c(),
+  force_ok = c(),
+  ratio_threshold = 0,
   fit_type = c(),
   ambient_conc = 421,
   error = 100,
-  fluxid_col = "f_fluxID",
-  slope_col = "f_slope",
-  weird_fluxes_id = c(),
-  force_ok_id = c(),
-  ratio_threshold = 0,
-  pvalue_col = "f_pvalue",
-  rsquared_col = "f_rsquared",
   pvalue_threshold = 0.3,
   rsquared_threshold = 0.7,
-  conc_col = "f_conc",
-  b_col = "f_b",
-  time_col = "f_time",
-  fit_col = "f_fit",
-  cut_col = "f_cut",
   rmse_threshold = 25,
   cor_threshold = 0.5,
   b_threshold = 1,
@@ -31,6 +33,46 @@ flux_quality(
 }
 \arguments{
 \item{slopes_df}{dataset containing slopes}
+
+\item{conc_col}{column containing the measured gas concentration
+(exponential fit)}
+
+\item{f_fluxid}{column containing unique IDs for each flux}
+
+\item{f_slope}{column containing the slope of each flux
+(as calculated by the flux_fitting function)}
+
+\item{f_time}{column containing the time of each measurement in seconds
+(exponential fit)}
+
+\item{f_start}{column with datetime of the start of the measurement
+(after cuts)}
+
+\item{f_end}{column with datetime of the end of the measurement
+(after cuts)}
+
+\item{f_fit}{column containing the modeled data (exponential fit)}
+
+\item{f_cut}{column containing the cutting information}
+
+\item{f_pvalue}{column containing the p-value of each flux
+(linear and quadratic fit)}
+
+\item{f_rsquared}{column containing the r squared of each flux
+(linear and quadratic fit)}
+
+\item{f_b}{column containing the b parameter of the exponential expression
+(exponential fit)}
+
+\item{force_discard}{vector of fluxIDs that should be discarded
+by the user's decision}
+
+\item{force_ok}{vector of fluxIDs for which the user wants to keep
+the calculated slope despite a bad quality flag}
+
+\item{ratio_threshold}{ratio of gas concentration data points over length of
+measurement (in seconds) below which the measurement will be considered as
+not having enough data points to be considered for calculations}
 
 \item{fit_type}{model fitted to the data, linear, quadratic or exponential.
 Will be automatically filled if slopes_df was produced using flux_fitting()}
@@ -41,27 +83,6 @@ measurement (used to detect measurement that started with a polluted setup)}
 \item{error}{error of the setup, defines a window outside of which
 the starting values indicate a polluted setup}
 
-\item{fluxid_col}{column containing unique IDs for each flux}
-
-\item{slope_col}{column containing the slope of each flux
-(as calculated by the flux_fitting function)}
-
-\item{weird_fluxes_id}{vector of fluxIDs that should be discarded
-by the user's decision}
-
-\item{force_ok_id}{vector of fluxIDs for which the user wants to keep
-the calculated slope despite a bad quality flag}
-
-\item{ratio_threshold}{ratio of gas concentration data points over length of
-measurement (in seconds) below which the measurement will be considered as
-not having enough data points to be considered for calculations}
-
-\item{pvalue_col}{column containing the p-value of each flux
-(linear and quadratic fit)}
-
-\item{rsquared_col}{column containing the r squared of each flux
-(linear and quadratic fit)}
-
 \item{pvalue_threshold}{threshold of p-value below which the change of
 gas concentration over time is considered not significant
 (linear and quadratic fit)}
@@ -69,19 +90,6 @@ gas concentration over time is considered not significant
 \item{rsquared_threshold}{threshold of r squared value below which
 the linear model is considered an unsatisfactory fit
 (linear and quadratic fit)}
-
-\item{conc_col}{column containing the measured gas concentration
-(exponential fit)}
-
-\item{b_col}{column containing the b parameter of the exponential expression
-(exponential fit)}
-
-\item{time_col}{column containing the time of each measurement in seconds
-(exponential fit)}
-
-\item{fit_col}{column containing the modeled data (exponential fit)}
-
-\item{cut_col}{column containing the cutting information}
 
 \item{rmse_threshold}{threshold for the RMSE of each flux above which
 the fit is considered unsatisfactory (exponential fit)}
@@ -97,7 +105,9 @@ considered good enough (exponential fit)}
 \item{cut_arg}{argument defining that the data point should be cut out}
 }
 \value{
-same dataframe with added quality flags and corrected slope column
+a dataframe with added columns of quality flags (\code{f_quality_flag}),
+the slope corrected according to the quality flags (\code{f_slope_corr}),
+some diagnostics depending on the fit, and any columns present in the input.
 }
 \description{
 indicates if slopes should be discarded or replaced
@@ -105,7 +115,7 @@ by 0 according to quality thresholds set by user
 }
 \examples{
 data(slopes0lin)
-flux_quality(slopes0lin, fit_type = "li")
+flux_quality(slopes0lin, conc, fit_type = "li")
 data(slopes30)
-flux_quality(slopes30, fit_type = "expo", slope_col = "f_slope")
+flux_quality(slopes30, conc, fit_type = "expo")
 }

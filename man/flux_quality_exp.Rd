@@ -6,25 +6,44 @@
 \usage{
 flux_quality_exp(
   slopes_df,
-  weird_fluxes_id = c(),
-  force_ok_id = c(),
-  b_col = "f_b",
-  rmse_threshold = 25,
-  cor_threshold = 0.5,
-  b_threshold = 1
+  conc_col,
+  f_fluxid,
+  f_slope,
+  f_time,
+  f_fit,
+  f_cut,
+  f_b,
+  force_discard,
+  force_ok,
+  rmse_threshold,
+  cor_threshold,
+  b_threshold
 )
 }
 \arguments{
 \item{slopes_df}{dataset containing slopes, fluxID,
 and parameters of the exponential expression}
 
-\item{weird_fluxes_id}{vector of fluxIDs that should be discarded
+\item{conc_col}{column with gas concentration}
+
+\item{f_fluxid}{column of ID for each measurement}
+
+\item{f_slope}{column containing the slope of each flux
+(as calculated by the flux_fitting function)}
+
+\item{f_time}{column containing the time of each measurement in seconds}
+
+\item{f_fit}{column containing the modeled data}
+
+\item{f_cut}{column containing the cutting information}
+
+\item{f_b}{column containing the b parameter of the exponential expression}
+
+\item{force_discard}{vector of fluxIDs that should be discarded
 by the user's decision}
 
-\item{force_ok_id}{vector of fluxIDs for which the user wants to keep
+\item{force_ok}{vector of fluxIDs for which the user wants to keep
 the calculated slope despite a bad quality flag}
-
-\item{b_col}{column containing the b parameter of the exponential expression}
 
 \item{rmse_threshold}{threshold for the RMSE of each flux above
 which the fit is considered unsatisfactory}

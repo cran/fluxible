@@ -1,0 +1,43 @@
+Logger Details:
+Logger Type,2010
+Serial Number,KPXXXXXX
+Controller Firmware,5.1
+Acquisition Firmware,5.1
+Logger ID,ID-rdm
+
+
+Job Details
+Number of Analogue Channels,4
+Number of Digital Channels,0
+Total Number of Channels Used,4
+
+
+Arm Time,26.06.2020 12:40:54
+Disarm Time,Job Incomplete
+Duration,N/A
+
+
+
+Channel Info
+Description,,,CO2 (V),H2O (V),CO2_calc (ppm),H2O_calc (ppt)
+Sample Interval,,,00:00:01,00:00:01,00:00:01,00:00:01
+Logging Interval,,,00:00:01,00:00:01,00:00:01,00:00:01
+ 
+Date,Time,Type,CO2 (V),H2O (V),CO2_calc (ppm),H2O_calc (ppt)
+26.06.2020,12:40:56,Interval,2.0807,0.0004,416.15,0.007
+26.06.2020,12:40:57,Interval,2.0882,0.0004,417.63,0.008
+26.06.2020,12:40:58,Interval,2.0803,0.0004,416.06,0.007
+26.06.2020,12:40:59,Interval,2.0822,0.0004,416.44,0.008
+26.06.2020,12:41:00,Interval,2.0610,0.0004,412.20,0.008
+26.06.2020,12:41:01,Interval,2.0779,0.0004,415.57,0.007
+26.06.2020,12:41:02,Interval,2.0669,0.0004,413.38,0.008
+26.06.2020,12:41:03,Interval,2.0653,0.0003,413.06,0.007
+26.06.2020,12:41:04,Interval,2.0786,0.0003,415.71,0.005
+26.06.2020,12:41:05,Interval,2.0618,0.0003,412.35,0.005
+26.06.2020,12:41:06,Interval,2.0621,0.0003,412.43,0.006
+26.06.2020,12:41:07,Interval,2.0676,0.0003,413.52,0.005
+26.06.2020,12:41:08,Interval,2.0633,0.0002,412.65,0.005
+26.06.2020,12:41:09,Interval,2.0629,0.0003,412.57,0.006
+26.06.2020,12:41:10,Interval,2.0722,0.0002,414.44,0.005
+26.06.2020,12:41:11,Interval,2.0713,0.0003,414.27,0.005
+26.06.2020,12:41:12,Interval,2.0667,0.0003,413.35,0.005

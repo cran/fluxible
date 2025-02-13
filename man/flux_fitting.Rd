@@ -6,13 +6,13 @@
 \usage{
 flux_fitting(
   conc_df,
+  conc_col,
+  datetime_col,
+  f_start = f_start,
+  f_end = f_end,
+  f_fluxid = f_fluxid,
   start_cut = 0,
   end_cut = 0,
-  start_col = "f_start",
-  end_col = "f_end",
-  datetime_col = "f_datetime",
-  conc_col = "f_conc",
-  fluxid_col = "f_fluxID",
   t_window = 20,
   cz_window = 15,
   b_window = 10,
@@ -25,20 +25,22 @@ flux_fitting(
 \arguments{
 \item{conc_df}{dataframe of gas concentration over time}
 
+\item{conc_col}{column with gas concentration data}
+
+\item{datetime_col}{column with datetime of each concentration measurement
+Note that if there are duplicated datetime in the same f_fluxid only
+the first row will be kept}
+
+\item{f_start}{column with datetime when the measurement started}
+
+\item{f_end}{column with datetime when the measurement ended}
+
+\item{f_fluxid}{column with ID of each flux}
+
 \item{start_cut}{time to discard at the start of the measurements
 (in seconds)}
 
 \item{end_cut}{time to discard at the end of the measurements (in seconds)}
-
-\item{start_col}{column with datetime when the measurement started}
-
-\item{end_col}{column with datetime when the measurement ended}
-
-\item{datetime_col}{column with datetime of each concentration measurement}
-
-\item{conc_col}{column with gas concentration data}
-
-\item{fluxid_col}{column with ID of each flux}
 
 \item{t_window}{enlarge focus window before and after tmin and tmax
 (exponential fit)}
@@ -57,12 +59,17 @@ ideally same as cz_window (exponential fit)}
 \item{t_zero}{time at which the slope should be calculated
 (for quadratic fit)}
 
-\item{fit_type}{exponential, quadratic or linear.
+\item{fit_type}{\code{exponential}, \code{quadratic} or \code{linear.}
 Exponential is using the exponential model from Zhao et al (2018)}
 }
 \value{
-a dataframe with the slope at t zero,
-and parameters of a model of gas concentration over time
+a dataframe with the slope at t zero (\code{f_slope}),
+a datetime column of t zero (\code{f_start_z}), a factor column indicating the
+cuts (\code{f_cut}), the time in seconds since the start of the measurement
+(\code{f_time}), the modeled fit (\code{f_fit}), the modeled slope (\code{f_fit_slope}),
+the parameters of the fit depending on the model used,
+and any columns present in the input.
+The type of fit is added as an attribute for use by the other functions.
 }
 \description{
 fits gas concentration over time data with a model
@@ -71,8 +78,9 @@ to calculate gas fluxes with flux_calc
 }
 \examples{
 data(co2_conc)
-flux_fitting(co2_conc, fit_type = "exp")
-flux_fitting(co2_conc, fit_type = "quadratic", t_zero = 10, end_cut = 30)
+flux_fitting(co2_conc, conc, datetime, fit_type = "exp")
+flux_fitting(co2_conc, conc, datetime,  fit_type = "quadratic",
+t_zero = 10, end_cut = 30)
 }
 \references{
 Zhao, P., Hammerle, A., Zeeman, M., Wohlfahrt, G., 2018.

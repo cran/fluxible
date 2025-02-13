@@ -7,18 +7,21 @@
 flux_calc(
   slopes_df,
   slope_col,
-  datetime_col = "f_datetime",
-  cut_col = c(),
-  keep_arg = c(),
-  chamber_volume = 24.5,
-  tube_volume = 0.075,
-  atm_pressure = 1,
-  plot_area = 0.0625,
+  datetime_col,
+  temp_air_col,
+  chamber_volume,
+  atm_pressure,
+  plot_area,
+  f_fluxid = f_fluxid,
+  conc_unit,
+  flux_unit,
   cols_keep = c(),
   cols_ave = c(),
-  fluxid_col = "f_fluxID",
-  temp_air_col = "temp_air",
+  tube_volume,
   temp_air_unit = "celsius",
+  f_cut = f_cut,
+  keep_arg = "keep",
+  cut = TRUE,
   fit_type = c()
 )
 }
@@ -26,27 +29,32 @@ flux_calc(
 \item{slopes_df}{dataframe of flux slopes}
 
 \item{slope_col}{column containing the slope to calculate the flux
-(in ppm*s^(-1))}
+(in ppm\emph{s^(-1) or ppb}s^(-1))}
 
 \item{datetime_col}{column containing the datetime of each gas concentration
 measurements in slopes_df. The first one after cutting will be kept as
 datetime of each flux in the output.}
 
-\item{cut_col}{column containing cutting information}
-
-\item{keep_arg}{name in cut_col of data to keep}
+\item{temp_air_col}{column containing the air temperature used
+to calculate fluxes. Will be averaged with NA removed.}
 
 \item{chamber_volume}{volume of the flux chamber in L,
-default for Three-D project chamber (25x24.5x40cm),
 can also be a column in case it is a variable}
 
-\item{tube_volume}{volume of the tubing in L, default for summer 2020 setup,
-can also be a column in case it is a variable}
-
-\item{atm_pressure}{atmospheric pressure, assumed 1 atm,
+\item{atm_pressure}{atmospheric pressure,
 can be a constant (numerical) or a variable (column name)}
 
-\item{plot_area}{area of the plot in m^2, default for Three-D}
+\item{plot_area}{area of the plot in m^2,
+can also be a column in case it is a variable}
+
+\item{f_fluxid}{column containing the flux IDs}
+
+\item{conc_unit}{unit in which the concentration of gas was measured
+\code{ppm} or \code{ppb}}
+
+\item{flux_unit}{unit in which the calculated flux will be
+\code{mmol} outputs fluxes in mmol * m^(-2)*h^(-1);
+\code{micromol} outputs fluxes in micromol * m^(-2)*h^(-1)}
 
 \item{cols_keep}{columns to keep from the input to the output.
 Those columns need to have unique values for each flux,
@@ -55,24 +63,34 @@ as distinct() is applied.}
 \item{cols_ave}{columns with values that should be averaged
 for each flux in the output. Note that NA are removed in mean calculation.}
 
-\item{fluxid_col}{column containing the fluxID}
-
-\item{temp_air_col}{column containing the air temperature used
-to calculate fluxes. Will be averaged with NA removed.}
+\item{tube_volume}{volume of the tubing in L,
+can also be a column in case it is a variable}
 
 \item{temp_air_unit}{units in which air temperature was measured.
-Has to be either Celsius, Fahrenheit or Kelvin.}
+Has to be either \code{celsius} (default), \code{fahrenheit} or \code{kelvin.}}
+
+\item{f_cut}{column containing cutting information}
+
+\item{keep_arg}{name in \code{f_cut} of data to keep}
+
+\item{cut}{if 'TRUE' (default), the measurements will be cut according to
+'f_cut' before calculating fluxes. This has no influence on the flux itself
+since the slope is provided from \link[fluxible:flux_fitting]{flux_fitting},
+but it will influence the values of the columns in \code{cols_ave}.}
 
 \item{fit_type}{(optional) model used in flux_fitting, exponential,
 quadratic or linear.
-Will be automatically filled if slopes_df was produced using flux_quality().}
+Will be automatically filled if slopes_df was produced using
+\link[fluxible:flux_quality]{flux_quality}.}
 }
 \value{
-a dataframe containing fluxID, fluxes (in mmol*m^(-2)*h^(-1)),
-temperature average for each flux,
-slope used for each flux calculation,
-the model used in \code{flux_fitting},
-and any columns specified in cols_keep and cols_ave.
+a dataframe containing flux IDs, datetime of measurements' starts,
+fluxes in mmol*m^(-2)\emph{h^(-1) or micromol}m^(-2)*h^(-1) (\code{f_flux}) according
+to \code{flux_unit}, temperature average for each flux in Kelvin (\code{f_temp_ave}),
+the total volume of the setup for each measurement (\code{f_volume_setup}),
+the model used in \link[fluxible:flux_fitting]{flux_fitting},
+any column specified in \code{cols_keep}, any column specified in \code{cols_ave} with
+their value averaged over the measurement after cuts and discarding NA.
 }
 \description{
 calculates a flux based on the rate of change
@@ -80,5 +98,14 @@ of gas concentration over time
 }
 \examples{
 data(slopes0)
-flux_calc(slopes0, slope_col = "f_slope")
+flux_calc(slopes0,
+f_slope,
+datetime,
+temp_air,
+conc_unit = "ppm",
+flux_unit = "mmol",
+chamber_volume = 24.5,
+tube_volume = 0.075,
+atm_pressure = 1,
+plot_area = 0.0625)
 }

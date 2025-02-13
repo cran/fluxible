@@ -6,33 +6,49 @@
 \usage{
 flux_quality_lm(
   slopes_df,
-  weird_fluxes_id = c(),
-  force_ok_id = c(),
-  pvalue_col = "f_pvalue",
-  rsquared_col = "f_rsquared",
-  pvalue_threshold = 0.3,
-  rsquared_threshold = 0.7
+  conc_col,
+  f_fluxid,
+  f_slope,
+  f_cut,
+  f_pvalue,
+  f_rsquared,
+  force_discard,
+  force_ok,
+  pvalue_threshold,
+  rsquared_threshold,
+  name_df
 )
 }
 \arguments{
 \item{slopes_df}{dataset containing slopes, fluxID, p.value and r.squared}
 
-\item{weird_fluxes_id}{vector of fluxIDs that should be discarded
+\item{conc_col}{column with gas concentration}
+
+\item{f_fluxid}{column of ID for each measurement}
+
+\item{f_slope}{column containing the slope of each flux
+(as calculated by the flux_fitting function)}
+
+\item{f_cut}{column containing the cutting information}
+
+\item{f_pvalue}{column containing the p-value of each flux}
+
+\item{f_rsquared}{column containing the r squared to be used for
+the quality assessment}
+
+\item{force_discard}{vector of fluxIDs that should be discarded
 by the user's decision}
 
-\item{force_ok_id}{vector of fluxIDs for which the user wants to keep
+\item{force_ok}{vector of fluxIDs for which the user wants to keep
 the calculated slope despite a bad quality flag}
-
-\item{pvalue_col}{column containing the p-value of each flux}
-
-\item{rsquared_col}{column containing the r squared to be used for
-the quality assessment}
 
 \item{pvalue_threshold}{threshold of p-value below which the change
 of gas concentration over time is considered not significant (user decided)}
 
 \item{rsquared_threshold}{threshold of r squared value below which
 the linear model is considered an unsatisfactory fit}
+
+\item{name_df}{name of slopes_df (used for error message)}
 }
 \value{
 same dataframe with added flag and corrected slopes columns

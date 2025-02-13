@@ -10,32 +10,30 @@ A tibble with 1251 rows and 22 variables
 \item{datetime}{Datetime at which CO2 concentration was recorded.}
 \item{temp_air}{Air temperature inside the flux chamber in Celsius.}
 \item{temp_soil}{Ground temperature inside the flux chamber in Celsius.}
-\item{f_conc}{CO2 concentration in ppm.}
+\item{conc}{CO2 concentration in ppm.}
 \item{PAR}{Photosynthetically active radiation inside the chamber
 in micromol/s/sqm.}
 \item{turfID}{Unique ID of the turf in which the measurement took place.}
 \item{type}{Type of measurement: ecosystems respiration (ER)
 or net ecosystem exchange (NEE).}
-\item{start}{Datetime at which the measurement was started.}
-\item{end}{Datetime at which the measurement ended.}
-\item{f_fluxID}{Unique ID for each flux.}
-\item{n_conc}{Number of data point per flux.}
-\item{ratio}{Ratio of n_conc over length of the measurement (in seconds).}
-\item{flag}{Data quality flags.}
-\item{time}{Time variable of the flux in seconds.}
-\item{cut}{Indicating if the measurement should be kept (keep)
+\item{f_start}{Datetime at which the measurement was started.}
+\item{f_end}{Datetime at which the measurement ended.}
+\item{f_fluxid}{Unique ID for each flux.}
+\item{f_flag_match}{Flags from flux_match.}
+\item{f_time}{Time variable of the flux in seconds.}
+\item{f_cut}{Indicating if the measurement should be kept (keep)
 or discarded (cut).}
 \item{f_pvalue}{P-value of the linear model of CO2 concentration over time.}
 \item{f_rsquared}{R squared of the linear model of CO2 concentration
 over time.}
-\item{adj.r.squared}{Adjusted R squared of the linear model of CO2
-concentration over time.}
-\item{intercept}{Intercept of the linear model of CO2 concentration
+\item{f_adj_rsquared}{Adjusted R squared of the linear model of
+CO2 concentration over time.}
+\item{f_intercept}{Intercept of the linear model of CO2 concentration
 over time.}
 \item{f_slope}{Slope of the linear model of CO2 concentration over time.}
-\item{fit}{Output of the linear model of CO2 concentration over time.}
-\item{f_start_error}{flagging if measurement started outside of the possible
-ambient concentration}
+\item{f_fit}{Output of the linear model of CO2 concentration over time.}
+\item{f_ratio}{Ratio of number of data points compared
+to length of measurement in seconds.}
 \item{f_quality_flag}{quality flag advising if the slope has to be replaced
 by 0 or NA}
 \item{f_slope_corr}{slope corrected according to quality flag}
