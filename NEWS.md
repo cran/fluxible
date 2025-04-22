@@ -1,4 +1,36 @@
-# fluxible 1.0.0
+# fluxible 1.1.0
+
+# fluxible 1.0.5
+
+* `flux_quality`: fluxes with bad fit are now flagged as zero if their linear slope is below the minimal detectable slope (calculated as $2 \times \text{instrument error} / \text{length of flux}$) instead of discard.
+
+# fluxible 1.0.4
+
+* `flux_fitting`:
+  - `exp_hm` to use the HM model (Pedersen et al., 2010; Hutchinson and Mosier, 1981).
+  - returns the linear slope besides the chosen method.
+* `flux_quality`: 
+  - `kappamax = TRUE` to apply the kappamax method (Hüppi et al., 2018) on any of the exponential fits.
+  - g-factor in the output shows the ratio of slope over the linear slope.
+  - `force_linear` and `force_exp` to force the use of the linear or exponential slope (kappamax method).
+* `flux_match`: option to feed a column with the end time instead of a fixed measurement length, in case fluxes do not all have the same length
+* `flux_calc`:
+  - `cols_sum` columns for which the values will be summed for each flux.
+  - `cols_med` columns for which the median will be provided for each flux.
+
+# fluxible 1.0.3
+
+* `stupeflux`: a wrap function to directly process raw gas concentration data into ecosystem gas fluxes.
+* `flux_fitting`: if `optim` returns non-finite values, the slope is NA and the function does not crash anymore.
+* `flux_fitting`: new model `exp_tz`. Same as `exp_zhao18` except the user defines `t_zero`.
+
+# fluxible 1.0.2
+
+* `flux_gep`: fluxes presents in the dataset that are neither NEE nor ER (soilR, LRC or other) are not lost anymore.
+
+# fluxible 1.0.1
+
+* `flux_quality`: added `force_zero` argument to force a flux to be replaced by zero.
 
 # fluxible 0.1.3
 

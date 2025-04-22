@@ -22,7 +22,6 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Paul Efren Santos-Andrade \email{paulefrens@gmail.com}
   \item Richard James Telford \email{richard.telford@uib.no} (\href{https://orcid.org/0000-0001-9826-3076}{ORCID})
 }
 

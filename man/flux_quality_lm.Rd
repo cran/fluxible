@@ -14,6 +14,7 @@ flux_quality_lm(
   f_rsquared,
   force_discard,
   force_ok,
+  force_zero,
   pvalue_threshold,
   rsquared_threshold,
   name_df
@@ -41,6 +42,9 @@ by the user's decision}
 
 \item{force_ok}{vector of fluxIDs for which the user wants to keep
 the calculated slope despite a bad quality flag}
+
+\item{force_zero}{vector of fluxIDs that should be replaced by zero by
+the user's decision}
 
 \item{pvalue_threshold}{threshold of p-value below which the change
 of gas concentration over time is considered not significant (user decided)}

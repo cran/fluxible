@@ -18,8 +18,8 @@ flux_param_lm <- function(slopes_df,
     select(!{{conc_col}}) |>
     distinct() |>
     mutate(
-      f_rsquared = signif(.data$f_rsquared, digits = 2),
-      f_pvalue = signif(.data$f_pvalue, digits = 4),
+      f_rsquared = round(.data$f_rsquared, digits = 2),
+      f_pvalue = round(.data$f_pvalue, digits = 6),
       print_col = paste(
         .data$f_quality_flag, "\n",
         "R2 = ", .data$f_rsquared, "\n", "p-value = ", .data$f_pvalue,

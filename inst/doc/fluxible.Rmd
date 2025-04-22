@@ -172,7 +172,7 @@ slopes_exp_liahovden_flag_60 <- conc_liahovden |>
   flux_fitting(
     conc,
     datetime,
-    fit_type = "exp",
+    fit_type = "exp_zhao18",
     end_cut = 60
   ) |>
   flux_quality(

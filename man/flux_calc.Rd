@@ -17,6 +17,8 @@ flux_calc(
   flux_unit,
   cols_keep = c(),
   cols_ave = c(),
+  cols_sum = c(),
+  cols_med = c(),
   tube_volume,
   temp_air_unit = "celsius",
   f_cut = f_cut,
@@ -29,10 +31,10 @@ flux_calc(
 \item{slopes_df}{dataframe of flux slopes}
 
 \item{slope_col}{column containing the slope to calculate the flux
-(in ppm\emph{s^(-1) or ppb}s^(-1))}
+(in \eqn{ppm * s^{-1}} or \eqn{ppb * s^{-1}})}
 
 \item{datetime_col}{column containing the datetime of each gas concentration
-measurements in slopes_df. The first one after cutting will be kept as
+measurements in \code{slopes_df}. The first one after cutting will be kept as
 datetime of each flux in the output.}
 
 \item{temp_air_col}{column containing the air temperature used
@@ -53,15 +55,21 @@ can also be a column in case it is a variable}
 \code{ppm} or \code{ppb}}
 
 \item{flux_unit}{unit in which the calculated flux will be
-\code{mmol} outputs fluxes in mmol * m^(-2)*h^(-1);
-\code{micromol} outputs fluxes in micromol * m^(-2)*h^(-1)}
+\code{mmol} outputs fluxes in \eqn{mmol * m^{-2} * h^{-1}};
+\code{micromol} outputs fluxes in \eqn{micromol * m^{-2}*h^{-1}}}
 
 \item{cols_keep}{columns to keep from the input to the output.
 Those columns need to have unique values for each flux,
-as distinct() is applied.}
+as \link[dplyr:distinct]{distinct} is applied.}
 
 \item{cols_ave}{columns with values that should be averaged
 for each flux in the output. Note that NA are removed in mean calculation.}
+
+\item{cols_sum}{columns with values for which is sum is provided
+for each flux in the output. Note that NA are removed in sum calculation.}
+
+\item{cols_med}{columns with values for which is median is provided
+for each flux in the output. Note that NA are removed in median calculation.}
 
 \item{tube_volume}{volume of the tubing in L,
 can also be a column in case it is a variable}
@@ -78,18 +86,18 @@ Has to be either \code{celsius} (default), \code{fahrenheit} or \code{kelvin.}}
 since the slope is provided from \link[fluxible:flux_fitting]{flux_fitting},
 but it will influence the values of the columns in \code{cols_ave}.}
 
-\item{fit_type}{(optional) model used in flux_fitting, exponential,
-quadratic or linear.
-Will be automatically filled if slopes_df was produced using
-\link[fluxible:flux_quality]{flux_quality}.}
+\item{fit_type}{(optional) model used in
+\link[fluxible:flux_fitting]{flux_fitting}. Will be automatically filled if
+\code{slopes_df} was produced using \link[fluxible:flux_fitting]{flux_fitting}.}
 }
 \value{
 a dataframe containing flux IDs, datetime of measurements' starts,
-fluxes in mmol*m^(-2)\emph{h^(-1) or micromol}m^(-2)*h^(-1) (\code{f_flux}) according
-to \code{flux_unit}, temperature average for each flux in Kelvin (\code{f_temp_ave}),
-the total volume of the setup for each measurement (\code{f_volume_setup}),
-the model used in \link[fluxible:flux_fitting]{flux_fitting},
-any column specified in \code{cols_keep}, any column specified in \code{cols_ave} with
+fluxes in \eqn{mmol*m^{-2}*h^{-1}} or \eqn{micromol*m^{-2}*h^{-1}}
+(\code{f_flux}) according to \code{flux_unit}, temperature average for each flux in
+Kelvin (\code{f_temp_ave}), the total volume of the setup for each measurement
+(\code{f_volume_setup}), the model used in
+\link[fluxible:flux_fitting]{flux_fitting}, any column specified in
+\code{cols_keep}, any column specified in \code{cols_ave} with
 their value averaged over the measurement after cuts and discarding NA.
 }
 \description{
@@ -97,8 +105,9 @@ calculates a flux based on the rate of change
 of gas concentration over time
 }
 \examples{
-data(slopes0)
-flux_calc(slopes0,
+data(co2_conc)
+slopes <- flux_fitting(co2_conc, conc, datetime, fit_type = "exp_zhao18")
+flux_calc(slopes,
 f_slope,
 datetime,
 temp_air,

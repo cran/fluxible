@@ -17,10 +17,10 @@ knitr::opts_chunk$set(
 options(tidyverse.quiet = TRUE)
 ```
 
-Providing functions to read data files directly from loggers or instruments would be an endless tasks, as there are countless varieties of formats.
-Additionally, such a function already exists: `readr::read_delim` (@readr2024).
-
+If your field setup exports the data as a text based file (csv, txt, tsv, csv2 or the likes), we recommend using the `readr::read_delim` function (@readr2024) to import your data.
 We provide here some guidelines and examples on how to use `read_delim` to prepare your raw data files for `fluxible`.
+
+For users of Li-COR gas analyzers and automatic chambers, the [licoread R package](https://jogaudard.github.io/licoread/index.html), developped in collaboration with Li-COR, is designed to read 82z and 81x files and import them as fluxible-friendly objets.
 
 # Checklists for inputs
 

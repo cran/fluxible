@@ -1,4 +1,14 @@
 test_that("flux calculation is correct", {
+  slopes0 <- suppressWarnings(flux_fitting(
+    co2_conc,
+    conc,
+    datetime,
+    fit_type = "exp_zhao18"
+  )) |>
+    flux_quality(
+      conc
+    )
+
   output <- flux_calc(slopes0,
     f_slope,
     datetime,
@@ -21,6 +31,16 @@ test_that("flux calculation is correct", {
 
 
 test_that("averaging works", {
+  slopes0 <- suppressWarnings(flux_fitting(
+    co2_conc,
+    conc,
+    datetime,
+    fit_type = "exp_zhao18"
+  )) |>
+    flux_quality(
+      conc
+    )
+
   output <- flux_calc(
     slopes0,
     f_slope,
@@ -42,6 +62,16 @@ test_that("averaging works", {
 })
 
 test_that("keeping works", {
+  slopes0 <- suppressWarnings(flux_fitting(
+    co2_conc,
+    conc,
+    datetime,
+    fit_type = "exp_zhao18"
+  )) |>
+    flux_quality(
+      conc
+    )
+
   expect_snapshot(flux_calc(
     slopes0,
     f_slope,
@@ -60,6 +90,16 @@ test_that("keeping works", {
 })
 
 test_that("keeping and averaging work together", {
+  slopes0 <- suppressWarnings(flux_fitting(
+    co2_conc,
+    conc,
+    datetime,
+    fit_type = "exp_zhao18"
+  )) |>
+    flux_quality(
+      conc
+    )
+
   expect_snapshot(flux_calc(
     slopes0,
     f_slope,
@@ -119,6 +159,16 @@ test_that("kelvin conversion works", {
 
 
 test_that("error on air temp units", {
+  slopes0 <- suppressWarnings(flux_fitting(
+    co2_conc,
+    conc,
+    datetime,
+    fit_type = "exp_zhao18"
+  )) |>
+    flux_quality(
+      conc
+    )
+
   expect_error(
     flux_calc(
       slopes0,
@@ -151,6 +201,16 @@ test_that("error on air temp units", {
 })
 
 test_that("error that slope column is missing", {
+  slopes0 <- suppressWarnings(flux_fitting(
+    co2_conc,
+    conc,
+    datetime,
+    fit_type = "exp_zhao18"
+  )) |>
+    flux_quality(
+      conc
+    )
+
   expect_error(
     suppressWarnings(flux_calc(
       slopes0,
@@ -169,6 +229,16 @@ test_that("error that slope column is missing", {
 })
 
 test_that("error slope_col cannot be found in slopes_df", {
+  slopes0 <- suppressWarnings(flux_fitting(
+    co2_conc,
+    conc,
+    datetime,
+    fit_type = "exp_zhao18"
+  )) |>
+    flux_quality(
+      conc
+    )
+
   expect_error(
     flux_calc(
       slopes0,
@@ -189,6 +259,16 @@ x Column `column_with_slope` doesn't exist."
 })
 
 test_that("error some cols_keep do not exist", {
+  slopes0 <- suppressWarnings(flux_fitting(
+    co2_conc,
+    conc,
+    datetime,
+    fit_type = "exp_zhao18"
+  )) |>
+    flux_quality(
+      conc
+    )
+
   expect_error(
     flux_calc(
       slopes0,
@@ -213,6 +293,15 @@ test_that("error some cols_keep do not exist", {
 # which is wrong. I need to discard the cut data first.
 
 test_that("calculating fluxes on dataset with cuts", {
+  slopes30_flag <- flux_fitting(
+    co2_conc,
+    conc,
+    datetime,
+    fit_type = "exp_zhao18",
+    end_cut = 30
+  ) |>
+    flux_quality(conc)
+
   expect_snapshot(
     flux_calc(
       slopes30_flag,
@@ -233,6 +322,26 @@ test_that("calculating fluxes on dataset with cuts", {
 
 # testing having the chamber volume as a variable
 test_that("volume can be a variable instead of a constant", {
+  slopes0_vol <- suppressWarnings(flux_fitting(
+    co2_conc,
+    conc,
+    datetime,
+    fit_type = "exp_zhao18"
+  )) |>
+    flux_quality(
+      conc
+    ) |>
+    mutate(
+      volume = case_when(
+        f_fluxid == 1 ~ 18,
+        f_fluxid == 2 ~ 28,
+        f_fluxid == 3 ~ 20,
+        f_fluxid == 4 ~ 24,
+        f_fluxid == 5 ~ 4,
+        f_fluxid == 6 ~ 35
+      )
+    )
+
   expect_snapshot(
     flux_calc(
       slopes0_vol,
@@ -266,7 +375,7 @@ test_that("Fluxible workflow works from start to finish", {
     conc,
     datetime,
     start,
-    fit_type = "exp"
+    fit_type = "exp_zhao18"
   ))
   slopes_flag_test <- flux_quality(
     slopes_test,
@@ -287,6 +396,129 @@ test_that("Fluxible workflow works from start to finish", {
 
   expect_snapshot(
     str(fluxes_test)
+  )
+})
+
+test_that("Stupeflux returns the same as step by step workflow", {
+  conc_test <- flux_match(
+    co2_df_short,
+    record_short,
+    datetime,
+    start,
+    conc,
+    startcrop = 10,
+    measurement_length = 180
+  )
+  slopes_test <- suppressWarnings(flux_fitting(
+    conc_test,
+    conc,
+    datetime,
+    f_start,
+    fit_type = "exp_zhao18"
+  ))
+  slopes_flag_test <- flux_quality(
+    slopes_test,
+    conc
+  )
+  fluxes_test <- flux_calc(
+    slopes_flag_test,
+    f_slope_corr,
+    datetime,
+    temp_air,
+    conc_unit = "ppm",
+    flux_unit = "mmol",
+    chamber_volume = 24.5,
+    tube_volume = 0.075,
+    atm_pressure = 1,
+    plot_area = 0.0625
+  )
+
+  expect_equal(
+    stupeflux(
+      raw_conc = co2_df_short,
+      field_record = record_short,
+      datetime_col = datetime,
+      start_col = start,
+      conc_col = conc,
+      startcrop = 10,
+      measurement_length = 180,
+      fit_type = "exp_zhao18",
+      temp_air_col = temp_air,
+      conc_unit = "ppm",
+      flux_unit = "mmol",
+      chamber_volume = 24.5,
+      tube_volume = 0.075,
+      atm_pressure = 1,
+      plot_area = 0.0625
+    ),
+    fluxes_test
+  )
+})
+
+test_that("Stupeflux works with slope_correction = FALSE", {
+  expect_snapshot(
+    stupeflux(
+      raw_conc = co2_df_short,
+      field_record = record_short,
+      datetime_col = datetime,
+      start_col = start,
+      conc_col = conc,
+      startcrop = 10,
+      measurement_length = 180,
+      fit_type = "exp_zhao18",
+      temp_air_col = temp_air,
+      conc_unit = "ppm",
+      flux_unit = "mmol",
+      chamber_volume = 24.5,
+      tube_volume = 0.075,
+      atm_pressure = 1,
+      plot_area = 0.0625,
+      slope_correction = FALSE
+    )
+  )
+})
+
+test_that("Fluxible workflow works with kappamax", {
+  conc_test <- flux_match(
+    co2_df_short,
+    record_short,
+    datetime,
+    start,
+    conc,
+    startcrop = 10,
+    measurement_length = 220
+  )
+  slopes_test <- suppressWarnings(flux_fitting(
+    conc_test,
+    conc,
+    datetime,
+    start,
+    end_cut = 30,
+    fit_type = "exp_hm"
+  ))
+  slopes_flag_test <- flux_quality(
+    slopes_test,
+    conc,
+    f_pvalue = f_pvalue_lm,
+    f_rsquared = f_rsquared_lm,
+    kappamax = TRUE
+  )
+  fluxes_test <- flux_calc(
+    slopes_flag_test,
+    f_slope_corr,
+    datetime,
+    temp_air,
+    conc_unit = "ppm",
+    flux_unit = "mmol",
+    chamber_volume = 24.5,
+    tube_volume = 0.075,
+    atm_pressure = 1,
+    plot_area = 0.0625
+  ) |>
+    dplyr::select(!c(f_fluxid, f_slope_corr))
+
+  expect_snapshot(
+    fluxes_test
   )
 })
 
@@ -385,4 +617,36 @@ test_that("Working with two gases", {
   expect_snapshot(
     str(fluxes_twogases)
   )
+})
+
+test_that("sum and median works", {
+  slopes0 <- suppressWarnings(flux_fitting(
+    co2_conc,
+    conc,
+    datetime,
+    fit_type = "exp_zhao18"
+  )) |>
+    flux_quality(
+      conc
+    )
+
+  output <- flux_calc(
+    slopes0,
+    f_slope,
+    datetime,
+    temp_air,
+    conc_unit = "ppm",
+    flux_unit = "mmol",
+    cols_sum = "PAR",
+    cols_med = "temp_soil",
+    chamber_volume = 24.5,
+    tube_volume = 0.075,
+    atm_pressure = 1,
+    plot_area = 0.0625,
+    cut = FALSE
+  ) |>
+    dplyr::select(f_fluxid, f_temp_air_ave, datetime, f_flux, PAR, temp_soil)
+
+
+  expect_snapshot(output)
 })

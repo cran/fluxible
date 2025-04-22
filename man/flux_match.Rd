@@ -10,8 +10,10 @@ flux_match(
   datetime_col,
   start_col,
   conc_col,
+  end_col,
   startcrop,
   measurement_length,
+  fixed_length = TRUE,
   ratio_threshold = 0.5,
   time_diff = 0
 )
@@ -25,24 +27,29 @@ a gas concentration column as double.}
 Has to contain at least a column containing the start of each measurement,
 and any other column identifying the measurements.}
 
-\item{datetime_col}{datetime column in raw_conc (dmy_hms format)}
+\item{datetime_col}{datetime column in raw_conc (\code{ymd_hms} format)}
 
-\item{start_col}{start column in field_record (dmy_hms format)}
+\item{start_col}{start column in field_record (\code{ymd_hms} format)}
 
-\item{conc_col}{concentration column in raw_conc}
+\item{conc_col}{concentration column in \code{raw_conc}}
+
+\item{end_col}{end columne in field_record (\code{ymd_hms} format)}
 
 \item{startcrop}{how many seconds should be discarded at the beginning of
 the measurement}
 
 \item{measurement_length}{length of the measurement (in seconds)
-from the start specified in the field_record}
+from the start specified in the \code{field_record}}
+
+\item{fixed_length}{if \code{TRUE} (default), the \code{measurement_length} is used to
+create the end column. If \code{FALSE}, \code{end_col} has to be provided.}
 
 \item{ratio_threshold}{ratio (number of concentration measurement compared to
 length of measurement in seconds) below which the data should be flagged as
 too little}
 
 \item{time_diff}{time difference (in seconds) between the two datasets.
-Will be added to the datetime column of the raw_conc dataset.
+Will be added to the datetime column of the \code{raw_conc} dataset.
 For situations where the time was not synchronized correctly.}
 }
 \value{

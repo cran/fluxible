@@ -1,11 +1,10 @@
 Package: fluxible
 Title: Ecosystem Gas Fluxes Calculations for Closed Loop Chamber Setup
-Version: 1.0.0
-Date: 2025-02-07
+Version: 1.1.0
+Date: 2025-04-07
 Authors@R: 
     c(person(given = "Joseph", family = "Gaudard", , "joseph.gaudard@pm.me", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-6989-7624")),
-    person(given = "Paul Efren", family = "Santos-Andrade", , "paulefrens@gmail.com", role = "aut"),
     person(given = c("Richard", "James"), family = "Telford", , "richard.telford@uib.no", role = "aut",
             comment = c(ORCID = "0000-0001-9826-3076"))
     )
@@ -35,10 +34,9 @@ URL: https://plant-functional-trait-course.github.io/fluxible/,
 VignetteBuilder: knitr
 BugReports: https://github.com/Plant-Functional-Trait-Course/fluxible/issues
 NeedsCompilation: no
-Packaged: 2025-02-13 16:16:40 UTC; jga051
+Packaged: 2025-04-22 07:15:07 UTC; jga051
 Author: Joseph Gaudard [aut, cre] (<https://orcid.org/0000-0002-6989-7624>),
-  Paul Efren Santos-Andrade [aut],
   Richard James Telford [aut] (<https://orcid.org/0000-0001-9826-3076>)
 Maintainer: Joseph Gaudard <joseph.gaudard@pm.me>
 Repository: CRAN
-Date/Publication: 2025-02-13 16:40:02 UTC
+Date/Publication: 2025-04-22 07:50:02 UTC

@@ -3,11 +3,11 @@
 #' with color code indicating quality flags
 #' This function takes time to run and is optional in the workflow,
 #' but it is still highly recommended to use it to visually check
-#' the measurements.
-#' Note that 'flux_plot' is specific to the 'fluxible' package and
+#' the measurements. Note that 'flux_plot' is specific to the
+#' \link[fluxible]{fluxible} package and
 #' will work best with datasets produced following a fluxible workflow.
 #' @param slopes_df dataset containing slopes,
-#' with flags produced by flux_quality
+#' with flags produced by \link[fluxible:flux_quality]{flux_quality}
 #' @param conc_col column with gas concentration
 #' @param datetime_col column with datetime of each data point
 #' @param color_discard color for fits with a discard quality flag
@@ -45,13 +45,12 @@
 #' @importFrom ggforce facet_wrap_paginate n_pages
 #' @importFrom purrr quietly
 #' @importFrom progress progress_bar
+#' @importFrom stringr str_detect
 #' @examples
-#' data(slopes0_flag)
-#' flux_plot(slopes0_flag, conc, datetime)
-#' data(slopes30lin_flag)
-#' flux_plot(slopes30lin_flag, conc, datetime)
-#' data(slopes30qua_flag)
-#' flux_plot(slopes30qua_flag, conc, datetime)
+#' data(co2_conc)
+#' slopes <- flux_fitting(co2_conc, conc, datetime, fit_type = "exp_zhao18")
+#' slopes_flag <- flux_quality(slopes, conc)
+#' flux_plot(slopes_flag, conc, datetime)
 #' @export
 
 flux_plot <- function(slopes_df,
@@ -99,6 +98,7 @@ flux_plot <- function(slopes_df,
   fit_type <- flux_fit_type(
     slopes_df
   )
+
 
   if (f_plotname == "") {
     f_plotname <- deparse(substitute(slopes_df))
@@ -149,7 +149,7 @@ flux_plot <- function(slopes_df,
     ) |>
     pull(.data$f_warnings)
 
-  f_warnings <- stringr::str_c(flags)
+  f_warnings <- str_c(flags)
 
 
   if (any(!is.na(f_warnings))) message(f_warnings)
@@ -162,7 +162,7 @@ flux_plot <- function(slopes_df,
 
 
 
-  if (fit_type == "exponential") {
+  if (str_detect(fit_type, "exp")) {
     f_plot <- flux_plot_exp(
       slopes_df,
       {{conc_col}},
@@ -206,11 +206,13 @@ flux_plot <- function(slopes_df,
       "zero" = color_zero,
       "start_error" = color_discard,
       "force_discard" = color_discard,
+      "force_lm" = color_ok,
       "force_ok" = color_ok
     )) +
     scale_linetype_manual(values = c(
       "f_fit" = "longdash",
-      "f_fit_slope" = "dashed"
+      "f_fit_slope" = "solid",
+      "f_fit_lm" = "dotted"
     )) +
     do.call(scale_x_datetime, args = scale_x_datetime_args) +
     ylim(f_ylim_lower, f_ylim_upper) +

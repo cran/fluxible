@@ -17,6 +17,8 @@
 #' by the user's decision
 #' @param force_ok vector of fluxIDs for which the user wants to keep
 #' the calculated slope despite a bad quality flag
+#' @param force_zero vector of fluxIDs that should be replaced by zero by
+#' the user's decision
 #' @param f_pvalue column containing the p-value of each flux
 #' @param f_rsquared column containing the r squared to be used for
 #' the quality assessment
@@ -35,6 +37,7 @@ flux_quality_lm <- function(slopes_df,
                             f_rsquared,
                             force_discard,
                             force_ok,
+                            force_zero,
                             pvalue_threshold,
                             rsquared_threshold,
                             name_df) {
@@ -77,16 +80,22 @@ flux_quality_lm <- function(slopes_df,
         .data$f_start_error == "error" ~ "start_error",
         {{f_fluxid}} %in% force_discard ~ "force_discard",
         {{f_fluxid}} %in% force_ok ~ "force_ok",
+        {{f_fluxid}} %in% force_zero ~ "force_zero",
         {{f_rsquared}} >= rsquared_threshold ~ "ok",
         {{f_rsquared}} < rsquared_threshold &
           {{f_pvalue}} >= pvalue_threshold ~ "zero",
         {{f_rsquared}} < rsquared_threshold &
-          {{f_pvalue}} < pvalue_threshold ~ "discard",
+          {{f_pvalue}} < pvalue_threshold &
+          abs({{f_slope}}) <= abs(.data$f_min_slope) ~ "zero",
+        {{f_rsquared}} < rsquared_threshold &
+          {{f_pvalue}} < pvalue_threshold &
+          abs({{f_slope}}) > abs(.data$f_min_slope) ~ "discard"
       ),
       f_slope_corr = case_when(
         .data$f_quality_flag == "no_data" ~ NA,
         .data$f_quality_flag == "force_discard" ~ NA,
         .data$f_quality_flag == "force_ok" ~ {{f_slope}},
+        .data$f_quality_flag == "force_zero" ~ 0,
         .data$f_quality_flag == "ok" ~ {{f_slope}},
         .data$f_quality_flag == "discard" ~ NA,
         .data$f_quality_flag == "zero" ~ 0

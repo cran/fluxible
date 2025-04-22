@@ -136,3 +136,20 @@
       8 29 WN3C 106  GEP   NEE_val  
       9 29 WN3C 106  NEE   NEE_val  
 
+# GEP calculation works with several id cols, and extra fluxes
+
+    Code
+      flux_gep(fluxes, type, datetime, flux, id_cols = c("turfid", "campaign"))
+    Output
+      # A tibble: 8 x 5
+        datetime            type   flux turfid campaign
+        <chr>               <chr> <dbl> <chr>     <dbl>
+      1 2024-02-11 10:00:00 GEP      -2 A             1
+      2 2024-02-11 10:00:00 NEE       3 A             1
+      3 2024-02-11 10:00:10 ER        5 A             1
+      4 2024-02-11 10:00:20 GEP      -5 A             2
+      5 2024-02-11 10:00:20 NEE       2 A             2
+      6 2024-02-11 10:00:30 ER        7 A             2
+      7 2024-02-12 08:00:10 soilR     3 B             3
+      8 2024-02-12 09:00:15 soilR     6 A             4
+

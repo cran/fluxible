@@ -2,7 +2,7 @@
 #'
 #' Slopes of C(t) for each flux with air temperature in various units.
 #'
-#' @format A tibble with 1251 rows and 24 variables
+#' @format A tibble with 1251 rows and 29 variables
 #' \describe{
 #' \item{datetime}{Datetime at which CO2 concentration was recorded.}
 #' \item{temp_air}{Air temperature inside the flux chamber in Celsius.}
@@ -16,6 +16,8 @@
 #' \item{f_start}{Datetime at which the measurement was started.}
 #' \item{f_end}{Datetime at which the measurement ended.}
 #' \item{f_fluxid}{Unique ID for each flux.}
+#' \item{f_ratio}{Ratio of number of datapoints over length of measurement
+#' in seconds.}
 #' \item{f_flag_match}{Flags from flux_match.}
 #' \item{f_time}{Time variable of the flux in seconds.}
 #' \item{f_cut}{Indicating if the measurement should be kept (keep)
@@ -34,6 +36,10 @@
 #' \item{f_fit_slope}{Output of linear model of CO2 concentration passing by
 #' C(tz) and a slope of slope_tz.}
 #' \item{f_start_z}{Datetime format of tz}
+#' \item{f_cor_coef}{Correlation coeffecient of concentration over time.}
+#' \item{f_RMSE}{RMSE of the fit.}
+#' \item{f_quality_flag}{Quality flags according to flux_quality.}
+#' \item{f_slope_corr}{Slope as advised by quality flags.}
 #' \item{temp_fahr}{Air temperature inside the flux chamber in Fahrenheit
 #' averaged over the flux measurement.}
 #' \item{temp_kelvin}{Air temperature inside the flux chamber in Kelvin

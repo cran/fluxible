@@ -19,13 +19,26 @@ flux_plot_exp <- function(slopes_df,
                           conc_col,
                           datetime_col,
                           y_text_position) {
-  param_df <- flux_param_exp(slopes_df, {{conc_col}})
+
+  kappamax <- attributes(slopes_df)$kappamax
+
+  if (is.null(kappamax)) {
+    kappamax <- FALSE
+  }
+
+  if (kappamax == TRUE) {
+    param_df <- flux_param_kappamax(slopes_df, {{conc_col}})
+  }
+
+  if (kappamax == FALSE) {
+    param_df <- flux_param_exp(slopes_df, {{conc_col}})
+  }
 
   slopes_df <- flux_plot_flag(slopes_df, param_df)
 
   slopes_df <- slopes_df |>
     pivot_longer(
-      cols = c("f_fit", "f_fit_slope"),
+      cols = c("f_fit", "f_fit_slope", "f_fit_lm"),
       names_to = "linetype",
       values_to = "f_fit"
     )

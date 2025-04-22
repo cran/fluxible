@@ -24,7 +24,7 @@ flux_plot_lin <- function(slopes_df,
 
   slopes_df <- slopes_df |>
     mutate(
-      linetype = "f_fit"
+      linetype = "f_fit_slope"
     )
 
   plot_lin <- slopes_df |>

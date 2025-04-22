@@ -36,7 +36,7 @@ flux, type and datetime columns; \code{all} keeps all the columns;
 can also be a vector of column names.}
 }
 \value{
-a dataframe with GEP as \code{NEE - ER} in long format with GEP, NEE, and
+a dataframe with $GEP = NEE - ER$ in long format with GEP, NEE, and
 ER as flux type, datetime, and any column specified in \code{cols_keep}.
 Values of datetime and columns in \code{cols_keep} for GEP row are taken from
 NEE measurements.
@@ -45,6 +45,8 @@ NEE measurements.
 to calculate gross ecosystem production (GEP) from net ecosystem
 (NEE) exchange and ecosystem respiration (ER) as GEP = NEE - ER.
 Datetime and other variables to keep will be taken from the NEE measurement.
+Fluxes presents in the dataset that are neither NEE nor ER
+(soilR, LRC or other) are not lost.
 }
 \examples{
 data(co2_fluxes)

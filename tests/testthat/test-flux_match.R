@@ -8,7 +8,7 @@ test_that("matching works", {
     startcrop = 10,
     measurement_length = 180
   ) |>
-    dplyr::select(datetime, f_fluxid, f_n_conc, f_ratio, f_flag_match) |>
+    dplyr::select(f_fluxid, f_n_conc, f_ratio, f_flag_match, f_length) |>
     dplyr::distinct()
   )
 })
@@ -229,5 +229,30 @@ test_that("error on time_diff", {
       time_diff = "comment est votre blanquette?"
     ),
     "Please correct the arguments"
+  )
+})
+
+test_that("matching works with end col", {
+
+  record_short_end <- record_short |>
+    dplyr::mutate(
+      end = dplyr::case_when(
+        type == "ER" ~ start + 120,
+        type == "NEE" ~ start + 180
+      )
+    )
+
+  expect_snapshot(flux_match(
+    co2_df_short,
+    record_short_end,
+    datetime,
+    start,
+    conc,
+    end,
+    startcrop = 10,
+    fixed_length = FALSE
+  ) |>
+    dplyr::select(f_fluxid, f_ratio, f_flag_match, f_length) |>
+    dplyr::distinct()
   )
 })

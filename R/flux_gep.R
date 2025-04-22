@@ -2,6 +2,8 @@
 #' @description to calculate gross ecosystem production (GEP) from net ecosystem
 #' (NEE) exchange and ecosystem respiration (ER) as GEP = NEE - ER.
 #' Datetime and other variables to keep will be taken from the NEE measurement.
+#' Fluxes presents in the dataset that are neither NEE nor ER
+#' (soilR, LRC or other) are not lost.
 #' @param fluxes_df a dataframe containing NEE and ER
 #' @param id_cols columns used to identify each pair of ER and NEE
 #' @param f_flux column containing flux values
@@ -13,7 +15,7 @@
 #' be filled in GEP row. `none` (default) keeps only the columns in `id_cols`,
 #' flux, type and datetime columns; `all` keeps all the columns;
 #' can also be a vector of column names.
-#' @return a dataframe with GEP as `NEE - ER` in long format with GEP, NEE, and
+#' @return a dataframe with $GEP = NEE - ER$ in long format with GEP, NEE, and
 #' ER as flux type, datetime, and any column specified in `cols_keep`.
 #' Values of datetime and columns in `cols_keep` for GEP row are taken from
 #' NEE measurements.
@@ -57,7 +59,6 @@ flux_gep <- function(fluxes_df,
       select(!c(
         all_of(id_cols),
         {{type_col}},
-        {{type_col}},
         {{f_flux}},
         {{datetime_col}}
       )) |>
@@ -71,7 +72,7 @@ flux_gep <- function(fluxes_df,
 
   fluxes_df <- fluxes_df |>
     mutate(
-      id = dplyr::cur_group_id(),
+      id = cur_group_id(),
       .by = all_of(id_cols)
     )
 
@@ -79,7 +80,6 @@ flux_gep <- function(fluxes_df,
     select(
       "id",
       all_of(c(cols_keep, id_cols)),
-      {{type_col}},
       {{type_col}},
       {{f_flux}},
       {{datetime_col}}
@@ -93,12 +93,24 @@ flux_gep <- function(fluxes_df,
       "id",
       all_of(c(cols_keep, id_cols)),
       {{type_col}},
-      {{type_col}},
       {{f_flux}},
       {{datetime_col}}
     ) |>
     filter(
       {{type_col}} == er_arg
+    )
+
+  other_df <- fluxes_df |>
+    select(
+      "id",
+      all_of(c(cols_keep, id_cols)),
+      {{type_col}},
+      {{f_flux}},
+      {{datetime_col}}
+    ) |>
+    filter(
+      {{type_col}} != er_arg
+      & {{type_col}} != nee_arg
     )
 
   fluxes_gep <- fluxes_df |>
@@ -172,10 +184,11 @@ flux_gep <- function(fluxes_df,
     fill(all_of(c(cols_keep, id_cols)), .direction = "updown") |>
     ungroup() |>
     bind_rows(er_df) |>
+    bind_rows(other_df) |>
     select(!"id") |>
     arrange({{datetime_col}})
 
-  f_warnings <- stringr::str_c(nee_missing)
+  f_warnings <- str_c(nee_missing)
 
 
   if (any(!is.na(nee_missing))) warning(f_warnings)

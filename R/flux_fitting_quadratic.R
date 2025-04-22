@@ -1,16 +1,12 @@
 #' quadratic fit to gas concentration over time
 #' @description fits a quadratic model to the gas concentration over time
 #' @param conc_df dataframe of gas concentration over time
+#' @param conc_df_cut dataframe of gas concentration over time, cut
 #' @param conc_col column with gas concentration
-#' @param datetime_col column with datetime of each concentration measurement
-#' Note that if there are duplicated datetime in the same f_fluxid only
-#' the first row will be kept
 #' @param f_start column with datetime when the measurement started
-#' @param f_end column with datetime when the measurement ended
 #' @param f_fluxid column with ID of each flux
 #' @param start_cut time to discard at the start of the measurements
 #' (in seconds)
-#' @param end_cut time to discard at the end of the measurements (in seconds)
 #' @param t_zero time at which the slope should be calculated
 #' @return a df with the modeled gas concentration, slope, intercept,
 #' std error, r square and p value of the quadratic model
@@ -20,16 +16,15 @@
 #' @importFrom tidyr drop_na pivot_wider fill
 #' @importFrom haven as_factor
 #' @importFrom stringr str_c
+#' @importFrom broom glance
 
 
-flux_fitting_quadratic <- function(conc_df,
+flux_fitting_quadratic <- function(conc_df_cut,
+                                   conc_df,
                                    conc_col,
-                                   datetime_col,
                                    f_start,
-                                   f_end,
                                    f_fluxid,
                                    start_cut,
-                                   end_cut,
                                    t_zero) {
   args_ok <- flux_fun_check(list(
     t_zero = t_zero
@@ -44,42 +39,10 @@ flux_fitting_quadratic <- function(conc_df,
 
   name_conc <- names(select(conc_df, {{conc_col}}))
 
-  conc_df <- conc_df |>
-    mutate(
-      f_time = difftime({{datetime_col}}[seq_along({{datetime_col}})],
-        {{datetime_col}}[1],
-        units = "secs"
-      ),
-      f_time = as.double(.data$f_time),
-      {{f_start}} := {{f_start}} + start_cut,
-      {{f_end}} := {{f_end}} - end_cut,
-      f_cut = case_when(
-        {{datetime_col}} < {{f_start}} | {{datetime_col}} >= {{f_end}}
-        ~ "cut",
-        TRUE ~ "keep"
-      ),
-      f_cut = as_factor(.data$f_cut),
-      f_n_conc = sum(!is.na(.data[[name_conc]])),
-      .by = {{f_fluxid}}
-    )
 
-  conc_df_cut <- conc_df |>
-    filter(
-      .data$f_cut == "keep"
-    ) |>
-    drop_na({{conc_col}}) |>
+  conc_df_cut <- conc_df_cut |>
     mutate(
-      f_time_cut = difftime({{datetime_col}}[seq_along({{datetime_col}})],
-        {{datetime_col}}[1],
-        units = "secs"
-      ),
-      f_time_cut = as.double(.data$f_time_cut),
-      f_time_cut2 = (.data$f_time_cut)^2,
-      length_window = max(.data$f_time_cut),
-      length_flux = difftime({{f_end}}, {{f_start}}, units = "sec"),
-      time_diff = .data$f_time - .data$f_time_cut,
-      f_n_conc_cut = sum(!is.na(.data[[name_conc]])),
-      .by = {{f_fluxid}}
+      f_time_cut2 = (.data$f_time_cut)^2
     )
 
   fitting_par <- conc_df_cut |>
@@ -89,8 +52,8 @@ flux_fitting_quadratic <- function(conc_df,
       model =
         map(.x = data,
             \(.x) lm(.x[[name_conc]] ~ f_time_cut + f_time_cut2, data = .x)),
-      tidy = map(.data$model, broom::tidy),
-      glance = map(.data$model, broom::glance)
+      tidy = map(.data$model, tidy),
+      glance = map(.data$model, glance)
     ) |>
     select(!c("data", "model")) |>
     unnest("tidy") |>
@@ -112,7 +75,7 @@ flux_fitting_quadratic <- function(conc_df,
     ungroup()
 
   conc_fitting <- conc_df |>
-    left_join(fitting_par, by = dplyr::join_by({{f_fluxid}})) |>
+    left_join(fitting_par, by = join_by({{f_fluxid}})) |>
     mutate(
       f_slope = .data$f_param1 + 2 * .data$f_param2 * t_zero,
       f_fit =
@@ -128,40 +91,6 @@ flux_fitting_quadratic <- function(conc_df,
         * (.data$f_time - start_cut),
       f_start_z = {{f_start}} + t_zero
     )
-
-  warning_msg <- conc_df |>
-    left_join(conc_df_cut,
-      by = dplyr::join_by(
-        {{datetime_col}} == {{datetime_col}},
-        {{f_fluxid}} == {{f_fluxid}},
-        "f_n_conc" == "f_n_conc"
-      )
-    ) |>
-    select({{f_fluxid}}, "f_n_conc", "f_n_conc_cut", "length_flux") |>
-    distinct() |>
-    mutate(
-      low_data = paste(
-        "\n", "fluxID", {{f_fluxid}}, ": slope was estimated on",
-        .data$f_n_conc_cut, "points out of", .data$length_flux,
-        "seconds"
-      ),
-      no_data = paste(
-        "\n", "fluxID", {{f_fluxid}},
-        "dropped (no data in the conc column)"
-      ),
-      warnings = case_when(
-        .data$f_n_conc == 0 ~ .data$no_data,
-        .data$f_n_conc_cut != .data$length_flux ~ .data$low_data
-      ),
-      warnings = as.character(.data$warnings)
-    ) |>
-    drop_na(warnings) |>
-    pull(.data$warnings)
-
-  warnings <- str_c(warning_msg)
-
-  if (any(!is.na(warnings))) warning(warnings)
-
 
   conc_fitting
 }

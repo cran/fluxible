@@ -167,3 +167,37 @@ test_that("cols keep takes values from NEE", {
       select(turfID, type, test_keep)
   )
 })
+
+test_that("GEP calculation works with several id cols, and extra fluxes", {
+  campaign <- c(1, 1, 2, 2, 3, 4)
+  turfid <- c("A", "A", "A", "A", "B", "A")
+  type <- c("NEE", "ER", "NEE", "ER", "soilR", "soilR")
+  flux <- c(3, 5, 2, 7, 3, 6)
+  datetime <- c(
+    "2024-02-11 10:00:00",
+    "2024-02-11 10:00:10",
+    "2024-02-11 10:00:20",
+    "2024-02-11 10:00:30",
+    "2024-02-12 08:00:10",
+    "2024-02-12 09:00:15"
+  )
+  par <- c(300, 2, 250, 5, 100, 140)
+
+  fluxes <- tibble(
+    campaign,
+    turfid,
+    type,
+    flux,
+    datetime,
+    par
+  )
+
+  expect_snapshot(
+    flux_gep(fluxes,
+      type,
+      datetime,
+      flux,
+      id_cols = c("turfid", "campaign")
+    )
+  )
+})

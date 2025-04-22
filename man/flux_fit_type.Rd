@@ -7,7 +7,8 @@
 flux_fit_type(
   df,
   fit_type = c(),
-  fit_type_list = c("exponential", "linear", "quadratic")
+  fit_type_list = c("exp_hm", "exp_tz", "exp_zhao18", "exponential", "linear",
+    "quadratic")
 )
 }
 \arguments{
