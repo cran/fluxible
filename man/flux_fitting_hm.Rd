@@ -9,7 +9,7 @@ time, using the HM model
 flux_fitting_hm(
   conc_df_cut,
   conc_df,
-  conc_col,
+  f_conc,
   f_start,
   f_fluxid,
   start_cut,
@@ -24,7 +24,7 @@ flux_fitting_hm(
 
 \item{conc_df}{dataframe of gas concentration over time}
 
-\item{conc_col}{column with gas concentration}
+\item{f_conc}{column with gas concentration}
 
 \item{f_start}{column with datetime when the measurement started}
 

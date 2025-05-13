@@ -4,7 +4,7 @@
 #' flux_quality_lm is for the model of the lm family.
 #' flux_quality_exp is for the exponential model.
 #' @param slopes_df dataset containing slopes, fluxID, p.value and r.squared
-#' @param conc_col column with gas concentration
+#' @param f_conc column with gas concentration
 #' @param f_fluxid column of ID for each measurement
 #' @param f_slope column containing the slope of each flux
 #' (as calculated by the flux_fitting function)
@@ -29,7 +29,7 @@
 
 
 flux_quality_lm <- function(slopes_df,
-                            conc_col,
+                            f_conc,
                             f_fluxid,
                             f_slope,
                             f_cut,

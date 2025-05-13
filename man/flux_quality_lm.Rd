@@ -6,7 +6,7 @@
 \usage{
 flux_quality_lm(
   slopes_df,
-  conc_col,
+  f_conc,
   f_fluxid,
   f_slope,
   f_cut,
@@ -23,7 +23,7 @@ flux_quality_lm(
 \arguments{
 \item{slopes_df}{dataset containing slopes, fluxID, p.value and r.squared}
 
-\item{conc_col}{column with gas concentration}
+\item{f_conc}{column with gas concentration}
 
 \item{f_fluxid}{column of ID for each measurement}
 

@@ -1,17 +1,18 @@
-#' calculates ecosystem gas fluxes
-#' @description calculates a flux based on the rate of change
+#' Calculates ecosystem gas fluxes
+#' @description Calculates a flux based on the rate of change
 #' of gas concentration over time
 #' @param slopes_df dataframe of flux slopes
 #' @param slope_col column containing the slope to calculate the flux
-#' (in \eqn{ppm * s^{-1}} or \eqn{ppb * s^{-1}})
-#' @param datetime_col column containing the datetime of each gas concentration
+#' @param f_datetime column containing the datetime of each gas concentration
 #' measurements in `slopes_df`. The first one after cutting will be kept as
 #' datetime of each flux in the output.
 #' @param conc_unit unit in which the concentration of gas was measured
 #' `ppm` or `ppb`
-#' @param flux_unit unit in which the calculated flux will be
-#' `mmol` outputs fluxes in \eqn{mmol * m^{-2} * h^{-1}};
-#' `micromol` outputs fluxes in \eqn{micromol * m^{-2}*h^{-1}}
+#' @param flux_unit unit in which the calculated flux will be:
+#' `mmol` outputs fluxes in
+#' \ifelse{html}{\out{mmol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{mmol*m^{-2}*h^{-1}}{ASCII}}
+#' ; `micromol` outputs fluxes in
+#' \ifelse{html}{\out{micromol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{micromol*m^{-2}*h^{-1}}{ASCII}}
 #' @param f_cut column containing cutting information
 #' @param keep_arg name in `f_cut` of data to keep
 #' @param chamber_volume volume of the flux chamber in L,
@@ -44,7 +45,10 @@
 #' \link[fluxible:flux_fitting]{flux_fitting}. Will be automatically filled if
 #' `slopes_df` was produced using \link[fluxible:flux_fitting]{flux_fitting}.
 #' @return a dataframe containing flux IDs, datetime of measurements' starts,
-#' fluxes in \eqn{mmol*m^{-2}*h^{-1}} or \eqn{micromol*m^{-2}*h^{-1}}
+#' fluxes in
+#' \ifelse{html}{\out{mmol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{mmol*m^{-2}*h^{-1}}{ASCII}}
+#' or
+#' \ifelse{html}{\out{micromol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{micromol*m^{-2}*h^{-1}}{ASCII}}
 #' (`f_flux`) according to `flux_unit`, temperature average for each flux in
 #' Kelvin (`f_temp_ave`), the total volume of the setup for each measurement
 #' (`f_volume_setup`), the model used in
@@ -75,7 +79,7 @@
 
 flux_calc <- function(slopes_df,
                       slope_col,
-                      datetime_col,
+                      f_datetime = f_datetime,
                       temp_air_col,
                       chamber_volume,
                       atm_pressure,
@@ -109,7 +113,7 @@ flux_calc <- function(slopes_df,
     select(
       {{slope_col}},
       {{temp_air_col}},
-      {{datetime_col}}
+      {{f_datetime}}
     )
 
   df_ok <- flux_fun_check(slopes_df_check,
@@ -181,13 +185,13 @@ flux_calc <- function(slopes_df,
     select(
       {{f_fluxid}},
       {{temp_air_col}},
-      {{datetime_col}},
+      {{f_datetime}},
       {{slope_col}},
       any_of(c(name_vol, name_atm, name_plot))
     ) |>
     summarise(
       f_temp_air_ave = mean({{temp_air_col}}, na.rm = TRUE),
-      {{datetime_col}} := min({{datetime_col}}),
+      {{f_datetime}} := min({{f_datetime}}),
       .by = c(
         {{f_fluxid}}, {{slope_col}}, any_of(c(name_vol, name_atm, name_plot))
       )

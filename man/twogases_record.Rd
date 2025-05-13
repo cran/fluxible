@@ -3,7 +3,7 @@
 \docType{data}
 \name{twogases_record}
 \alias{twogases_record}
-\title{Field record}
+\title{Two gases field record}
 \format{
 A tibble with 12 rows and 1 variable
 \describe{
@@ -14,7 +14,7 @@ A tibble with 12 rows and 1 variable
 twogases_record
 }
 \description{
-Field record
+Two gases field record
 }
 \examples{
 twogases_record

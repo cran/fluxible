@@ -1,6 +1,6 @@
-#' assessing quality of slopes calculated with
-#' \link[fluxible:flux_fitting]{flux_fitting}
-#' @description indicates if slopes should be discarded or replaced
+#' Assessing the quality of the fits
+#' @description Indicates if the slopes provided by
+#' \link[fluxible:flux_fitting]{flux_fitting} should be discarded or replaced
 #' by 0 according to quality thresholds set by user
 #' @param slopes_df dataset containing slopes
 #' @param fit_type model fitted to the data, linear, quadratic or exponential.
@@ -38,7 +38,7 @@
 #' @param rsquared_threshold threshold of r squared value below which
 #' the linear model is considered an unsatisfactory fit
 #' (linear and quadratic fits)
-#' @param conc_col column containing the measured gas concentration
+#' @param f_conc column containing the measured gas concentration
 #' (exponential fits)
 #' @param f_b column containing the b parameter of the exponential expression
 #' (exponential fits)
@@ -67,8 +67,9 @@
 #' gas concentration
 #' @param f_fit_lm column with the fit of the linear model.
 #' (as calculated by the \link[fluxible:flux_fitting]{flux_fitting} function)
-#' @details the kappamax method (Hüppi et al., 2018) selects the linear slope
-#' if \eqn{|b| > kappamax}, with \eqn{kappamax = |f_slope_lm / instr_error|}.
+#' @details the kappamax method (Hüppi et al., 2018) selects the linear slope if
+#' \ifelse{html}{\out{|b| > kappamax}}{\eqn{|b| > kappamax}{ASCII}}, with
+#' \ifelse{html}{\out{kappamax = |f_slope_lm / instr_error|}}{\eqn{kappamax = |f_slope_lm / instr_error|}{ASCII}}.
 #' The original kappamax method was applied to the HMR model
 #' (Pedersen et al., 2010; Hutchinson and Mosier, 1981), but here it can be
 #' applied to any exponential fit.
@@ -89,7 +90,6 @@
 #' It will also print a summary of the quality flags. This summary can also
 #' be exported as a dataframe using
 #' \link[fluxible:flux_flag_count]{flux_flag_count}
-#' @seealso \link[gasfluxes:selectfluxes]{selectfluxes}
 #' @importFrom dplyr mutate case_when group_by rowwise summarise ungroup
 #' @importFrom tidyr nest unnest
 #' @importFrom stats cor
@@ -102,7 +102,7 @@
 #' @export
 
 flux_quality <- function(slopes_df,
-                         conc_col,
+                         f_conc = f_conc,
                          f_fluxid = f_fluxid,
                          f_slope = f_slope,
                          f_time = f_time,
@@ -147,7 +147,7 @@ flux_quality <- function(slopes_df,
   slopes_df_check <- slopes_df |>
     select(
       {{f_slope}},
-      {{conc_col}},
+      {{f_conc}},
       {{f_fit}},
       {{f_time}}
     )
@@ -184,7 +184,7 @@ flux_quality <- function(slopes_df,
   }
 
 
-  name_conc <- names(select(slopes_df, {{conc_col}}))
+  name_conc <- names(select(slopes_df, {{f_conc}}))
 
 
   slopes_df <- slopes_df |>
@@ -245,7 +245,7 @@ flux_quality <- function(slopes_df,
     if (nrow(quality_flag_lm) > 0) {
       quality_flag_lm <- flux_quality_lm(
         slopes_df = quality_flag_lm,
-        conc_col = {{conc_col}},
+        f_conc = {{f_conc}},
         f_fluxid = {{f_fluxid}},
         f_slope = {{f_slope}},
         f_cut = {{f_cut}},
@@ -263,7 +263,7 @@ flux_quality <- function(slopes_df,
     if (nrow(quality_flag_exp) > 0) {
       quality_flag_exp <- flux_quality_exp(
         quality_flag_exp,
-        {{conc_col}},
+        {{f_conc}},
         {{f_fluxid}},
         {{f_slope}},
         {{f_time}},
@@ -290,7 +290,7 @@ flux_quality <- function(slopes_df,
   if (str_detect(fit_type, "exp") && kappamax == FALSE) {
     quality_flag <- flux_quality_exp(
       slopes_df,
-      {{conc_col}},
+      {{f_conc}},
       {{f_fluxid}},
       {{f_slope}},
       {{f_time}},
@@ -312,7 +312,7 @@ flux_quality <- function(slopes_df,
 
   if (fit_type == "quadratic" && kappamax == FALSE) {
     quality_flag <- flux_quality_qua(slopes_df,
-      {{conc_col}},
+      {{f_conc}},
       {{f_fluxid}},
       {{f_slope}},
       {{f_cut}},
@@ -333,7 +333,7 @@ flux_quality <- function(slopes_df,
 
   if (fit_type == "linear") {
     quality_flag <- flux_quality_lm(slopes_df,
-      {{conc_col}},
+      {{f_conc}},
       {{f_fluxid}},
       {{f_slope}},
       {{f_cut}},

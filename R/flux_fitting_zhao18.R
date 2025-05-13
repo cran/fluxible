@@ -7,7 +7,7 @@
 #' @description Fits an exponential expression to the concentration evolution
 #' @param conc_df dataframe of gas concentration over time
 #' @param conc_df_cut dataframe of gas concentration over time, cut
-#' @param conc_col column with gas concentration
+#' @param f_conc column with gas concentration
 #' @param f_start column with datetime when the measurement started
 #' @param f_fluxid column with ID of each flux
 #' @param start_cut time to discard at the start of the measurements
@@ -35,7 +35,7 @@
 
 flux_fitting_zhao18 <- function(conc_df_cut,
                                 conc_df,
-                                conc_col,
+                                f_conc,
                                 f_start,
                                 f_fluxid,
                                 start_cut,
@@ -64,7 +64,7 @@ flux_fitting_zhao18 <- function(conc_df_cut,
 
   message("Cutting measurements...")
 
-  name_conc <- names(select(conc_df, {{conc_col}}))
+  name_conc <- names(select(conc_df, {{f_conc}}))
 
 
   message("Estimating starting parameters for optimization...")
@@ -73,22 +73,22 @@ flux_fitting_zhao18 <- function(conc_df_cut,
 
   cm_temp_min <- conc_df_cut |>
     group_by({{f_fluxid}}) |>
-    select({{f_fluxid}}, {{conc_col}}, "f_time_cut") |>
+    select({{f_fluxid}}, {{f_conc}}, "f_time_cut") |>
     distinct(.data[[name_conc]], .keep_all = TRUE) |>
     slice(which.min(.data[[name_conc]])) |>
     rename(
-      Cmin = {{conc_col}},
+      Cmin = {{f_conc}},
       tmin = "f_time_cut"
     ) |>
     ungroup()
 
   cm_temp_max <- conc_df_cut |>
     group_by({{f_fluxid}}) |>
-    select({{f_fluxid}}, {{conc_col}}, "f_time_cut") |>
+    select({{f_fluxid}}, {{f_conc}}, "f_time_cut") |>
     distinct(.data[[name_conc]], .keep_all = TRUE) |>
     slice(which.max(.data[[name_conc]])) |>
     rename(
-      Cmax = {{conc_col}},
+      Cmax = {{f_conc}},
       tmax = "f_time_cut"
     ) |>
     ungroup()
@@ -181,7 +181,7 @@ flux_fitting_zhao18 <- function(conc_df_cut,
     ) |>
     distinct(.data$diff, .keep_all = TRUE) |>
     slice(which.min(abs(.data$diff))) |>
-    rename(f_Cb = {{conc_col}}) |>
+    rename(f_Cb = {{f_conc}}) |>
     select({{f_fluxid}}, "f_Cb") |>
     ungroup()
 
@@ -193,7 +193,7 @@ flux_fitting_zhao18 <- function(conc_df_cut,
     ) |>
     distinct(.data$ta_diff, .keep_all = TRUE) |>
     slice(which.min(abs(.data$ta_diff))) |>
-    rename(Ca = {{conc_col}}) |>
+    rename(Ca = {{f_conc}}) |>
     select({{f_fluxid}}, "ta", "Ca") |>
     ungroup()
 
@@ -244,7 +244,7 @@ flux_fitting_zhao18 <- function(conc_df_cut,
     left_join(estimates_df, by = join_by({{f_fluxid}})) |>
     select(
       {{f_fluxid}}, "f_Cm_est", "f_a_est", "f_b_est", "f_tz_est",
-      "f_Cz", "f_time_cut", {{conc_col}}
+      "f_Cz", "f_time_cut", {{f_conc}}
     ) |>
     group_by(
       {{f_fluxid}}, .data$f_Cm_est, .data$f_a_est, .data$f_b_est,

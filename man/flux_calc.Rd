@@ -2,12 +2,12 @@
 % Please edit documentation in R/flux_calc.R
 \name{flux_calc}
 \alias{flux_calc}
-\title{calculates ecosystem gas fluxes}
+\title{Calculates ecosystem gas fluxes}
 \usage{
 flux_calc(
   slopes_df,
   slope_col,
-  datetime_col,
+  f_datetime = f_datetime,
   temp_air_col,
   chamber_volume,
   atm_pressure,
@@ -30,10 +30,9 @@ flux_calc(
 \arguments{
 \item{slopes_df}{dataframe of flux slopes}
 
-\item{slope_col}{column containing the slope to calculate the flux
-(in \eqn{ppm * s^{-1}} or \eqn{ppb * s^{-1}})}
+\item{slope_col}{column containing the slope to calculate the flux}
 
-\item{datetime_col}{column containing the datetime of each gas concentration
+\item{f_datetime}{column containing the datetime of each gas concentration
 measurements in \code{slopes_df}. The first one after cutting will be kept as
 datetime of each flux in the output.}
 
@@ -54,9 +53,11 @@ can also be a column in case it is a variable}
 \item{conc_unit}{unit in which the concentration of gas was measured
 \code{ppm} or \code{ppb}}
 
-\item{flux_unit}{unit in which the calculated flux will be
-\code{mmol} outputs fluxes in \eqn{mmol * m^{-2} * h^{-1}};
-\code{micromol} outputs fluxes in \eqn{micromol * m^{-2}*h^{-1}}}
+\item{flux_unit}{unit in which the calculated flux will be:
+\code{mmol} outputs fluxes in
+\ifelse{html}{\out{mmol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{mmol*m^{-2}*h^{-1}}{ASCII}}
+; \code{micromol} outputs fluxes in
+\ifelse{html}{\out{micromol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{micromol*m^{-2}*h^{-1}}{ASCII}}}
 
 \item{cols_keep}{columns to keep from the input to the output.
 Those columns need to have unique values for each flux,
@@ -92,7 +93,10 @@ but it will influence the values of the columns in \code{cols_ave}.}
 }
 \value{
 a dataframe containing flux IDs, datetime of measurements' starts,
-fluxes in \eqn{mmol*m^{-2}*h^{-1}} or \eqn{micromol*m^{-2}*h^{-1}}
+fluxes in
+\ifelse{html}{\out{mmol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{mmol*m^{-2}*h^{-1}}{ASCII}}
+or
+\ifelse{html}{\out{micromol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{micromol*m^{-2}*h^{-1}}{ASCII}}
 (\code{f_flux}) according to \code{flux_unit}, temperature average for each flux in
 Kelvin (\code{f_temp_ave}), the total volume of the setup for each measurement
 (\code{f_volume_setup}), the model used in
@@ -101,7 +105,7 @@ Kelvin (\code{f_temp_ave}), the total volume of the setup for each measurement
 their value averaged over the measurement after cuts and discarding NA.
 }
 \description{
-calculates a flux based on the rate of change
+Calculates a flux based on the rate of change
 of gas concentration over time
 }
 \examples{

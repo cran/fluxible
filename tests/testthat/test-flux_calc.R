@@ -437,9 +437,9 @@ test_that("Stupeflux returns the same as step by step workflow", {
     stupeflux(
       raw_conc = co2_df_short,
       field_record = record_short,
-      datetime_col = datetime,
+      f_datetime = datetime,
       start_col = start,
-      conc_col = conc,
+      f_conc = conc,
       startcrop = 10,
       measurement_length = 180,
       fit_type = "exp_zhao18",
@@ -460,9 +460,9 @@ test_that("Stupeflux works with slope_correction = FALSE", {
     stupeflux(
       raw_conc = co2_df_short,
       field_record = record_short,
-      datetime_col = datetime,
+      f_datetime = datetime,
       start_col = start,
-      conc_col = conc,
+      f_conc = conc,
       startcrop = 10,
       measurement_length = 180,
       fit_type = "exp_zhao18",

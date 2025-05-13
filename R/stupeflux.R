@@ -17,23 +17,21 @@
 #' @param time_diff time difference (in seconds) between the two datasets.
 #' Will be added to the datetime column of the raw_conc dataset.
 #' For situations where the time was not synchronized correctly.
-#' @param datetime_col datetime column in raw_conc (dmy_hms format)
-#' @param conc_col concentration column in raw_conc
+#' @param f_datetime datetime column in raw_conc (dmy_hms format)
+#' @param f_conc concentration column in raw_conc
 #' @param start_col start column in field_record (dmy_hms format)
 #' @param end_col end columne in field_record (`ymd_hms` format)
 #' @param fixed_length if `TRUE` (default), the `measurement_length` is used to
 #' create the end column. If `FALSE`, `end_col` has to be provided.
-#' @param fit_type `exp_zhao18`, `exp_tz`, `quadratic` or `linear.`
+#' @param fit_type `exp_zhao18`, `exp_tz`, `exp_hm`, `quadratic` or `linear.`
 #' `exp_zhao18` is using the exponential model
-#' `C(t) = C_m + a (t - t_z) + (C_z - C_m) exp(-b (t - t_z))`
+#' \ifelse{html}{\out{C(t) = C_m + a (t - t_z) + (C_z - C_m) exp(-b (t - t_z))}}{\eqn{C(t) = C_m + a (t - t_z) + (C_z - C_m) \exp(-b (t - t_z))}{ASCII}}
 #' from Zhao et al (2018).
 #' `expt_tz` is a modified version which allows the user to fix `t_zero`:
-#' `C(t) = C_m + a * t + (C_z - C_m) exp(-b * t)`.
-#' @references Zhao, P., Hammerle, A., Zeeman, M., Wohlfahrt, G., 2018.
-#' On the calculation of daytime CO2 fluxes measured by automated closed
-#' transparent chambers. Agricultural and Forest Meteorology 263, 267–275.
-#' https://doi.org/10.1016/j.agrformet.2018.08.022
-#' `exponential` is equal to `exp_zhao18`, for backwards compatibility
+#' \ifelse{html}{\out{C(t) = C_m + a * t + (C_z - C_m) exp(-b * t)}}{\eqn{C(t) = C_m + a * t + (C_z - C_m) \exp(-b * t)}{ASCII}}
+#' `exp_hm` is using the HM model
+#' (Pedersen et al., 2010; Hutchinson and Mosier, 1981)
+#' \ifelse{html}{\out{C(t) = C_m + (C_z - C_m) exp(-b * t)}}{\eqn{C(t) = C_m + (C_z - C_m) \exp(-b * t)}{ASCII}}
 #' @param cz_window window used to calculate Cz, at the beginning of cut window
 #' (exponential fit)
 #' @param b_window window to estimate b. It is an interval after tz where
@@ -78,8 +76,10 @@
 #' @param conc_unit unit in which the concentration of gas was measured
 #' `ppm` or `ppb`
 #' @param flux_unit unit in which the calculated flux will be
-#' `mmol` outputs fluxes in mmol * m^(-2)*h^(-1);
-#' `micromol` outputs fluxes in micromol * m^(-2)*h^(-1)
+#' `mmol` outputs fluxes in
+#' \ifelse{html}{\out{mmol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{mmol*m^{-2}*h^{-1}}{ASCII}};
+#' `micromol` outputs fluxes in
+#' \ifelse{html}{\out{micromol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{micromol*m^{-2}*h^{-1}}{ASCII}}
 #' @param chamber_volume volume of the flux chamber in L,
 #' can also be a column in case it is a variable
 #' @param tube_volume volume of the tubing in L,
@@ -106,21 +106,37 @@
 #' since the slope is provided from \link[fluxible:flux_fitting]{flux_fitting},
 #' but it will influence the values of the columns in `cols_ave`.
 #' @return a dataframe containing flux IDs, datetime of measurements' starts,
-#' fluxes in mmol*m^(-2)*h^(-1) or micromol*m^(-2)*h^(-1) (`f_flux`) according
-#' to `flux_unit`, temperature average for each flux in Kelvin (`f_temp_ave`),
-#' the total volume of the setup for each measurement (`f_volume_setup`),
-#' the model used in \link[fluxible:flux_fitting]{flux_fitting},
-#' any column specified in `cols_keep`, any column specified in `cols_ave` with
+#' fluxes in
+#' \ifelse{html}{\out{mmol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{mmol*m^{-2}*h^{-1}}{ASCII}}
+#' or
+#' \ifelse{html}{\out{micromol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{micromol*m^{-2}*h^{-1}}{ASCII}}
+#' (`f_flux`) according to `flux_unit`, temperature average for each flux in
+#' Kelvin (`f_temp_ave`), the total volume of the setup for each measurement
+#' (`f_volume_setup`), the model used in
+#' \link[fluxible:flux_fitting]{flux_fitting}, any column specified in
+#' `cols_keep`, any column specified in `cols_ave` with
 #' their value averaged over the measurement after cuts and discarding NA.
+#' @references Pedersen, A.R., Petersen, S.O., Schelde, K., 2010.
+#' A comprehensive approach to soil-atmosphere trace-gas flux estimation with
+#' static chambers. European Journal of Soil Science 61, 888–902.
+#' https://doi.org/10.1111/j.1365-2389.2010.01291.x
+#' @references Hutchinson, G.L., Mosier, A.R., 1981. Improved Soil Cover Method
+#' for Field Measurement of Nitrous Oxide Fluxes.
+#' Soil Science Society of America Journal 45, 311–316.
+#' https://doi.org/10.2136/sssaj1981.03615995004500020017x
+#' @references Zhao, P., Hammerle, A., Zeeman, M., Wohlfahrt, G., 2018.
+#' On the calculation of daytime CO2 fluxes measured by automated closed
+#' transparent chambers. Agricultural and Forest Meteorology 263, 267–275.
+#' https://doi.org/10.1016/j.agrformet.2018.08.022
 #' @examples
 #' data(co2_df_short)
 #' data(record_short)
 #' stupeflux(
 #' raw_conc = co2_df_short,
 #' field_record = record_short,
-#' datetime_col = datetime,
+#' f_datetime = datetime,
 #' start_col = start,
-#' conc_col = conc,
+#' f_conc = conc,
 #' startcrop = 10,
 #' measurement_length = 180,
 #' fit_type = "exp_zhao18",
@@ -136,10 +152,10 @@
 
 stupeflux <- function(raw_conc,
                       field_record,
-                      datetime_col,
+                      f_datetime,
                       start_col,
                       end_col,
-                      conc_col,
+                      f_conc,
                       startcrop,
                       measurement_length,
                       fit_type,
@@ -180,9 +196,9 @@ stupeflux <- function(raw_conc,
   conc_df <- flux_match(
     raw_conc,
     field_record,
-    datetime_col = {{datetime_col}},
+    f_datetime = {{f_datetime}},
     start_col = {{start_col}},
-    conc_col = {{conc_col}},
+    f_conc = {{f_conc}},
     end_col = {{end_col}},
     fixed_length = fixed_length,
     startcrop = startcrop,
@@ -193,8 +209,8 @@ stupeflux <- function(raw_conc,
 
   conc_fitting <- flux_fitting(
     conc_df,
-    {{conc_col}},
-    {{datetime_col}},
+    {{f_conc}},
+    {{f_datetime}},
     start_cut = start_cut,
     end_cut = end_cut,
     cz_window = cz_window,
@@ -207,7 +223,7 @@ stupeflux <- function(raw_conc,
 
   quality_flag <- flux_quality(
     conc_fitting,
-    {{conc_col}},
+    {{f_conc}},
     force_discard = force_discard,
     force_ok = force_ok,
     force_zero = force_zero,
@@ -225,7 +241,7 @@ stupeflux <- function(raw_conc,
     fluxes <- with(quality_flag, flux_calc(
       quality_flag,
       slope_col = f_slope_corr,
-      {{datetime_col}},
+      {{f_datetime}},
       {{temp_air_col}},
       chamber_volume = chamber_volume,
       atm_pressure = atm_pressure,
@@ -246,7 +262,7 @@ stupeflux <- function(raw_conc,
     fluxes <- with(quality_flag, flux_calc(
       quality_flag,
       slope_col = f_slope,
-      {{datetime_col}},
+      {{f_datetime}},
       {{temp_air_col}},
       chamber_volume = chamber_volume,
       atm_pressure = atm_pressure,

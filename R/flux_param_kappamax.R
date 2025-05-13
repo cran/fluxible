@@ -4,19 +4,19 @@
 #' flux_param_lm is for fit in the lm family (linear and quadratic)
 #' flux_param_exp is for the exponential fit
 #' @param slopes_df the slopes_df that is being provided to flux_plot
-#' @param conc_col column with gas concentration
+#' @param f_conc column with gas concentration
 #' @importFrom dplyr select group_by mutate ungroup distinct filter
 
 flux_param_kappamax <- function(slopes_df,
-                                conc_col) {
+                                f_conc) {
   param_df <- slopes_df |>
     select(
-      {{conc_col}}, "f_start", "f_fluxid", "f_RMSE", "f_cor_coef", "f_b",
+      {{f_conc}}, "f_start", "f_fluxid", "f_RMSE", "f_cor_coef", "f_b",
       "f_gfactor", "f_cut", "f_quality_flag", "f_model",
       "f_rsquared_lm", "f_pvalue_lm"
     ) |>
     filter(.data$f_cut != "cut") |>
-    select(!{{conc_col}}) |>
+    select(!{{f_conc}}) |>
     distinct() |>
     mutate(
       f_rsquared_lm = round(.data$f_rsquared_lm, digits = 2),

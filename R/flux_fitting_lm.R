@@ -2,7 +2,7 @@
 #' @description fits a linear model to the gas concentration over time
 #' @param conc_df dataframe of gas concentration over time
 #' @param conc_df_cut dataframe of gas concentration over time, cut
-#' @param conc_col column with gas concentration
+#' @param f_conc column with gas concentration
 #' @param f_fluxid column with ID of each flux
 #' @param start_cut time to discard at the start of the measurements
 #' (in seconds)
@@ -19,11 +19,11 @@
 
 flux_fitting_lm <- function(conc_df_cut,
                             conc_df,
-                            conc_col,
+                            f_conc,
                             f_fluxid,
                             start_cut) {
 
-  name_conc <- names(select(conc_df, {{conc_col}}))
+  name_conc <- names(select(conc_df, {{f_conc}}))
 
 
   fitting_par <- conc_df_cut |>

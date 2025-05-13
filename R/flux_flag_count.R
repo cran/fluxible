@@ -1,8 +1,8 @@
-#' counts quality flags
-#' @description provides a table of how many fluxes were attributed
-#' which quality flag.
-#' This function is incorporated in flux_quality (output as a message)
-#' but can be used alone to extract a dataframe with the flag count.
+#' Counts quality flags
+#' @description Provides a table of how many fluxes were attributed
+#' which quality flag. This function is incorporated in
+#' \link[fluxible]{flux_quality} as a message, but can be used alone to extract
+#' a dataframe with the flag count.
 #' @param slopes_df dataframe of flux slopes
 #' @param f_flags list of flags used in the dataset
 #' (if different from default from flux_quality).

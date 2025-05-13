@@ -1,4 +1,4 @@
-#' Field record
+#' Two gases field record
 #'
 #' @format A tibble with 12 rows and 1 variable
 #' \describe{

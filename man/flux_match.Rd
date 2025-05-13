@@ -7,9 +7,9 @@
 flux_match(
   raw_conc,
   field_record,
-  datetime_col,
+  f_datetime,
   start_col,
-  conc_col,
+  f_conc,
   end_col,
   startcrop,
   measurement_length,
@@ -27,11 +27,11 @@ a gas concentration column as double.}
 Has to contain at least a column containing the start of each measurement,
 and any other column identifying the measurements.}
 
-\item{datetime_col}{datetime column in raw_conc (\code{ymd_hms} format)}
+\item{f_datetime}{datetime column in raw_conc (\code{ymd_hms} format)}
 
 \item{start_col}{start column in field_record (\code{ymd_hms} format)}
 
-\item{conc_col}{concentration column in \code{raw_conc}}
+\item{f_conc}{concentration column in \code{raw_conc}}
 
 \item{end_col}{end columne in field_record (\code{ymd_hms} format)}
 

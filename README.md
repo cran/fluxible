@@ -200,11 +200,26 @@ of Bergen, Norway
 
 ## Dissemination
 
+If you are running a course and want to talk about Fluxible, feel free
+to use this [two-slides
+presentation](https://raw.githubusercontent.com/Plant-Functional-Trait-Course/fluxible/refs/heads/main/dissemination/fluxible_jgaudard_short.pdf).
+Of course, you can always reach out if you wish to have more material.
+
+Gaudard, J., Trepel, J., Dawson, H. R., Enquist, B., Halbritter, A. H.,
+Mustri, M., Niittynen, P., Santos-Andrade, P. E., Topper, J. P.,
+Vandvik, V., and Telford, R. J.: Fluxible: an R package to calculate
+ecosystem gas fluxes from closed loop chamber systems in a reproducible
+and automated workflow
+([slides](https://raw.githubusercontent.com/Plant-Functional-Trait-Course/fluxible/refs/heads/main/dissemination/fluxible_jgaudard_EGU25.pdf)),
+EGU General Assembly 2025, Vienna, Austria, 27 Apr–2 May 2025,
+EGU25-12409, <https://doi.org/10.5194/egusphere-egu25-12409>, 2025.
+
 Gaudard, J., Telford, R., Vandvik, V., and Halbritter, A. H.: Fluxible:
 an R package to calculate ecosystem gas fluxes in a reproducible and
-automated workflow., EGU General Assembly 2024, Vienna, Austria, 14–19
-Apr 2024, EGU24-956, <https://doi.org/10.5194/egusphere-egu24-956>,
-2024.
+automated workflow.
+([poster](https://raw.githubusercontent.com/Plant-Functional-Trait-Course/fluxible/refs/heads/main/dissemination/poster_fluxible.pdf)),
+EGU General Assembly 2024, Vienna, Austria, 14–19 Apr 2024, EGU24-956,
+<https://doi.org/10.5194/egusphere-egu24-956>, 2024.
 
 <!-- [Direct link to the poster](https://github.com/Plant-Functional-Trait-Course/fluxible/blob/main/dissemination/poster_EGU24_jgaudard.pdf) -->
 <!-- [Link to the abstract](https://meetingorganizer.copernicus.org/EGU24/EGU24-956.html) -->

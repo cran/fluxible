@@ -7,10 +7,10 @@
 stupeflux(
   raw_conc,
   field_record,
-  datetime_col,
+  f_datetime,
   start_col,
   end_col,
-  conc_col,
+  f_conc,
   startcrop,
   measurement_length,
   fit_type,
@@ -59,13 +59,13 @@ a gas concentration column as double.}
 Has to contain at least a column containing the start of each measurement,
 and any other column identifying the measurements.}
 
-\item{datetime_col}{datetime column in raw_conc (dmy_hms format)}
+\item{f_datetime}{datetime column in raw_conc (dmy_hms format)}
 
 \item{start_col}{start column in field_record (dmy_hms format)}
 
 \item{end_col}{end columne in field_record (\code{ymd_hms} format)}
 
-\item{conc_col}{concentration column in raw_conc}
+\item{f_conc}{concentration column in raw_conc}
 
 \item{startcrop}{how many seconds should be discarded at the beginning of
 the measurement}
@@ -73,12 +73,15 @@ the measurement}
 \item{measurement_length}{length of the measurement (in seconds)
 from the start specified in the field_record}
 
-\item{fit_type}{\code{exp_zhao18}, \code{exp_tz}, \code{quadratic} or \code{linear.}
+\item{fit_type}{\code{exp_zhao18}, \code{exp_tz}, \code{exp_hm}, \code{quadratic} or \code{linear.}
 \code{exp_zhao18} is using the exponential model
-\verb{C(t) = C_m + a (t - t_z) + (C_z - C_m) exp(-b (t - t_z))}
+\ifelse{html}{\out{C(t) = C_m + a (t - t_z) + (C_z - C_m) exp(-b (t - t_z))}}{\eqn{C(t) = C_m + a (t - t_z) + (C_z - C_m) \exp(-b (t - t_z))}{ASCII}}
 from Zhao et al (2018).
 \code{expt_tz} is a modified version which allows the user to fix \code{t_zero}:
-\verb{C(t) = C_m + a * t + (C_z - C_m) exp(-b * t)}.}
+\ifelse{html}{\out{C(t) = C_m + a * t + (C_z - C_m) exp(-b * t)}}{\eqn{C(t) = C_m + a * t + (C_z - C_m) \exp(-b * t)}{ASCII}}
+\code{exp_hm} is using the HM model
+(Pedersen et al., 2010; Hutchinson and Mosier, 1981)
+\ifelse{html}{\out{C(t) = C_m + (C_z - C_m) exp(-b * t)}}{\eqn{C(t) = C_m + (C_z - C_m) \exp(-b * t)}{ASCII}}}
 
 \item{temp_air_col}{column containing the air temperature used
 to calculate fluxes. Will be averaged with NA removed.}
@@ -96,8 +99,10 @@ can also be a column in case it is a variable}
 \code{ppm} or \code{ppb}}
 
 \item{flux_unit}{unit in which the calculated flux will be
-\code{mmol} outputs fluxes in mmol * m^(-2)*h^(-1);
-\code{micromol} outputs fluxes in micromol * m^(-2)*h^(-1)}
+\code{mmol} outputs fluxes in
+\ifelse{html}{\out{mmol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{mmol*m^{-2}*h^{-1}}{ASCII}};
+\code{micromol} outputs fluxes in
+\ifelse{html}{\out{micromol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{micromol*m^{-2}*h^{-1}}{ASCII}}}
 
 \item{fixed_length}{if \code{TRUE} (default), the \code{measurement_length} is used to
 create the end column. If \code{FALSE}, \code{end_col} has to be provided.}
@@ -192,11 +197,15 @@ the slope corrected according to the recommandations of the quality flags.}
 }
 \value{
 a dataframe containing flux IDs, datetime of measurements' starts,
-fluxes in mmol*m^(-2)\emph{h^(-1) or micromol}m^(-2)*h^(-1) (\code{f_flux}) according
-to \code{flux_unit}, temperature average for each flux in Kelvin (\code{f_temp_ave}),
-the total volume of the setup for each measurement (\code{f_volume_setup}),
-the model used in \link[fluxible:flux_fitting]{flux_fitting},
-any column specified in \code{cols_keep}, any column specified in \code{cols_ave} with
+fluxes in
+\ifelse{html}{\out{mmol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{mmol*m^{-2}*h^{-1}}{ASCII}}
+or
+\ifelse{html}{\out{micromol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{micromol*m^{-2}*h^{-1}}{ASCII}}
+(\code{f_flux}) according to \code{flux_unit}, temperature average for each flux in
+Kelvin (\code{f_temp_ave}), the total volume of the setup for each measurement
+(\code{f_volume_setup}), the model used in
+\link[fluxible:flux_fitting]{flux_fitting}, any column specified in
+\code{cols_keep}, any column specified in \code{cols_ave} with
 their value averaged over the measurement after cuts and discarding NA.
 }
 \description{
@@ -209,9 +218,9 @@ data(record_short)
 stupeflux(
 raw_conc = co2_df_short,
 field_record = record_short,
-datetime_col = datetime,
+f_datetime = datetime,
 start_col = start,
-conc_col = conc,
+f_conc = conc,
 startcrop = 10,
 measurement_length = 180,
 fit_type = "exp_zhao18",
@@ -225,9 +234,18 @@ plot_area = 0.0625
 )
 }
 \references{
+Pedersen, A.R., Petersen, S.O., Schelde, K., 2010.
+A comprehensive approach to soil-atmosphere trace-gas flux estimation with
+static chambers. European Journal of Soil Science 61, 888–902.
+https://doi.org/10.1111/j.1365-2389.2010.01291.x
+
+Hutchinson, G.L., Mosier, A.R., 1981. Improved Soil Cover Method
+for Field Measurement of Nitrous Oxide Fluxes.
+Soil Science Society of America Journal 45, 311–316.
+https://doi.org/10.2136/sssaj1981.03615995004500020017x
+
 Zhao, P., Hammerle, A., Zeeman, M., Wohlfahrt, G., 2018.
 On the calculation of daytime CO2 fluxes measured by automated closed
 transparent chambers. Agricultural and Forest Meteorology 263, 267–275.
 https://doi.org/10.1016/j.agrformet.2018.08.022
-\code{exponential} is equal to \code{exp_zhao18}, for backwards compatibility
 }

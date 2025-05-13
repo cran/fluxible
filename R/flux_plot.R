@@ -1,5 +1,5 @@
-#' plotting fluxes for visual evaluation
-#' @description plots the fluxes, fit and slope in facets
+#' Plotting fluxes for visual evaluation
+#' @description Plots the fluxes, fit and slope in facets
 #' with color code indicating quality flags
 #' This function takes time to run and is optional in the workflow,
 #' but it is still highly recommended to use it to visually check
@@ -8,8 +8,8 @@
 #' will work best with datasets produced following a fluxible workflow.
 #' @param slopes_df dataset containing slopes,
 #' with flags produced by \link[fluxible:flux_quality]{flux_quality}
-#' @param conc_col column with gas concentration
-#' @param datetime_col column with datetime of each data point
+#' @param f_conc column with gas concentration
+#' @param f_datetime column with datetime of each data point
 #' @param color_discard color for fits with a discard quality flag
 #' @param color_cut color for the part of the flux that is cut
 #' @param color_ok color for fits with an ok quality flag
@@ -28,7 +28,7 @@
 #' @param output `pdfpages`, the plots are saved as A4 landscape pdf pages;
 #' `ggsave`, the plots can be saved with the ggsave function;
 #' `print_only` (default) prints the plot without creating a file
-#' (independently from 'print_plot' being TRUE or FALSE)
+#' (independently from `print_plot` being TRUE or FALSE)
 #' @param ggsave_args list of arguments for \link[ggplot2:ggsave]{ggsave}
 #' (in case `output = "ggsave"`)
 #' @return plots of fluxes, with raw concentration data points, fit, slope,
@@ -54,8 +54,8 @@
 #' @export
 
 flux_plot <- function(slopes_df,
-                      conc_col,
-                      datetime_col,
+                      f_conc = f_conc,
+                      f_datetime = f_datetime,
                       color_discard = "#D55E00",
                       color_cut = "#D55E00",
                       color_ok = "#009E73",
@@ -114,7 +114,7 @@ flux_plot <- function(slopes_df,
   }
 
   if (
-    max(slopes_df[[deparse(substitute(conc_col))]], na.rm = TRUE) > f_ylim_upper
+    max(slopes_df[[deparse(substitute(f_conc))]], na.rm = TRUE) > f_ylim_upper
   ) {
     message("Some concentration data points will not be displayed
     because f_ylim_upper is too low.")
@@ -126,7 +126,7 @@ flux_plot <- function(slopes_df,
   }
 
   if (
-    min(slopes_df[[deparse(substitute(conc_col))]], na.rm = TRUE) < f_ylim_lower
+    min(slopes_df[[deparse(substitute(f_conc))]], na.rm = TRUE) < f_ylim_lower
   ) {
     message("Some concentration data points will not be displayed
     because f_ylim_lower is too high.")
@@ -165,8 +165,8 @@ flux_plot <- function(slopes_df,
   if (str_detect(fit_type, "exp")) {
     f_plot <- flux_plot_exp(
       slopes_df,
-      {{conc_col}},
-      {{datetime_col}},
+      {{f_conc}},
+      {{f_datetime}},
       y_text_position = y_text_position
     )
   }
@@ -175,8 +175,8 @@ flux_plot <- function(slopes_df,
   if (fit_type == "linear") {
     f_plot <- flux_plot_lin(
       slopes_df,
-      {{conc_col}},
-      {{datetime_col}},
+      {{f_conc}},
+      {{f_datetime}},
       y_text_position = y_text_position
     )
   }
@@ -184,8 +184,8 @@ flux_plot <- function(slopes_df,
   if (fit_type == "quadratic") {
     f_plot <- flux_plot_quadratic(
       slopes_df,
-      {{conc_col}},
-      {{datetime_col}},
+      {{f_conc}},
+      {{f_datetime}},
       y_text_position = y_text_position
     )
   }

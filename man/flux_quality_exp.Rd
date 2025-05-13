@@ -6,7 +6,7 @@
 \usage{
 flux_quality_exp(
   slopes_df,
-  conc_col,
+  f_conc,
   f_fluxid,
   f_slope,
   f_time,
@@ -29,7 +29,7 @@ flux_quality_exp(
 \item{slopes_df}{dataset containing slopes, fluxID,
 and parameters of the exponential expression}
 
-\item{conc_col}{column with gas concentration}
+\item{f_conc}{column with gas concentration}
 
 \item{f_fluxid}{column of ID for each measurement}
 

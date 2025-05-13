@@ -4,14 +4,14 @@
 \alias{flux_fitting_lm}
 \title{linear fit to gas concentration over time}
 \usage{
-flux_fitting_lm(conc_df_cut, conc_df, conc_col, f_fluxid, start_cut)
+flux_fitting_lm(conc_df_cut, conc_df, f_conc, f_fluxid, start_cut)
 }
 \arguments{
 \item{conc_df_cut}{dataframe of gas concentration over time, cut}
 
 \item{conc_df}{dataframe of gas concentration over time}
 
-\item{conc_col}{column with gas concentration}
+\item{f_conc}{column with gas concentration}
 
 \item{f_fluxid}{column with ID of each flux}
 

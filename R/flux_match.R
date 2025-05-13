@@ -19,8 +19,8 @@
 #' @param time_diff time difference (in seconds) between the two datasets.
 #' Will be added to the datetime column of the `raw_conc` dataset.
 #' For situations where the time was not synchronized correctly.
-#' @param datetime_col datetime column in raw_conc (`ymd_hms` format)
-#' @param conc_col concentration column in `raw_conc`
+#' @param f_datetime datetime column in raw_conc (`ymd_hms` format)
+#' @param f_conc concentration column in `raw_conc`
 #' @param start_col start column in field_record (`ymd_hms` format)
 #' @param end_col end columne in field_record (`ymd_hms` format)
 #' @param fixed_length if `TRUE` (default), the `measurement_length` is used to
@@ -44,9 +44,9 @@
 
 flux_match <- function(raw_conc,
                        field_record,
-                       datetime_col,
+                       f_datetime,
                        start_col,
-                       conc_col,
+                       f_conc,
                        end_col,
                        startcrop,
                        measurement_length,
@@ -66,7 +66,7 @@ flux_match <- function(raw_conc,
   msg = rep("has to be numeric", 3))
 
   raw_conc_check <- raw_conc |>
-    select({{datetime_col}}, {{conc_col}})
+    select({{f_datetime}}, {{f_conc}})
 
   field_record_check <- field_record |>
     select({{start_col}})
@@ -125,18 +125,18 @@ flux_match <- function(raw_conc,
 
   raw_conc <- raw_conc |>
     mutate(
-      {{datetime_col}} := {{datetime_col}} + time_diff
+      {{f_datetime}} := {{f_datetime}} + time_diff
     )
 
 
   conc_df <- full_join(
     raw_conc, field_record,
-    by = join_by({{datetime_col}} == "f_start"), keep = TRUE
+    by = join_by({{f_datetime}} == "f_start"), keep = TRUE
   ) |>
     mutate(
-      {{datetime_col}} := coalesce({{datetime_col}}, .data$f_start)
+      {{f_datetime}} := coalesce({{f_datetime}}, .data$f_start)
     ) |>
-    arrange({{datetime_col}}) |>
+    arrange({{f_datetime}}) |>
     fill("f_fluxid") |>
     drop_na("f_fluxid")
 
@@ -144,11 +144,11 @@ flux_match <- function(raw_conc,
     group_by(.data$f_fluxid) |>
     fill(names(field_record)) |>
     filter(
-      ({{datetime_col}} < .data$f_end &
-         {{datetime_col}} >= .data$f_start)
+      ({{f_datetime}} < .data$f_end &
+         {{f_datetime}} >= .data$f_start)
     ) |>
     mutate(
-      f_n_conc = sum(!is.na({{conc_col}})),
+      f_n_conc = sum(!is.na({{f_conc}})),
       f_length = difftime(.data$f_end, .data$f_start, units = "secs"),
       f_length = as.numeric(.data$f_length),
       f_ratio = .data$f_n_conc / .data$f_length,

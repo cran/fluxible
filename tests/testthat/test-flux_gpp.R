@@ -1,6 +1,6 @@
-test_that("GEP calculation", {
+test_that("GPP calculation", {
   expect_snapshot(
-    flux_gep(co2_fluxes,
+    flux_gpp(co2_fluxes,
       type,
       f_start,
       f_flux,
@@ -12,7 +12,7 @@ test_that("GEP calculation", {
 
 test_that("keeping more than one columns", {
   expect_snapshot(
-    flux_gep(co2_fluxes,
+    flux_gpp(co2_fluxes,
       type,
       f_start,
       f_flux,
@@ -23,7 +23,7 @@ test_that("keeping more than one columns", {
 })
 
 
-test_that("GEP calculation works with several id cols", {
+test_that("GPP calculation works with several id cols", {
   campaign <- c(1, 1, 2, 2, 3, 3)
   turfid <- c("A", "A", "A", "A", "B", "B")
   type <- c("NEE", "ER", "NEE", "ER", "NEE", "ER")
@@ -48,7 +48,7 @@ test_that("GEP calculation works with several id cols", {
   )
 
   expect_snapshot(
-    flux_gep(fluxes,
+    flux_gpp(fluxes,
       type,
       datetime,
       flux,
@@ -85,7 +85,7 @@ test_that("missing NEE and several id cols", {
   )
 
   expect_snapshot(
-    flux_gep(fluxes,
+    flux_gpp(fluxes,
       type,
       datetime,
       flux,
@@ -94,6 +94,39 @@ test_that("missing NEE and several id cols", {
   )
 })
 
+test_that("GPP error message for non numeric flux", {
+  campaign <- c(1, 1, 2, 2, 3, 3)
+  turfid <- c("A", "A", "A", "A", "B", "B")
+  type <- c("NEE", "ER", "NEE", "ER", "NEE", "ER")
+  flux <- c(3, "jasdg", 2, "a", 9, 11)
+  datetime <- c(
+    "2024-02-11 10:00:00",
+    "2024-02-11 10:00:10",
+    "2024-02-11 10:00:20",
+    "2024-02-11 10:00:30",
+    "2024-02-11 10:00:40",
+    "2024-02-11 10:00:50"
+  )
+  par <- c(300, 2, 250, 5, 320, 1)
+
+  fluxes <- tibble(
+    campaign,
+    turfid,
+    type,
+    flux,
+    datetime,
+    par
+  )
+
+  expect_error(
+    flux_gpp(fluxes,
+      type,
+      datetime,
+      flux,
+      id_cols = c("turfid", "campaign")
+    )
+  )
+})
 
 test_that("option to keep all the cols", {
   test_df <- co2_fluxes |>
@@ -102,7 +135,7 @@ test_that("option to keep all the cols", {
     )
 
   expect_snapshot(
-    flux_gep(
+    flux_gpp(
       test_df,
       type,
       f_start,
@@ -124,7 +157,7 @@ test_that("cols keep takes values from NEE", {
     )
 
   expect_snapshot(
-    flux_gep(
+    flux_gpp(
       test_df,
       type,
       f_start,
@@ -135,7 +168,7 @@ test_that("cols keep takes values from NEE", {
   )
 })
 
-test_that("GEP calculation works with several id cols, and extra fluxes", {
+test_that("GPP calculation works with several id cols, and extra fluxes", {
   campaign <- c(1, 1, 2, 2, 3, 4)
   turfid <- c("A", "A", "A", "A", "B", "A")
   type <- c("NEE", "ER", "NEE", "ER", "soilR", "soilR")
@@ -160,7 +193,7 @@ test_that("GEP calculation works with several id cols, and extra fluxes", {
   )
 
   expect_snapshot(
-    flux_gep(fluxes,
+    flux_gpp(fluxes,
       type,
       datetime,
       flux,

@@ -5,7 +5,7 @@
 #' flux_quality_exp is for the exponential model.
 #' @param slopes_df dataset containing slopes, fluxID,
 #' and parameters of the exponential expression
-#' @param conc_col column with gas concentration
+#' @param f_conc column with gas concentration
 #' @param f_fluxid column of ID for each measurement
 #' @param f_slope column containing the slope of each flux
 #' (as calculated by the \link[fluxible:flux_fitting]{flux_fitting} function)
@@ -41,7 +41,7 @@
 
 
 flux_quality_exp <- function(slopes_df,
-                             conc_col,
+                             f_conc,
                              f_fluxid,
                              f_slope,
                              f_time,
@@ -84,12 +84,12 @@ flux_quality_exp <- function(slopes_df,
 
 
   quality_par <- slopes_df |>
-    drop_na({{conc_col}}) |>
+    drop_na({{f_conc}}) |>
     group_by({{f_fluxid}}, {{f_cut}}) |>
     summarise(
-      f_cor_coef = cor({{conc_col}}, {{f_time}}),
+      f_cor_coef = cor({{f_conc}}, {{f_time}}),
       f_RMSE =
-        sqrt((1 / length({{f_time}})) * sum(({{f_fit}} - {{conc_col}})^2)),
+        sqrt((1 / length({{f_time}})) * sum(({{f_fit}} - {{f_conc}})^2)),
       .groups = "drop"
     )
 

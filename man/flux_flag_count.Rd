@@ -2,7 +2,7 @@
 % Please edit documentation in R/flux_flag_count.R
 \name{flux_flag_count}
 \alias{flux_flag_count}
-\title{counts quality flags}
+\title{Counts quality flags}
 \usage{
 flux_flag_count(
   slopes_df,
@@ -35,10 +35,10 @@ a dataframe with the number of fluxes for each quality flags
 and their proportion to the total
 }
 \description{
-provides a table of how many fluxes were attributed
-which quality flag.
-This function is incorporated in flux_quality (output as a message)
-but can be used alone to extract a dataframe with the flag count.
+Provides a table of how many fluxes were attributed
+which quality flag. This function is incorporated in
+\link[fluxible]{flux_quality} as a message, but can be used alone to extract
+a dataframe with the flag count.
 }
 \examples{
 data(co2_conc)

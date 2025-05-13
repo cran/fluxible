@@ -1,6 +1,6 @@
-#' Calculates GEP
-#' @description to calculate gross ecosystem production (GEP) from net ecosystem
-#' (NEE) exchange and ecosystem respiration (ER) as GEP = NEE - ER.
+#' Calculates GPP
+#' @description to calculate gross primary production (GPP) from net ecosystem
+#' (NEE) exchange and ecosystem respiration (ER) as GPP = NEE - ER.
 #' Datetime and other variables to keep will be taken from the NEE measurement.
 #' Fluxes presents in the dataset that are neither NEE nor ER
 #' (soilR, LRC or other) are not lost.
@@ -12,12 +12,12 @@
 #' @param nee_arg argument designating NEE fluxes in type column
 #' @param er_arg argument designating ER fluxes in type column
 #' @param cols_keep columns to keep from `fluxes_df`. Values from NEE row will
-#' be filled in GEP row. `none` (default) keeps only the columns in `id_cols`,
+#' be filled in GPP row. `none` (default) keeps only the columns in `id_cols`,
 #' flux, type and datetime columns; `all` keeps all the columns;
 #' can also be a vector of column names.
-#' @return a dataframe with $GEP = NEE - ER$ in long format with GEP, NEE, and
+#' @return a dataframe with $GPP = NEE - ER$ in long format with GPP, NEE, and
 #' ER as flux type, datetime, and any column specified in `cols_keep`.
-#' Values of datetime and columns in `cols_keep` for GEP row are taken from
+#' Values of datetime and columns in `cols_keep` for GPP row are taken from
 #' NEE measurements.
 #' @importFrom dplyr rename select mutate case_when filter full_join
 #' cur_group_id bind_rows
@@ -25,11 +25,11 @@
 #' @importFrom purrrlyr slice_rows unslice
 #' @examples
 #' data(co2_fluxes)
-#' flux_gep(co2_fluxes, type, f_start, id_cols = "turfID",
+#' flux_gpp(co2_fluxes, type, f_start, id_cols = "turfID",
 #' cols_keep = c("temp_soil"))
 #' @export
 
-flux_gep <- function(fluxes_df,
+flux_gpp <- function(fluxes_df,
                      type_col,
                      f_datetime,
                      f_flux = f_flux,
@@ -37,8 +37,6 @@ flux_gep <- function(fluxes_df,
                      nee_arg = "NEE",
                      er_arg = "ER",
                      cols_keep = "none") {
-
-  .Deprecated("flux_gpp")
 
   name <- deparse(substitute(fluxes_df))
 
@@ -115,7 +113,7 @@ flux_gep <- function(fluxes_df,
       & {{type_col}} != nee_arg
     )
 
-  fluxes_gep <- fluxes_df |>
+  fluxes_gpp <- fluxes_df |>
     select(
       {{f_flux}},
       {{type_col}},
@@ -133,7 +131,7 @@ flux_gep <- function(fluxes_df,
         .data$type == "ER"
     )
 
-  fluxes_gep <- fluxes_gep |>
+  fluxes_gpp <- fluxes_gpp |>
     rename(
       f_flux = {{f_flux}},
       f_datetime = {{f_datetime}}
@@ -147,7 +145,7 @@ flux_gep <- function(fluxes_df,
     ) |>
     mutate(
       {{f_flux}} := .data$f_flux_NEE - .data$f_flux_ER,
-      {{type_col}} := "GEP"
+      {{type_col}} := "GPP"
     ) |>
     select(
       {{f_datetime}},
@@ -159,7 +157,7 @@ flux_gep <- function(fluxes_df,
   id_cols_df <- fluxes_df |>
     select(all_of(id_cols), "id")
 
-  nee_missing <- fluxes_gep |>
+  nee_missing <- fluxes_gpp |>
     filter(
       is.na({{f_datetime}})
     ) |>
@@ -177,10 +175,10 @@ flux_gep <- function(fluxes_df,
     ) |>
     pull(.data$f_warnings)
 
-  fluxes_gep <- fluxes_gep |>
+  fluxes_gpp <- fluxes_gpp |>
     drop_na({{f_datetime}})
 
-  fluxes_gep <- fluxes_gep |>
+  fluxes_gpp <- fluxes_gpp |>
     bind_rows(nee_df) |>
     group_by(.data$id) |>
     fill(all_of(c(cols_keep, id_cols)), .direction = "updown") |>
@@ -195,6 +193,6 @@ flux_gep <- function(fluxes_df,
 
   if (any(!is.na(nee_missing))) warning(f_warnings)
 
-  fluxes_gep
+  fluxes_gpp
 
 }

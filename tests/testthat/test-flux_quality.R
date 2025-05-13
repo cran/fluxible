@@ -96,3 +96,25 @@ test_that("kappamax with zhao18 model", {
       dplyr::distinct()
   )
 })
+
+
+test_that("works in a pipeline", {
+
+  expect_snapshot(
+    flux_fitting(
+      co2_conc,
+      conc,
+      datetime,
+      fit_type = "exp_hm"
+    ) |>
+      flux_quality(
+        f_conc = conc,
+        f_pvalue = f_pvalue_lm,
+        f_rsquared = f_rsquared_lm,
+        kappamax = TRUE
+      ) |>
+      dplyr::select(f_fluxid, f_quality_flag, f_RMSE, f_cor_coef,
+                    f_ratio, f_gfactor) |>
+      dplyr::distinct()
+  )
+})

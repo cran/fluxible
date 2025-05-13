@@ -4,12 +4,12 @@
 \alias{flux_param_kappamax}
 \title{prepares text to print for flux_plot function}
 \usage{
-flux_param_kappamax(slopes_df, conc_col)
+flux_param_kappamax(slopes_df, f_conc)
 }
 \arguments{
 \item{slopes_df}{the slopes_df that is being provided to flux_plot}
 
-\item{conc_col}{column with gas concentration}
+\item{f_conc}{column with gas concentration}
 }
 \description{
 creates a df with quality flags and quality diagnostics

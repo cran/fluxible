@@ -149,3 +149,47 @@
       5 5        zero                  0     linear    
       6 6        ok                    0.425 exp_zhao18
 
+# works in a pipeline
+
+    Code
+      dplyr::distinct(dplyr::select(flux_quality(flux_fitting(co2_conc, conc,
+        datetime, fit_type = "exp_hm"), f_conc = conc, f_pvalue = f_pvalue_lm,
+      f_rsquared = f_rsquared_lm, kappamax = TRUE), f_fluxid, f_quality_flag, f_RMSE,
+      f_cor_coef, f_ratio, f_gfactor))
+    Message
+      Cutting measurements...
+      Optimizing fitting parameters...
+      Calculating fits and slopes...
+      Done.
+    Condition
+      Warning in `flux_fitting()`:
+      
+       fluxID 5 : slope is NA, most likely an issue with the model optimization.
+              Check your data or use a different model.
+       fluxID 6 : slope was estimated on 206 points out of 210 seconds
+    Message
+      
+       Number of measurements with linear fit: 4
+      
+       Total number of measurements: 6
+      
+       discard 	 3 	 50 %
+       ok 	 2 	 33 %
+       zero 	 1 	 17 %
+       force_discard 	 0 	 0 %
+       start_error 	 0 	 0 %
+       no_data 	 0 	 0 %
+       force_ok 	 0 	 0 %
+       force_zero 	 0 	 0 %
+       force_lm 	 0 	 0 %
+    Output
+      # A tibble: 6 x 6
+        f_fluxid f_quality_flag f_RMSE f_cor_coef f_ratio f_gfactor
+        <fct>    <chr>           <dbl>      <dbl>   <dbl>     <dbl>
+      1 1        discard        NA         NA       1         NA   
+      2 2        discard        NA         NA       1         NA   
+      3 3        ok              0.550      0.949   1          3.10
+      4 4        zero           NA         NA       1         NA   
+      5 5        discard        NA         NA       0.976     NA   
+      6 6        ok              7.02       0.640   0.981      5.50
+
