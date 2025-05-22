@@ -156,7 +156,7 @@ flux_plot <- function(slopes_df,
 
   slopes_df <- slopes_df |>
     filter(
-      .data$f_quality_flag != "no data"
+      (.data$f_quality_flag != "no data") |> replace_na(TRUE)
     )
 
 
@@ -207,7 +207,8 @@ flux_plot <- function(slopes_df,
       "start_error" = color_discard,
       "force_discard" = color_discard,
       "force_lm" = color_ok,
-      "force_ok" = color_ok
+      "force_ok" = color_ok,
+      "force_zero" = color_zero
     )) +
     scale_linetype_manual(values = c(
       "f_fit" = "longdash",

@@ -6,10 +6,8 @@
 \usage{
 flux_quality_lm(
   slopes_df,
-  f_conc,
   f_fluxid,
   f_slope,
-  f_cut,
   f_pvalue,
   f_rsquared,
   force_discard,
@@ -23,14 +21,10 @@ flux_quality_lm(
 \arguments{
 \item{slopes_df}{dataset containing slopes, fluxID, p.value and r.squared}
 
-\item{f_conc}{column with gas concentration}
-
 \item{f_fluxid}{column of ID for each measurement}
 
 \item{f_slope}{column containing the slope of each flux
 (as calculated by the flux_fitting function)}
-
-\item{f_cut}{column containing the cutting information}
 
 \item{f_pvalue}{column containing the p-value of each flux}
 

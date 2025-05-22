@@ -11,7 +11,6 @@ flux_quality_exp(
   f_slope,
   f_time,
   f_fit,
-  f_cut,
   f_slope_lm,
   f_b,
   force_discard,
@@ -39,8 +38,6 @@ and parameters of the exponential expression}
 \item{f_time}{column containing the time of each measurement in seconds}
 
 \item{f_fit}{column containing the modeled data}
-
-\item{f_cut}{column containing the cutting information}
 
 \item{f_slope_lm}{column containing the linear slope of each flux
 (as calculated by the \link[fluxible:flux_fitting]{flux_fitting} function)}

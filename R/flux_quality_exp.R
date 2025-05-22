@@ -13,7 +13,6 @@
 #' (as calculated by the \link[fluxible:flux_fitting]{flux_fitting} function)
 #' @param f_time column containing the time of each measurement in seconds
 #' @param f_fit column containing the modeled data
-#' @param f_cut column containing the cutting information
 #' @param f_b column containing the b parameter of the exponential expression
 #' @param force_discard vector of fluxIDs that should be discarded
 #' by the user's decision
@@ -46,7 +45,6 @@ flux_quality_exp <- function(slopes_df,
                              f_slope,
                              f_time,
                              f_fit,
-                             f_cut,
                              f_slope_lm,
                              f_b,
                              force_discard,
@@ -85,7 +83,7 @@ flux_quality_exp <- function(slopes_df,
 
   quality_par <- slopes_df |>
     drop_na({{f_conc}}) |>
-    group_by({{f_fluxid}}, {{f_cut}}) |>
+    group_by({{f_fluxid}}) |>
     summarise(
       f_cor_coef = cor({{f_conc}}, {{f_time}}),
       f_RMSE =
@@ -97,8 +95,7 @@ flux_quality_exp <- function(slopes_df,
 
   quality_flag <- slopes_df |>
     left_join(quality_par, by = join_by(
-      {{f_fluxid}} == {{f_fluxid}},
-      {{f_cut}} == {{f_cut}}
+      {{f_fluxid}} == {{f_fluxid}}
     )
     ) |>
     mutate(

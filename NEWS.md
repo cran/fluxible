@@ -1,3 +1,7 @@
+# fluxible 1.1.2
+
+* `flux_flag_count`: does not need the cut argument anymore, so it can also be used after calculating fluxes to provide a table with the number of measurements for each quality flag.
+
 # fluxible 1.1.1
 
 * `flux_gep`: deprecated, renamed into `flux_gpp` (does exactly the same).
