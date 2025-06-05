@@ -11,11 +11,10 @@ stupeflux(
   start_col,
   end_col,
   f_conc,
-  startcrop,
+  setup_volume,
   measurement_length,
   fit_type,
   temp_air_col,
-  chamber_volume,
   atm_pressure,
   plot_area,
   conc_unit,
@@ -25,7 +24,6 @@ stupeflux(
   cols_ave = c(),
   cols_sum = c(),
   cols_med = c(),
-  tube_volume,
   ratio_threshold = 0.5,
   time_diff = 0,
   start_cut = 0,
@@ -67,8 +65,8 @@ and any other column identifying the measurements.}
 
 \item{f_conc}{concentration column in raw_conc}
 
-\item{startcrop}{how many seconds should be discarded at the beginning of
-the measurement}
+\item{setup_volume}{volume of the flux chamber and instrument together in L,
+can also be a column in case it is a variable}
 
 \item{measurement_length}{length of the measurement (in seconds)
 from the start specified in the field_record}
@@ -85,9 +83,6 @@ from Zhao et al (2018).
 
 \item{temp_air_col}{column containing the air temperature used
 to calculate fluxes. Will be averaged with NA removed.}
-
-\item{chamber_volume}{volume of the flux chamber in L,
-can also be a column in case it is a variable}
 
 \item{atm_pressure}{atmospheric pressure,
 can be a constant (numerical) or a variable (column name)}
@@ -120,9 +115,6 @@ for each flux in the output. Note that NA are removed in sum calculation.}
 \item{cols_med}{columns with values for which is median is provided
 for each flux in the output. Note that NA are removed in median calculation.}
 
-\item{tube_volume}{volume of the tubing in L,
-can also be a column in case it is a variable}
-
 \item{ratio_threshold}{ratio of gas concentration data points over length of
 measurement (in seconds) below which the measurement will be considered as
 not having enough data points to be considered for calculations}
@@ -137,15 +129,17 @@ For situations where the time was not synchronized correctly.}
 \item{end_cut}{time to discard at the end of the measurements (in seconds)}
 
 \item{cz_window}{window used to calculate Cz, at the beginning of cut window
-(exponential fit)}
+(\code{exp_zhao18} and \code{exp_tz} fits)}
 
 \item{b_window}{window to estimate b. It is an interval after tz where
-it is assumed that the model fits the data perfectly (exponential fit)}
+it is assumed that the model fits the data perfectly
+(\code{exp_zhao18} and \code{exp_tz} fits)}
 
-\item{a_window}{window at the end of the flux to estimate a (exponential fit)}
+\item{a_window}{window at the end of the flux to estimate a
+(\code{exp_zhao18} and \code{exp_tz} fits)}
 
 \item{roll_width}{width of the rolling mean for CO2 when looking for tz,
-ideally same as cz_window (exponential fit)}
+ideally same as cz_window (\code{exp_zhao18} and \code{exp_tz} fits)}
 
 \item{t_zero}{time at which the slope should be calculated
 (for \code{quadratic} and \code{exp_tz} fits)}
@@ -174,15 +168,15 @@ the linear model is considered an unsatisfactory fit
 (linear and quadratic fit)}
 
 \item{rmse_threshold}{threshold for the RMSE of each flux above which
-the fit is considered unsatisfactory (exponential fit)}
+the fit is considered unsatisfactory (\code{exp_zhao18} and \code{exp_tz} fits)}
 
 \item{cor_threshold}{threshold for the correlation coefficient of
 gas concentration with time below which the correlation
-is considered not significant (exponential fit)}
+is considered not significant (\code{exp_zhao18} and \code{exp_tz} fits)}
 
 \item{b_threshold}{threshold for the b parameter.
 Defines a window with its opposite inside which the fit is
-considered good enough (exponential fit)}
+considered good enough (\code{exp_zhao18} and \code{exp_tz} fits)}
 
 \item{temp_air_unit}{units in which air temperature was measured.
 Has to be either \code{celsius} (default), \code{fahrenheit} or \code{kelvin.}}
@@ -221,14 +215,12 @@ field_record = record_short,
 f_datetime = datetime,
 start_col = start,
 f_conc = conc,
-startcrop = 10,
 measurement_length = 180,
 fit_type = "exp_zhao18",
 temp_air_col = temp_air,
 conc_unit = "ppm",
 flux_unit = "mmol",
-chamber_volume = 24.5,
-tube_volume = 0.075,
+setup_volume = 24.575,
 atm_pressure = 1,
 plot_area = 0.0625
 )

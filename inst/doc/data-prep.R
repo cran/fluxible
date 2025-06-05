@@ -5,10 +5,9 @@ knitr::opts_chunk$set(
 )
 options(tidyverse.quiet = TRUE)
 
-## ----message = FALSE----------------------------------------------------------
+## ----single-file, message=FALSE-----------------------------------------------
 library(tidyverse)
-# readr is part of tidyverse, and since we will also use dplyr
-# we might as well load tidyverse
+# readr, dplyr and lubridate are part of tidyverse
 
 raw_conc <- read_delim(
   "ex_data/26124054001.#00",
@@ -16,70 +15,61 @@ raw_conc <- read_delim(
   skip = 25 # the first 25 rows are logger infos that we do not want to keep
 )
 
-# let's see
-head(raw_conc)
+## ----rawconc-str1, echo=FALSE-------------------------------------------------
 
-## -----------------------------------------------------------------------------
-library(lubridate) # lubridate is what you want to deal with datetime issues
 
+str(raw_conc, width = 70, strict.width = "cut", give.attr = FALSE)
+
+## ----cols-correction----------------------------------------------------------
 raw_conc <- raw_conc |>
   rename(
     co2_conc = "CO2_calc (ppm)"
   ) |>
   mutate(
-    Date = dmy(Date), # to transform the date as a yyyy-mm-dd format
-    datetime = paste(Date, Time), # we paste date and time together
-    datetime = as_datetime(datetime) # datetime instead of character
+    datetime = paste0(Date, Time), # we paste date and time together
+    datetime = dmy_hms(datetime) # datetime instead of character
   ) |>
   select(datetime, co2_conc)
 
-head(raw_conc) # Et voila!
+## ----rawconc-str2, echo=FALSE-------------------------------------------------
 
-## ----message = FALSE----------------------------------------------------------
 
-raw_conc <- read_delim(
-  "ex_data/26124054001.#00",
-  delim = ",", # our file is comma separated
-  skip = 26, # removing the first 25th row and the header
-  col_select = c(1, 2, 6),
-  col_names = c("date", "time", rep(NA, 3), "co2_conc", NA)
-)
-head(raw_conc)
+str(raw_conc, width = 70, strict.width = "cut", give.attr = FALSE)
 
-## ----message = FALSE----------------------------------------------------------
-library(fs)
+## ----multiple-files, message=FALSE--------------------------------------------
+library(tidyverse)
 
-raw_conc <- dir_ls( #listing all the files
+raw_conc <- list.files( # list the files
   "ex_data", # at location "ex_data"
-  regexp = "*CO2*" # that contains "CO2" in their name
+  full.names = TRUE,
+  pattern = "*CO2*" # that contains "CO2" in their name
 ) |>
   map_dfr(
     read_csv, # we map read_csv on all the files
     na = c("#N/A", "Over") # "#N/A" and Over should be treated as NA
   ) |>
   rename(
-    conc = "CO2 (ppm)",
-    datetime = "Date/Time"
+    conc = "CO2 (ppm)"
   ) |>
   mutate(
-    datetime = dmy_hms(datetime)
+    datetime = dmy_hms(`Date/Time`)
   ) |>
   select(datetime, conc)
 
-head(raw_conc)
+## ----one-file-one-flux, message=FALSE-----------------------------------------
 
-## -----------------------------------------------------------------------------
 library(tidyverse)
-library(lubridate)
-library(fs)
 
-raw_conc <- dir_ls( #listing all the files
-  "ex_data/field_campaign" # at location "ex_data/field_campaign"
+raw_conc <- list.files( #listing all the files
+  "ex_data/field_campaign", # at location "ex_data/field_campaign"
+  full.names = TRUE
 ) |>
   map_dfr( # we map read_tsv on all the files
-    read_tsv, # read_tsv is for tab separated value files
+    # read_tsv is the version of read_delim for tab separated value files
+    read_tsv,
     skip = 3,
-    id = "filename" # column with the filename, that we can use as flux ID
+    # creates a column with the filename, that we can use as flux ID
+    id = "filename"
   ) |>
   rename( # a bit of renaming to make the columns more practical
     co2_conc = "CO2 (umol/mol)",
@@ -89,17 +79,20 @@ raw_conc <- dir_ls( #listing all the files
   ) |>
   mutate(
     datetime = paste(Date, Time),
-    datetime = as.POSIXct(
-      datetime, format = "%Y-%m-%d %H:%M:%OS"
-    ), # we get rid of the milliseconds
+    # we get rid of the milliseconds
+    datetime = as.POSIXct(datetime, format="%Y-%m-%d %H:%M:%OS"),
     pressure = pressure / 101.325, # conversion from kPa to atm
-    filename = substr(filename, 24, 70) # removing folder names
+    filename = basename(filename) # removing folder names
   ) |>
   select(datetime, co2_conc, h2o_conc, air_temp, pressure, filename)
 
-head(raw_conc)
+## ----rawconc-str3, echo=FALSE-------------------------------------------------
 
-## ----message = FALSE, warning = FALSE-----------------------------------------
+
+str(raw_conc, width = 70, strict.width = "cut", give.attr = FALSE)
+
+## ----tricky, message=FALSE, warning=FALSE-------------------------------------
+library(tidyverse)
 
 raw_conc <- read_csv( # read_csv is the same as read_delim(delim = ",")
   "ex_data/011023001.#01",
@@ -107,28 +100,35 @@ raw_conc <- read_csv( # read_csv is the same as read_delim(delim = ",")
   na = "#N/A" # we tell read_csv what NA look like in that file
 )
 
-head(raw_conc)
+## ----rawconc-str4, echo=FALSE-------------------------------------------------
 
-## ----message = FALSE, warning = FALSE-----------------------------------------
+
+str(raw_conc, width = 70, strict.width = "cut", give.attr = FALSE)
+
+## ----tricky2, warning=FALSE, message=FALSE------------------------------------
 raw_conc <- read_csv(
   "ex_data/011023001.#01",
   skip = 1, # this time we skip the row with the column names
-  col_names = FALSE, # and we tell read_csv that we do not provide column names
-  na = "#N/A" # we tell read_csv what NA look like in that file
+  col_names = FALSE, # we tell read_csv that column names are not provided
+  na = "#N/A" # we tell read_csv what NA looks like in that file
 )
 
-head(raw_conc)
+## ----rawconc-str5, echo=FALSE-------------------------------------------------
 
-## -----------------------------------------------------------------------------
+
+str(raw_conc, width = 70, strict.width = "cut", give.attr = FALSE)
+
+## ----tricky3------------------------------------------------------------------
+
 # we read each row of our file as an element of a list
-list <- readLines("ex_data/011023001.#01")
-list <- list[-1] # removing the first element with the column names
+lines <- readLines("ex_data/011023001.#01")
+lines <- lines[-1] # removing the first element with the column names
 
 # we first deal with the elements where we have those environmental data
 # that were measured every 10 seconds
-listenv <- list[seq(1, length(list), 10)]
+linesenv <- lines[seq(1, length(lines), 10)]
 env_df <- read.csv(
-  textConnection(listenv), # we read the list into a csv
+  textConnection(linesenv), # we read the list into a csv
   header = FALSE, # there is no header
   colClasses = rep("character", 14)
   # specifying that those columns are character is important
@@ -152,9 +152,9 @@ env_df <- env_df |>
   select(datetime, temp_air, temp_soil, co2_conc, PAR)
 
 # now we do the same with the other elements of the list
-list_other <- list[-seq(1, length(list), 10)]
+lines_other <- lines[-seq(1, length(lines), 10)]
 other_df <- read.csv(
-  textConnection(list_other),
+  textConnection(lines_other),
   header = FALSE,
   colClasses = rep("character", 10)
 )
@@ -167,7 +167,11 @@ other_df <- other_df  |>
   select(datetime, co2_conc)
 
 # and finally we do a full join with both
-conc_df <- full_join(env_df, other_df, by = c("datetime", "co2_conc")) |>
+conc_df <- bind_rows(env_df, other_df) |>
   arrange(datetime) # I like my dataframes in chronological order
-head(conc_df)
+
+## ----rawconc-str6, echo=FALSE-------------------------------------------------
+
+
+str(conc_df, width = 70, strict.width = "cut", give.attr = FALSE)
 

@@ -1,3 +1,24 @@
+# fluxible 1.2.2
+
+* `flux_calc`:
+  * `chamber_volume` and `tube_volume` are deprecated, use `setup_volume` instead
+  * `cols_nest = "all"` allows to nest all the columns, to keep raw data
+* `flux_match`:
+  * `ratio_threshold` is deprecated, use `ratio_threshold` in  `flux_quality()` instead
+  * `f_conc` is no longer needed, deprecated
+* `flux_quality`: `ratio_threshold` default value is now 0.5, was 0 previously, which does not make sense
+
+# fluxible 1.2.1
+
+* `flux_quality`: new `no_slope` quality flag for when the model could not be fitted to the data.
+* `flux_match`: `startcrop` argument is deprecated as `flux_fitting(start_cut)` has a similar function.
+
+# fluxible 1.2.0
+
+* `flux_calc`
+  * variables in `cols_ave`, `cols_med` and and `cols_cum` gets suffix added so it is possible to provide a variable to several of those arguments.
+  * `cols_nest`: new argument for variable to keep in a nested tibble after flux calculation.
+
 # fluxible 1.1.2
 
 * `flux_flag_count`: does not need the cut argument anymore, so it can also be used after calculating fluxes to provide a table with the number of measurements for each quality flag.

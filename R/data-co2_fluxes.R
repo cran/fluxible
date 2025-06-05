@@ -1,6 +1,7 @@
 #' CO2 fluxes
 #'
-#' Calculated CO2 fluxes
+#' Manually calculated CO2 fluxes for testing purpose.
+#' df_short and record_short were used, with a zhao18 fit.
 #'
 #' @format A tibble with 6 rows and 11 variables
 #' \describe{

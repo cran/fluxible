@@ -9,6 +9,8 @@
 [![CRAN
 status](https://www.r-pkg.org/badges/version/fluxible)](https://CRAN.R-project.org/package=fluxible)
 [![LifeCycle](https://img.shields.io/badge/lifecycle-stable-green)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![Codecov test
+coverage](https://codecov.io/gh/Plant-Functional-Trait-Course/fluxible/graph/badge.svg)](https://app.codecov.io/gh/Plant-Functional-Trait-Course/fluxible)
 <!-- badges: end -->
 
 The Fluxible R package is made to transform any dataset of gas
@@ -63,8 +65,6 @@ conc_df <- flux_match(
   record_short,
   datetime,
   start,
-  conc,
-  startcrop = 10,
   measurement_length = 220
 )
 
@@ -73,7 +73,7 @@ slopes_df <- flux_fitting(
   conc,
   datetime,
   fit_type = "exp_zhao18",
-  end_cut = 30
+  end_cut = 60
 )
 #> Cutting measurements...
 #> Estimating starting parameters for optimization...
@@ -88,15 +88,16 @@ slopes_flag_df <- flux_quality(
 #> 
 #>  Total number of measurements: 6
 #> 
-#>  ok   5   83 %
-#>  zero     1   17 %
+#>  ok   6   100 %
 #>  discard      0   0 %
+#>  zero     0   0 %
 #>  force_discard    0   0 %
 #>  start_error      0   0 %
 #>  no_data      0   0 %
 #>  force_ok     0   0 %
 #>  force_zero   0   0 %
 #>  force_lm     0   0 %
+#>  no_slope     0   0 %
 
 flux_plot(
   slopes_flag_df,
@@ -113,7 +114,15 @@ flux_plot(
 #> Plotting in progress
 ```
 
-<img src="man/figures/README-short-example-1.png" width="100%" />
+<div class="figure">
+
+<img src="man/figures/README-short-example-1.png" alt="Output of flux_plot, showing fluxes plotted individually with diagnostics and quality flags." width="100%" />
+<p class="caption">
+Output of flux_plot, showing fluxes plotted individually with
+diagnostics and quality flags.
+</p>
+
+</div>
 
 ``` r
 
@@ -126,8 +135,7 @@ fluxes_df <- flux_calc(
   flux_unit = "mmol",
   cols_keep = c("turfID", "type"),
   cols_ave = c("temp_soil", "PAR"),
-  chamber_volume = 24.5,
-  tube_volume = 0.075,
+  setup_volume = 24.575,
   atm_pressure = 1,
   plot_area = 0.0625
 )
@@ -140,29 +148,29 @@ fluxes_df <- flux_calc(
 #> Concentration was measured in ppm
 #> Fluxes are in mmol/m2/h
 
-fluxes_gep <- flux_gep(
+fluxes_gpp <- flux_gpp(
   fluxes_df,
   type,
   datetime,
   id_cols = "turfID",
-  cols_keep = c("temp_soil")
+  cols_keep = c("temp_soil_ave")
 )
-#> Warning in flux_gep(fluxes_df, type, datetime, id_cols = "turfID", cols_keep = c("temp_soil")): 
+#> Warning in flux_gpp(fluxes_df, type, datetime, id_cols = "turfID", cols_keep = c("temp_soil_ave")): 
 #>  NEE missing for measurement turfID: 156 AN2C 156
 
-fluxes_gep
+fluxes_gpp
 #> # A tibble: 9 × 5
-#>   datetime            type  f_flux temp_soil turfID      
-#>   <dttm>              <chr>  <dbl>     <dbl> <chr>       
-#> 1 2022-07-28 23:43:35 ER      47.7      10.8 156 AN2C 156
-#> 2 2022-07-28 23:47:22 GEP     10.3      10.7 74 WN2C 155 
-#> 3 2022-07-28 23:47:22 NEE     31.0      10.7 74 WN2C 155 
-#> 4 2022-07-28 23:52:10 ER      20.7      10.7 74 WN2C 155 
-#> 5 2022-07-28 23:59:32 GEP     41.5      10.8 109 AN3C 109
-#> 6 2022-07-28 23:59:32 NEE     41.5      10.8 109 AN3C 109
-#> 7 2022-07-29 00:03:10 ER       0        10.5 109 AN3C 109
-#> 8 2022-07-29 00:06:35 GEP     NA        12.2 29 WN3C 106 
-#> 9 2022-07-29 00:06:35 NEE     26.1      12.2 29 WN3C 106
+#>   datetime            type  f_flux temp_soil_ave turfID      
+#>   <dttm>              <chr>  <dbl>         <dbl> <chr>       
+#> 1 2022-07-28 23:43:25 ER     51.9           10.9 156 AN2C 156
+#> 2 2022-07-28 23:47:12 GPP     9.72          10.7 74 WN2C 155 
+#> 3 2022-07-28 23:47:12 NEE    32.0           10.7 74 WN2C 155 
+#> 4 2022-07-28 23:52:00 ER     22.3           10.7 74 WN2C 155 
+#> 5 2022-07-28 23:59:22 GPP    -6.63          10.8 109 AN3C 109
+#> 6 2022-07-28 23:59:22 NEE    44.3           10.8 109 AN3C 109
+#> 7 2022-07-29 00:03:00 ER     50.9           10.5 109 AN3C 109
+#> 8 2022-07-29 00:06:25 GPP    NA             12.2 29 WN3C 106 
+#> 9 2022-07-29 00:06:25 NEE    32.7           12.2 29 WN3C 106
 ```
 
 ## Further developments
@@ -170,11 +178,10 @@ fluxes_gep
 ### The licoread R package
 
 The [licoread R
-package](https://jogaudard.github.io/licoread/index.html), currently
-under development in collaboration with
-[Li-COR](https://www.licor.com/), aims at providing an easy way to
-import raw files from Li-COR gas analyzers as R objects that can be used
-directly with the Fluxible package.
+package](https://jogaudard.github.io/licoread/index.html), developped in
+collaboration with [LI-COR](https://www.licor.com/), provides an easy
+way to import raw files from Li-COR gas analyzers as R objects that can
+be used directly with the Fluxible R package.
 
 ### Segmentation tool
 

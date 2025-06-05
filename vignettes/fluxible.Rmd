@@ -14,143 +14,175 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+options(tidyverse.quiet = TRUE)
+```
+In this example we will process a dataset from the Plant Functional Traits Course 6 (PFTC6; Norway, 2022).
+Net ecosystem exchange (NEE), ecosystem respiration (ER), air and soil temperature and photosynthetically active radiation (PAR) were recorded over the course of 24 hours at an experimental site called Liahovden, situated in an alpine grassland in southwestern Norway.
+Those data are available in the Fluxible R package.
+<!-- This example uses the data that were recorded during the Plant Functional Traits Course 6 (PFTC6) in Norway in 2022 at the site called Liahovden. -->
+<!-- (CITE when data paper out). -->
+To work with your own data, you need to import them as a dataframe object in your R session.
+For import examples, please see `vignette("data-prep", package = "fluxible")`.
+
+## Input
+
+The CO~2~ concentration data as well as air and soil temperature and PAR were recorded in a dataframe named `co2_liahovden`.
+The metadata for each measurement are in a dataframe named `record_liahovden`.
+This dataframe contains the starting time of each measurement, the measurement type (NEE or ER) and the unique plot ID (called turfs in this experiment).
+<!-- The type of measurement describes if it was NEE, measured with a transparent chamber, or ER, measured with a dark chamber. -->
+
+Structure of the CO~2~ concentration data (`co2_liahovden`):
+```{r, co2_liahovden-str, message=FALSE, echo=FALSE}
+library(fluxible)
+
+str(co2_liahovden, width = 70, strict.width = "cut")
 ```
 
-For this example we will use the data that were recorded during the Plant Functional Traits Course 6 (PFTC6) in Norway in 2022 at the site called Liahovden. 
-<!-- (CITE when data paper out). -->
-The CO~2~ concentration data as well as air and soil temperature and photosynthetically active radiations (PAR) were recorded in a dataframe named `co2_liahovden`.
-The metadata for each measurements are in a dataframe called `record_liahovden`.
-This dataframe contains the starting time of each measurements, the type of measurement and the unique ID for each turf.
-The type of measurement describes if it was net ecosystem exchange (NEE), measured with a transparent chamber, or ecosystem respiration (ER), measured with a dark chamber.
+Structure of the meta data (`record_liahovden`):
+```{r record_liahovden-str, message=FALSE, echo=FALSE}
 
-We use the `flux_match` function to slice the data from `co2_liahovden` into each measurement and discard what was recorded in between.
+str(record_liahovden, width = 70, strict.width = "cut")
 
+```
 
-```{r match, message = FALSE}
+## Attributing meta-data
 
+We use the `flux_match` function to slice each measurement in the CO~2~ concentration data and discard the recordings in between.
+The two inputs are `raw_conc`, the dataframe containing field measured raw gas concentration, and `field_record`, the meta data dataframe with the start of each measurement.
+Then `f_datetime` is the column containing date and time in the gas concentration dataframe, and `start_col` the column containing the start date and time of each measurement in the meta data dataframe.
+<!-- The column containing the gas concentration in the gas concentrationd dataframe `f_conc`. -->
+The length of the measurements is provided with `measurement_length` (in seconds).
+Alternatively, a column indicating the end time and date of each measurement can be provided to `end_col`, with `fixed_length = FALSE`.
+The `time_diff` argument allow to account for a consistant time difference (in seconds) between the two inputs.
+This value is added to the datetime column of the gas concentration dataset.
+
+```{r match, message=FALSE, echo=TRUE}
 library(fluxible)
-library(dplyr)
-
-str(record_liahovden)
-str(co2_liahovden)
 
 conc_liahovden <- flux_match(
-  co2_liahovden,
-  record_liahovden,
-  datetime,
-  start,
-  conc,
-  startcrop = 0,
-  measurement_length = 220,
-  ratio_threshold = 0.5,
-  time_diff = 0
+  raw_conc = co2_liahovden, # dataframe with raw gas concentration
+  field_record = record_liahovden, # dataframe with meta data
+  f_datetime = datetime, # column containing date and time
+  start_col = start, # start date and time of each measurement
+  measurement_length = 220, # length of measurements (in seconds)
+  fixed_length = TRUE, # the length of the measurement is a constant
+  time_diff = 0 # time difference between f_datetime and start_col
 )
-
-str(conc_liahovden)
 ```
 
-Before calculating fluxes we need to fit a model to each measurement and estimate a slope of the concentration changing rate.
-We use the `flux_fitting` function with the model provided by @zhaoCalculationDaytimeCO22018.
-The function `flux_fitting` also provides a quadratic and a linear fit.
+## Model fitting
 
+We fit a model and obtain the slope at $t_0$, which is needed for the flux calculation, with the `flux_fitting` function.
+<!-- Before calculating fluxes we need to fit a model to each measurement and estimate a slope of the concentration changing rate. -->
+<!-- We use the `flux_fitting` function with the model provided by @zhaoCalculationDaytimeCO22018. -->
+In this example we use the `exp_zhao18` model [@zhaoCalculationDaytimeCO22018].
+The `exp_zhao18` is a mix of an exponential and linear model - thus fitting all fluxes independantly from curvature - and includes $t_0$ as a fitting parameter (its implementation is described in `vignette("zhao18", package = "fluxible")`).
+A similar model but with the option to manually set $t_0$ is `exp_tz`.
+Other available models are: `linear` for a linear fit, `quadratic` for a quadratic fit, and `exp_hm` for the original HM model [@hutchinsonImprovedSoilCover1981].
 
-```{r fitting_exp_qua_lin}
+The `conc_df` argument is the dataframe with gas concentration, date and time, and start and end of each measurement, ideally produced with `flux_match` (see `vignette("data-prep", package = "fluxible")` for requirements to bypass `flux_match`).
+Then `f_conc` and `f_datetime` are, similarly as in `flux_match`, the gas concentration and corresponding datetime column.
+The arguments `f_start`, `f_end`, and `f_fluxid` are produced by `flux_match`.
+They indicate, respectively, the start, end and unique ID of each measurement.
+The model chosen to fit the gas concentration is provided with `fit_type`.
+The user can decide to restrict the focus window before fitting the model with the `start_cut` and `end_cut` arguments.
+For the models `quadratic`, `exp_tz`, and `exp_hm`, `t_zero` needs to be provided to indicate how many seconds after the start of the focus window should the slope be calculated.
+Arguments `cz_window`, `b_window`, `a_window` and `roll_width` are specific to the automatic fitting of the `exp_zhao18` and `exp_tz` models and are described in `vignette("zhao18", package = "fluxible")`.
+We recommend keeping the default values.
 
-slopes_exp_liahovden <- flux_fitting(
-  conc_liahovden,
-  conc,
-  datetime,
-  fit_type = "exponential"
+```{r fitting_exp, echo=TRUE, message=FALSE, warning=FALSE}
+slopes_liahovden <- flux_fitting(
+  conc_df = conc_liahovden, # the output of flux_match
+  f_conc = conc, # gas concentration column
+  f_datetime = datetime, # date and time column
+  f_start = f_start, # start of each measurement, provided by flux_match
+  f_end = f_end, # end of each measurement, provided by flux_match
+  f_fluxid = f_fluxid, # unique ID for each measurement, provided by flux_match
+  fit_type = "exp_zhao18", # the model to fit to the gas concentration
+  start_cut = 0, # seconds to prune at the start before fitting
+  end_cut = 0 # seconds to prune at the end of all measurements before fitting
 )
-str(slopes_exp_liahovden)
-
-slopes_qua_liahovden <- flux_fitting(
-  conc_liahovden,
-  conc,
-  datetime,
-  fit_type = "quadratic"
-)
-str(slopes_qua_liahovden)
-
-slopes_lin_liahovden <- flux_fitting(
-  conc_liahovden,
-  conc,
-  datetime,
-  fit_type = "linear"
-)
-str(slopes_lin_liahovden)
 ```
 
-The function `flux_quality` is used to provide diagnostics about the quality of the fit, eventually advising to discard some measurements or replace them by zero.
+<!-- The columns `f_start`, `f_end`, and `f_fluxid` are created by `flux_match`. -->
+<!-- If they have not been renamed, default values can be used. -->
 
-```{r quality_exp_qua_lin}
+## Quality checks and visualizations
 
-slopes_exp_liahovden_flag <- flux_quality(
-  slopes_exp_liahovden,
-  conc
+The function `flux_quality` is used to provide diagnostics about the quality of the fit, potentially advising to discard some measurements or replace them by zero.
+<!-- The full decision scheme and all quality flags are described in Appendix -@sec-qualityflags. -->
+The main principle is that the user sets thresholds on diagnostics (depending on the model used) to flag the measurements according to the quality of the data and the model fit.
+Those quality flags are then used to provide `f_slope_corr`, a column containing the advised slope to use for calculation.
+The `force_` arguments allow the user to override this automatic flagging by providing a vector of fluxIDs.
+The `ambient_conc` and `error` arguments are used to detect measurements starting outside of a reasonable range (the mean of the three first gas concentration data points is used, independantly from the focus window).
+The minimal detectable slope is calculated as $\frac{2 \times \text{instr error}}{\text{length of measurement}}$ and is used to detect slopes that should be replaced by zero.
+Other arguments are described in the function documentation (displayed with `?flux_quality`).
+The function `flux_flag_count` provides a table with the counts of quality flags, which is convenient for reporting on the dataset quality, and can also be done on the final flux dataset.
+This table is also printed as a side effect of `flux_quality`.
+
+```{r quality_exp}
+flags_liahovden <- flux_quality(
+  slopes_df = slopes_liahovden,
+  f_conc = conc,
+  # force_discard = c(),
+  # force_ok = c(),
+  # force_zero = c(),
+  # force_lm = c(),
+  # force_exp = c(),
+  ambient_conc = 421,
+  error = 100,
+  instr_error = 5
 )
-str(slopes_exp_liahovden_flag)
 
-slopes_qua_liahovden_flag <- flux_quality(
-  slopes_qua_liahovden,
-  conc
-)
-str(slopes_qua_liahovden_flag)
-
-slopes_lin_liahovden_flag <- flux_quality(
-  slopes_lin_liahovden,
-  conc
-)
-str(slopes_lin_liahovden_flag)
+flux_flag_count(flags_liahovden)
 ```
+
+
+  <!-- f_fluxid = f_fluxid, # unique flux ID, provided by flux_match
+  f_slope = f_slope, # slope at t_zero, prodided by flux_fitting
+  f_time = f_time, # elapsed time for each measurement, provided by flux_fitting
+  f_start = f_start, # start of each measurement, provided by flux_match
+  f_end = f_end, # end of each measurement, provided by flux_match
+  f_fit = f_fit, # modelled gas concentration, provided by flux_fitting
+  f_cut = f_cut, # indicating if a row is cut or kept, provided by flux_fitting
+  f_pvalue = f_pvalue, # p-value of the fit (linear and quadratic), provided by flux_fitting
+  f_rsquared = f_rsquared, # R² of the fit (linear and quadratic), provided by flux_fitting
+  f_slope_lm = f_slope_lm, # slope of the linear model, provided by flux_fitting
+  f_fit_lm = f_fit_lm, # modelled gas concentration with the linear model, provided by flux_fitting
+  f_b = f_b, # b parameter (exponential fits), provided by flux_fitting
+  force_discard = c(), # vector of flux IDs to force discard
+  force_ok = c(), # vector of flux IDs to force ok
+  force_zero = c(), # vector of flux IDs to force zero
+  force_lm = c(), # vector of flux IDs to force the use of the linear model
+  force_exp = c(), # vector of flux IDS to force the use of the exponential model
+  ratio_threshold = 0.5, # threshold under which a measurement is flagged as having not enough data
+  gfactor_threshold = 10, # threshold above which a measurement is flagged as showing an exponential or quadratic fit too different from the linear fit
+  fit_type = c(), # same as fit_type in flux_fitting and needed only if the slopes_df dataframe has been stripped of its attributes
+  ambient_conc = 421, # ambient gas concentration at field site
+  error = 100, # error of the setup, used to detect measurements starting outside of a realistic range
+  pvalue_threshold = 0.3, # threshold of the p-value
+  rsquared_threshold = 0.7, # threshold of the R²
+  rmse_threshold = 25, # threshold for the root mean square error (RMSE)
+  cor_threshold = 0.5, # threshold for the correlation coefficient between time and gas concentration
+  b_threshold = 1, # threshold for the b value, borders an interval with its opposite value
+  cut_arg = "cut", # indicating cut row in f_cut column, provided by flux_fitting
+  instr_error = 5, # error of the instrument, used to calculate the minimal detectable slope
+  kappamax = FALSE # TRUE to use the kappamax method -->
 
 The function `flux_plot` provides plots for a visual assessment of the measurements, explicitly displaying the quality flags from `flux_quality` and the cuts from `flux_fitting`.
+Note that different values than the default can be provided to `scale_x_datetime` and `facet_wrap` by providing lists of arguments to `scale_x_datetime_args` and `facet_wrap_args` respectively.
 
-```{r plot_exp_qua_lin, fig.width = 8, fig.height = 9}
-
-
-slopes_exp_liahovden_flag |>
-  # we just show a sample of the plots to avoid slowing down the example
+```{r explot, fig.width= 8, fig.height=9, message=FALSE, fig.cap="Output of `flux_plot` for fluxid 54, 95, 100 and 101."}
+flags_liahovden |>
+  # we show only a sample of the plots in this example
   dplyr::filter(f_fluxid %in% c(54, 95, 100, 101)) |>
   flux_plot(
-    conc,
-    datetime,
-    f_ylim_upper = 600,
-    f_ylim_lower = 350,
-    y_text_position = 450,
-    facet_wrap_args = list(
-      nrow = 2,
-      ncol = 2,
-      scales = "free"
-    )
-  )
-
-slopes_qua_liahovden_flag |>
-  # we just show a sample of the plots to avoid slowing down the example
-  dplyr::filter(f_fluxid %in% c(54, 95, 100, 101)) |>
-  flux_plot(
-    conc,
-    datetime,
-    f_ylim_upper = 600,
-    f_ylim_lower = 350,
-    y_text_position = 450,
-    facet_wrap_args = list(
-      nrow = 2,
-      ncol = 2,
-      scales = "free"
-    )
-  )
-
-slopes_lin_liahovden_flag |>
-  # we just show a sample of the plots to avoid slowing down the example
-  dplyr::filter(f_fluxid %in% c(54, 95, 100, 101)) |>
-  flux_plot(
-    conc,
-    datetime,
-    f_ylim_upper = 600,
-    f_ylim_lower = 350,
-    y_text_position = 450,
-    facet_wrap_args = list(
+    f_conc = conc,
+    f_datetime = datetime,
+    f_ylim_upper = 600, # upper limit of y-axis
+    f_ylim_lower = 350, # lower limit of x-axis
+    y_text_position = 450, # position of text with flags and diagnostics
+    facet_wrap_args = list( # facet_wrap arguments, if different than default
       nrow = 2,
       ncol = 2,
       scales = "free"
@@ -158,34 +190,55 @@ slopes_lin_liahovden_flag |>
   )
 ```
 
-Based on the quality flags and the plots, the user can decide to run `flux_fitting` again with different arguments.
-Here we will do it while cutting the last 60 seconds of the fluxes (cutting the last third).
-We also detected fluxes that do not look correct.
-Sometimes some measurements will pass the automated quality control but are obviously wrong for an experience user.
-That is what the `force_discard` argument is for.
-For the sake of reproducibility, this argument should be the last option and be accompanied with a justification.
+To export the plots as pdf without printing them in one's R session, which we recommend for large datasets, the code looks like this:
 
-```{r plot_exp_cut, fig.width = 8, fig.height = 9}
+```{r plot_pdf, echo=TRUE, eval=FALSE}
+flux_plot(
+  slopes_df = flags_liahovden,
+  f_conc = conc,
+  f_datetime = datetime,
+  print_plot = FALSE, # not printing the plots in the R session
+  output = "pdfpages", # the type of output
+  f_plotname = "plots_liahovden" # filename for the pdf file
+)
+```
 
+If the argument `f_plotname` is left empty (the default), the name of the `slopes_df` object will be used (`flags_liahovden` in our case).
+The pdf file will be saved in a folder named `f_quality_plots`.
 
-slopes_exp_liahovden_flag_60 <- conc_liahovden |>
+Based on the quality flags and the plots, the user can decide to run `flux_fitting` and/or `flux_quality` again with different parameters.
+Here we will cut the last 60 seconds of the fluxes (cutting the last third).
+We also detected a flux that do not look correct.
+Sometimes measurements will pass the automated quality control but the user might have reasons to still discard them (or the opposite).
+That is what the `force_discard`, `force_ok`, `force_lm` and `force_zero` arguments are for.
+<!-- Or course -->
+<!-- For the sake of reproducibility, this argument should be the last option and be accompanied with a justification. -->
+In our example, for the measurement with fluxID 101, the exponential model is not providing a good fit (resulting in the flux being discarded) due to some noise at the start of the measurement.
+We take the decision to force the use of the linear model instead, because it seems to fit much better (given that the flux looks quite flat, we could also force it to be zero).
+This is achieved with `force_lm = 101`.
+Several fluxIDs can be provided to the `force_` arguments by providing a vector: `force_zero = c(100, 101)`.
+
+The function `flux_fitting` is run again, with an end cut of 60 seconds:
+```{r fits_exp_cut, message=FALSE}
+fits_liahovden_60 <- conc_liahovden |>
   flux_fitting(
     conc,
     datetime,
     fit_type = "exp_zhao18",
-    end_cut = 60
-  ) |>
+    end_cut = 60 # we decided to cut the last 60 seconds of the measurements
+  )
+```
+Then `flux_quality` again, forcing the use of the linear model for fluxID 101:
+```{r flag_exp_cut}
+flags_liahovden_60 <- fits_liahovden_60 |>
   flux_quality(
     conc,
-    force_discard = c(
-      51, # slope is much steeper than the flux because t zero was estimated
-      # at the very start of the measurement
-      101 # plot starts with a high peak: accumulation in the canopy?
-    )
+    force_lm = 101 # we force the use of the linear model for fluxid 101
   )
-
-slopes_exp_liahovden_flag_60 |>
-  # we just show a sample of the plots to avoid slowing down the example
+```
+And finally `flux_plot` again to check the output:
+```{r plot_exp_cut, fig.width=8, fig.height=9, message=FALSE, fig.cap="Output of `flux_plot` for fluxid 54, 95, 100 and 101 after refitting with a 60 seconds end cut."}
+flags_liahovden_60 |>
   dplyr::filter(f_fluxid %in% c(54, 95, 100, 101)) |>
   flux_plot(
     conc,
@@ -201,130 +254,68 @@ slopes_exp_liahovden_flag_60 |>
   )
 ```
 
-We also apply a cut on the dataset that was fitted with a quadratic model.
-At this point it is up to the user to decide which model works the best for the entire dataset.
-The function flux_quality provides a count of the quality flags that can help to take a decision.
+## Flux calculation
 
-```{r plot_qua_cut, fig.width = 8, fig.height = 9}
+Now that we are satisfied with the fit, we can calculate fluxes with `flux_calc`, which applies the following equation:
 
+$$
+\text{flux}=C'(t_0)\times \frac{P\times V}{R\times T\times A}
+$$
 
-slopes_qua_liahovden_flag_60 <- conc_liahovden |>
-  flux_fitting(
-    conc,
-    datetime,
-    fit_type = "quadratic",
-    end_cut = 60
-  ) |>
-  flux_quality(
-    conc
-  )
+where
 
-slopes_qua_liahovden_flag_60 |>
-  # we just show a sample of the plots to avoid slowing down the example
-  dplyr::filter(f_fluxid %in% c(54, 95, 100, 101)) |>
-  flux_plot(
-    conc,
-    datetime,
-    f_ylim_upper = 600,
-    f_ylim_lower = 350,
-    y_text_position = 450,
-    facet_wrap_args = list(
-      nrow = 2,
-      ncol = 2,
-      scales = "free"
-    )
-  )
+flux: the flux of gas at the surface of the plot (mmol m^-2^ h^-1^)
+
+slope: slope estimate (ppm s^-1^)
+
+P: pressure (atm)
+
+V: volume of the chamber and tubing (L)
+
+R: gas constant (0.082057 L atm K^-1^ mol^-1^)
+
+T: chamber air temperature (K)
+
+A: area of chamber frame base (m^2^)
+
+The calculation is using the slope, which can either be `f_slope` (provided by `flux_fitting` and not quality checked) or `f_slope_corr` which is the recommended slope after quality check with `flux_quality`.
+Here the volume is defined as a constant for all the measurements but it is also possible to provide the volume as a separate column (`setup_volume`).
+The `cols_ave` arguments indicates which column(s), i.e. the environmental data, should be averaged for each flux.
+When setting the argument `cut = TRUE` (default), the same cut that was applied in `flux_fitting` will be used.
+<!-- , applying the same cut that were applied in `flux_fitting` (if `cut = TRUE`, which is the default). -->
+The `cols_sum` and `cols_med` do the same for sum and median respectively.
+In the output, those columns get appended with the suffixes `_ave`, `_sum` and `_med` respectively.
+Here we recorded PAR and soil temperature in the same dataset and would like their average for each measurement.
+The `cols_keep` arguments indicates which columns should be kept.
+As `flux_calc` transforms the dataframe from one row per datapoint of gas concentration to one row per flux, the values in the columns specified in `cols_keep` have to be constant within each measurement (if not, rows will be repeated to accomodate for non constant values).
+Other columns can be nested in a column called `nested_variables` with `cols_nest` (`cols_nest = "all"` will nest all the columns present in the dataset, except those provided to `cols_keep`).
+
+The units of gas concentration, `conc_unit`, can be ppm or ppb.
+The units of the calculated flux can be $mmol/m^2/h$ (`flux_unit = "mmol"`) or $\mu mol/m^2/h$ (`flux_unit = "micromol"`).
+Temperature in the input can be in Celsius, Kelvin or Fahrenheit, and will be returned in the same unit in the output.
+
+```{r calc, message=FALSE}
+fluxes_liahovden_60 <- flux_calc(
+  slopes_df = flags_liahovden_60,
+  slope_col = f_slope_corr, # we use the slopes provided by flux_quality
+  f_datetime = datetime,
+  temp_air_col = temp_air,
+  conc_unit = "ppm", # unit of gas concentration
+  flux_unit = "mmol", # unit of flux
+  temp_air_unit = "celsius",
+  setup_volume = 24.575, # in liters, can also be a variable
+  atm_pressure = 1, # in atm, can also be a variable
+  plot_area = 0.0625, # in m2, can also be a variable
+  cols_keep = c("turfID", "type"),
+  cols_ave = c("temp_soil", "PAR")
+)
 ```
 
-When using a linear fit it is common to take only a short section of the measurement close to the start.
-Here we will cut 120 seconds at the end, effectively keeping only the first 90 seconds.
 
-```{r plot_lin_cut, fig.width = 8, fig.height = 9}
-
-
-slopes_lin_liahovden_flag_120 <- conc_liahovden |>
-  flux_fitting(
-    conc,
-    datetime,
-    fit_type = "linear",
-    end_cut = 120
-  ) |>
-  flux_quality(
-    conc
-  )
-
-slopes_lin_liahovden_flag_120 |>
-  # we just show a sample of the plots to avoid slowing down the example
-  dplyr::filter(f_fluxid %in% c(54, 95, 100, 101)) |>
-  flux_plot(
-    conc,
-    datetime,
-    f_ylim_upper = 600,
-    f_ylim_lower = 350,
-    y_text_position = 450,
-    facet_wrap_args = list(
-      nrow = 2,
-      ncol = 2,
-      scales = "free"
-    )
-  )
-```
-
-Once we are satisfied with the fit, we can calculate fluxes with `flux_calc`.
-Here the volume is defined as a constant for all the measurements but it is also possible to provide a specific volume for each plot in case that is different.
-
-```{r calc}
-
-fluxes_exp_liahovden_60 <- slopes_exp_liahovden_flag_60 |>
-  flux_calc(
-    f_slope_corr, # we use the slopes provided by flux_quality
-    datetime,
-    temp_air,
-    conc_unit = "ppm",
-    flux_unit = "mmol",
-    chamber_volume = 24.5,
-    tube_volume = 0.075,
-    atm_pressure = 1,
-    plot_area = 0.0625,
-    cols_keep = c("turfID", "type", "round"),
-    cols_ave = c("temp_soil", "PAR")
-  )
-
-fluxes_qua_liahovden_60 <- slopes_qua_liahovden_flag_60 |>
-  flux_calc(
-    f_slope_corr, # we use the slopes provided by flux_quality
-    datetime,
-    temp_air,
-    conc_unit = "ppm",
-    flux_unit = "mmol",
-    chamber_volume = 24.5,
-    tube_volume = 0.075,
-    atm_pressure = 1,
-    plot_area = 0.0625,
-    cols_keep = c("turfID", "type", "round"),
-    cols_ave = c("temp_soil", "PAR")
-  )
-
-fluxes_lin_liahovden_120 <- slopes_lin_liahovden_flag_120 |>
-  flux_calc(
-    f_slope_corr, # we use the slopes provided by flux_quality
-    datetime,
-    temp_air,
-    conc_unit = "ppm",
-    flux_unit = "mmol",
-    chamber_volume = 24.5,
-    tube_volume = 0.075,
-    atm_pressure = 1,
-    plot_area = 0.0625,
-    cols_keep = c("turfID", "type", "round"),
-    cols_ave = c("temp_soil", "PAR")
-  )
-```
-
-The output is in mmol/m^2^/h and the calculation used is as follow:
+<!-- The output is in $mmol/m^2/h$ and the calculation is as follow: -->
 
 <!-- <img src="https://render.githubusercontent.com/render/math?math=flux=slope\times \frac{P\times V}{R\times T\times A}"> -->
-
+<!-- 
 $$
  \text{flux}=\text{slope}\times \frac{P\times V}{R\times T\times A}
 $$
@@ -335,7 +326,7 @@ flux: the flux of gas at the surface of the plot (mmol/m^2^/h)
 
 slope: slope estimate (ppm*s^-1^)
 
-P: pressure, assumed  (atm)
+P: pressure (atm)
 
 V: volume of the chamber and tubing (L)
 
@@ -343,68 +334,93 @@ R: gas constant (0.082057 L\*atm\*K^-1^\*mol^-1^)
 
 T: chamber air temperature (K)
 
-A: area of chamber frame base (m^2^)
+A: area of chamber frame base (m^2^) -->
 
-The conversion from micromol/m^2^/s to mmol/m^2^/h is included in the function.
+<!-- The conversion from micromol/m^2^/s to mmol/m^2^/h is included in the function. -->
 
-Fluxes were calculated in five steps from raw gas concentration data and the process is entirely reproducible.
+<!-- Fluxes were calculated in five steps from raw gas concentration data and the process is entirely reproducible. -->
 
-Next we can calculated gross ecosystem production (GEP) and plot the results:
+<!-- Next we can calculated gross ecosystem production (GEP) and plot the results: -->
 
-```{r gep}
 
-fluxes_exp_liahovden_60_gep <- fluxes_exp_liahovden_60 |>
-  flux_gep(
-    type,
-    datetime,
-    id_cols = c("round", "turfID"),
-    cols_keep = c("temp_soil", "f_model", "PAR")
+<!-- Structure of the dataframe with calculated fluxes, `fluxes_liahovden_60`: -->
+```{r fluxes-str, echo=FALSE}
+
+
+str(fluxes_liahovden_60, width = 70, strict.width = "cut")
+
+```
+
+## Gross Primary Production calculation
+
+CO~2~ flux chambers and tents can be used to measure net ecosystem exchange (NEE) and ecosystem respiration (ER) if the user manipulates the light levels in the chamber.
+The difference between the two is the gross primary production (GPP), which cannot be measured isolated from ER but is often a variable of interest.
+<!-- This part is specific to CO~2~ fluxes. -->
+<!-- Carbon fluxes are governed by gross ecosystem production (GEP), the amount of CO2 plants take up from the atmosphere through photosynthesis, and ecosystem respiration (ER), the transfer of CO~2~ from the ecosystem to the atmosphere. -->
+<!-- The main components of ER are soil respiration and plant respiration, and at the landscape scale, respiration from larger heterotrophic organisms. -->
+<!-- Gross ecosystem production cannot be measured because ER is an ongoing background process. -->
+<!-- It is not possible to isolate GEP to measure it as ER is an ongoing background process. -->
+<!-- Instead, net ecosystem exchange (NEE), the sum of GEP and ER, is measured, and we then calculate GEP. -->
+<!-- As GEP cannot be measured it is calculated as $GEP = NEE - ER$. -->
+The function `flux_gep` calculates GPP as $GPP = NEE - ER$ and returns a dataset in long format, with NEE, ER and GPP as flux type and filling any variables specified by the user (`cols_keep` argument) with their values corresponding to the NEE measurement.
+Other type of flux than ER and NEE, if present in the dataset (e.g. light response curves, soil respiration) are kept.
+<!-- The timestamps and PAR value from the NEE measurement are also attributed to the GEP one and any variable specified by the user. -->
+Each NEE and ER measurements need to be paired together for this calculation.
+The `id_cols` argument specifies which columns should be used for pairing (e.g., date, campaign).
+Since those measurements were done continuously for 24 hours, we added a pairID column, which is pairing each NEE measurement with its following ER measurement.
+This pairs the NEE and ER measurements of the same plot and same round of measurement because we systematically measured ER after NEE for each plot.
+
+```{r gpp-lia}
+library(tidyverse)
+
+fluxes_liahovden_60 <- fluxes_liahovden_60 |>
+  mutate(
+    f_fluxid = as.integer(f_fluxid),
+    pairID = case_when(
+      type == "NEE" ~ f_fluxid,
+      type == "ER" ~ f_fluxid - 1
+    ),
+    f_fluxid = as_factor(f_fluxid),
+    pairID = as_factor(pairID)
   )
 
-str(fluxes_exp_liahovden_60_gep)
+gpp_liahovden_60 <- flux_gpp(
+  fluxes_df = fluxes_liahovden_60,
+  type_col = type, # the column specifying the type of measurement
+  f_datetime = datetime,
+  id_cols = c("pairID", "turfID"),
+  cols_keep = c("temp_soil_ave", "PAR_ave"), # or "none" (default) or "all"
+  nee_arg = "NEE", # default value
+  er_arg = "ER" # default value
+)
+```
 
-fluxes_qua_liahovden_60_gep <- fluxes_qua_liahovden_60 |>
-  flux_gep(
-    type,
-    datetime,
-    id_cols = c("round", "turfID"),
-    cols_keep = c("temp_soil", "f_model", "PAR")
-  )
+Structure of the flux dataset including GPP:
+```{r gpp-str, echo=FALSE}
 
-str(fluxes_qua_liahovden_60_gep)
 
-fluxes_lin_liahovden_120_gep <- fluxes_lin_liahovden_120 |>
-  flux_gep(
-    type,
-    datetime,
-    id_cols = c("round", "turfID"),
-    cols_keep = c("temp_soil", "f_model", "PAR")
-  )
+str(gpp_liahovden_60, width = 70, strict.width = "cut")
 
-str(fluxes_lin_liahovden_120_gep)
 ```
 
 
-```{r 24h_fluxes, fig.width = 8, fig.height = 9, warning = FALSE, message = FALSE}
+
+```{r 24h_fluxes, fig.width=8, fig.height=9, warning=FALSE, message=FALSE, echo=FALSE, eval=FALSE}
 
 
 library(ggplot2)
-bind_rows(
-  fluxes_exp_liahovden_60_gep,
-  fluxes_qua_liahovden_60_gep,
-  fluxes_lin_liahovden_120_gep
-) |>
-  ggplot(aes(x = datetime, y = f_flux, color = f_model)) +
+  fluxes_exp_liahovden_60_gep |>
+  ggplot(aes(x = datetime, y = f_flux)) +
   geom_point() +
   geom_smooth() +
   labs(
     title = "Net Ecosystem Exchange at Upper Site (Liahovden) during 24 hour",
     x = "Datetime",
-    y = bquote(~ CO[2] ~ "flux [mmol/" * m^2 * "/h]"),
-    color = "Model used in flux_fitting"
+    y = bquote(~ CO[2] ~ "flux [mmol/" * m^2 * "/h]")
   ) +
   theme(legend.position = "bottom") +
   facet_grid(type ~ ., scales = "free")
 ```
+
 
 #### References

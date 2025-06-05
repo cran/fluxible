@@ -3,7 +3,7 @@
 #' which quality flag. This function is incorporated in
 #' \link[fluxible]{flux_quality} as a message, but can be used alone to extract
 #' a dataframe with the flag count.
-#' @param slopes_df dataframe of flux slopes
+#' @param flags_df dataframe of flux slopes
 #' @param f_flags list of flags used in the dataset
 #' (if different from default from flux_quality).
 #' If not provided, it will list only the flags that are
@@ -24,7 +24,7 @@
 #' @export
 
 
-flux_flag_count <- function(slopes_df,
+flux_flag_count <- function(flags_df,
                             f_fluxid = f_fluxid,
                             f_quality_flag = f_quality_flag,
                             f_flags = c(
@@ -36,10 +36,11 @@ flux_flag_count <- function(slopes_df,
                               "no_data",
                               "force_ok",
                               "force_zero",
-                              "force_lm"
+                              "force_lm",
+                              "no_slope"
                             )) {
 
-  flag_df <- slopes_df |>
+  flag_df <- flags_df |>
     mutate(
       f_quality_flag = as.factor({{f_quality_flag}})
     ) |>

@@ -9,13 +9,13 @@ flux_match(
   field_record,
   f_datetime,
   start_col,
-  f_conc,
   end_col,
-  startcrop,
   measurement_length,
   fixed_length = TRUE,
-  ratio_threshold = 0.5,
-  time_diff = 0
+  time_diff = 0,
+  startcrop = 0,
+  ratio_threshold = deprecated(),
+  f_conc = deprecated()
 )
 }
 \arguments{
@@ -31,12 +31,8 @@ and any other column identifying the measurements.}
 
 \item{start_col}{start column in field_record (\code{ymd_hms} format)}
 
-\item{f_conc}{concentration column in \code{raw_conc}}
-
-\item{end_col}{end columne in field_record (\code{ymd_hms} format)}
-
-\item{startcrop}{how many seconds should be discarded at the beginning of
-the measurement}
+\item{end_col}{end columne in field_record (\code{ymd_hms} format).
+Only needed if \code{fixed_length = "FALSE"}.}
 
 \item{measurement_length}{length of the measurement (in seconds)
 from the start specified in the \code{field_record}}
@@ -44,13 +40,19 @@ from the start specified in the \code{field_record}}
 \item{fixed_length}{if \code{TRUE} (default), the \code{measurement_length} is used to
 create the end column. If \code{FALSE}, \code{end_col} has to be provided.}
 
-\item{ratio_threshold}{ratio (number of concentration measurement compared to
-length of measurement in seconds) below which the data should be flagged as
-too little}
-
 \item{time_diff}{time difference (in seconds) between the two datasets.
 Will be added to the datetime column of the \code{raw_conc} dataset.
 For situations where the time was not synchronized correctly.}
+
+\item{startcrop}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} \code{startcrop} is no longer
+supported. Please use \code{start_cut} in \code{flux_fitting} instead.}
+
+\item{ratio_threshold}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} \code{ratio_threshold}
+is no longer supported. Please use \code{ratio_threshold} in \code{flux_quality}
+instead.}
+
+\item{f_conc}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} \code{f_conc} is no longer
+required}
 }
 \value{
 a dataframe with concentration measurements, corresponding datetime,
@@ -68,6 +70,6 @@ Extra variables in both dataframes are kept in the output.
 }
 \examples{
 data(co2_df_short, record_short)
-flux_match(co2_df_short, record_short, datetime, start, conc, startcrop = 10,
+flux_match(co2_df_short, record_short, datetime, start,
 measurement_length = 180)
 }

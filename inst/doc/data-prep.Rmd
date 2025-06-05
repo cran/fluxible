@@ -17,156 +17,163 @@ knitr::opts_chunk$set(
 options(tidyverse.quiet = TRUE)
 ```
 
-If your field setup exports the data as a text based file (csv, txt, tsv, csv2 or the likes), we recommend using the `readr::read_delim` function (@readr2024) to import your data.
-We provide here some guidelines and examples on how to use `read_delim` to prepare your raw data files for `fluxible`.
+Loggers and field equipement provide many different datasets format.
+The `readr::read_delim` [@readr2024] function works perfectly in most cases, given that the data are in a delimited file.
 
-For users of Li-COR gas analyzers and automatic chambers, the [licoread R package](https://jogaudard.github.io/licoread/index.html), developped in collaboration with Li-COR, is designed to read 82z and 81x files and import them as fluxible-friendly objets.
+We provide here examples on how to use `read_delim` to prepare your raw data files for the Fluxible R package.
+For users of Li-COR instruments, the [licoread R package](https://jogaudard.github.io/licoread/index.html), developped in collaboration with Li-COR, is designed to read 82z and 81x files and import them as fluxible-friendly objets.
+<!-- For users of LI-COR instruments, we present at the end of this section the Licoread R package [@gaudardLicoreadReadsRaw2025], to read specific LI-COR formats (82z and 81x). -->
 
-# Checklists for inputs
+## Checklists for inputs
 
-The first function to use when processing ecosystem gas fluxes data with `fluxible` is `flux_match`, which require two inputs: `row_conc` and `field_record`.
+The first function to use when processing ecosystem gas fluxes data with Fluxible is `flux_match`, which requires two inputs: `row_conc` and `field_record`.
+The columns in both files do not require specific names, and those will be kept during the entire workflow.
+We however advise that those names do not contain spaces or special characters.
 
-## Input `raw_conc`
-The input `raw_conc` is the file with the gas concentration measured over time, typically the file exported by the logger or instrument.
+### Input `raw_conc`
+The input `raw_conc` is the file with the gas concentration measured over time, typically the file exported by the logger or instrument, and needs to fulfill the following criteria:
 
-- Column that will be used in `fluxible` do not contain space or special characters;
-- A gas concentration column as numeric;
-- A column in datetime format (`yyyy-mm-dd hh:mm:ss`) corresponding to each concentration data points.
+<!-- - Columns that will be used in Fluxible do not contain space or special characters -->
+- A column with gas concentration as numeric values
+- A column in datetime format (`yyyy-mm-dd hh:mm:ss`) corresponding to each data point of gas concentration
 
 
-## Input `field_record`
-The input `field_record` is the file that is telling which sample or plot was measured when, and eventually providing other meta data, such as campaign, site, type of measurement and so on.
+### Input `field_record`
+The input `field_record` is the metadata file that contains the information of when which sample or plot was measured.
+It can also provide other meta data, such as campaign, site, type of measurement, etc.
+This file should contain:
 
-- Column that will be used in `fluxible` do not contain space or special characters;
-- A column indicating the start of each measurement in datetime format (`yyyy-mm-dd hh:mm:ss`).
+<!-- - Colum that will be used in Fluxible do not contain space or special characters -->
+- A column indicating the start of each measurement in datetime format (`yyyy-mm-dd hh:mm:ss`)
+- If the length of the measurements is not a constant: a column containing the end of each measurement in datetime format (`yyyy-mm-dd hh:mm:ss`)
 
-Note that the current version of `flux_match` does not support non fixed measurement length, indicating an end column instead of the `measurement_length` argument.
-But it is possible to mimic `flux_match` and directly start with `flux_fitting` (see below).
 
-## By-passing `flux_match`
-The `flux_match` function only intends to attribute a unique `flux_id` to each measurement.
+### By-passing `flux_match`
+The `flux_match` function only intends to attribute a unique `flux_id` to each measurement and slice out recordings in between measurements.
 Depending on your setup, this step might not be necessary.
 The `flux_fitting` function is the step after `flux_match` and its input should check the following points:
 
-- Column that will be used in `fluxible` do not contain space or special characters;
-- A gas concentration column as numeric;
-- A column in datetime format (`yyyy-mm-dd hh:mm:ss`) corresponding to each concentration data points;
-- A column with a unique ID for each measurements;
-- A column indicating the start of each measurement in datetime format (`yyyy-mm-dd hh:mm:ss`);
-- A column indicating the end of each measurement in datetime format (`yyyy-mm-dd hh:mm:ss`).
+<!-- - Columns that will be used in Fluxible do not contain space or special characters -->
+- A gas concentration column as numeric
+- A column in datetime format (`yyyy-mm-dd hh:mm:ss`) corresponding to each gas concentration data points
+- A column with a unique ID for each measurement
+- A column indicating the start of each measurement in datetime format (`yyyy-mm-dd hh:mm:ss`)
+- A column indicating the end of each measurement in datetime format (`yyyy-mm-dd hh:mm:ss`)
 
+### Defining your dataset
+Fluxible treats the entire dataset homogeneously in terms of choice of model to fit the data and quality control.
+This is because every step in this process has a risk of adding a bias to the final data (for example, a linear fit tends to under estimate fluxes while an exponential one tends to over estimate fluxes).
+By treating the data homogeneously, the bias are consistent and therefore will affect further analysis less.
+<!-- Homogeneous treatement of the dataset also means that the dataset should be carefully defined, as to avoid introducing bias (fitting all treatment A with a linear model and all treatment B with an exponential model might show that B has higher fluxes than than A, because of the way those models tend to under and over estimate fluxes). -->
+Measurements done under similar conditions and with the same equipment should ideally be processed together.
 
-# Importing a single file
-In this example we will import the file `26124054001.#00`, which is a text file extracted from a logger with the ad-hoc licensed software.
+Note that the "flux after flux" approach, treating each measurement individually in terms of fit, cut and quality control, is also possible (but this is not what Fluxible is optimised for!).
+It would require looping the `flux_fitting` and `flux_quality` (optionally `flux_plot` too for visualization) functions on each flux ID with a prompt asking for the arguments.
+
+## Importing a single file
+In this example we will import the file `26124054001.#00`, which is a text file extracted from a Squirrel Data Logger 2010 Series (Grant Instruments) through SquirrelView software.
 The first thing to do when importing a file with `read_delim` is to open the file in a text editor to look at its structure.
 
-![Screenshot of the file `26124054001.#00` in a text editor. We can see that the 25th first rows should not be imported, and that it is comma separated with a dot as a decimal point.](squirrel_head.png){#fig-header}
+![Screenshot of the file `26124054001.#00` in a text editor. We can see that the 25th first rows do not need to be imported, and that it is comma separated with a dot as a decimal point.](squirrel_head.png){#fig-header}
 
 \
-We will read the file with `read_delim`, and then use `rename` and `mutate` (from the `dplyr` package [^1] [@dplyr2023]) to transform the columns into what we want, and `dmy` and `as_datetime` from the `lubridate` package @lubridate2011 to get our datetime column in the right format:
+We will read the file with `read_delim`, and then use `rename` and `mutate` [from the `dplyr` package \; @dplyr2023] to transform the columns into what we want, and `dmy_hms` from the `lubridate` package [@lubridate2011] to get our datetime column in the right format:
 
-[^1]: both `dplyr` and `readr` are part of the `tidyverse` [@tidyverse2019].
+<!-- [^2]: both `dplyr` and `readr` are part of the `tidyverse` [@tidyverse2019]. -->
 
-```{r, message = FALSE}
+
+```{r single-file, message=FALSE}
 library(tidyverse)
-# readr is part of tidyverse, and since we will also use dplyr
-# we might as well load tidyverse
+# readr, dplyr and lubridate are part of tidyverse
 
 raw_conc <- read_delim(
   "ex_data/26124054001.#00",
   delim = ",", # our file is comma separated
   skip = 25 # the first 25 rows are logger infos that we do not want to keep
 )
-
-# let's see
-head(raw_conc)
 ```
+
+`raw_conc` structure:
+```{r rawconc-str1, echo=FALSE}
+
+
+str(raw_conc, width = 70, strict.width = "cut", give.attr = FALSE)
+```
+
 
 Not too bad... but we are not quite there yet:
 
-- Some column names contain space;
-- Some columns are not needed, removing them will make things lighter for later: `Type` (nothing to do with the type of measurement, something from the logger), `CO2 (V)`, `H2O (V)` (those two are the voltage input to the logger, not what we want), and `H2O_calc (ppt)` (that one was not calibrated for this campaign so better remove it to avoid confusion);
-- The `Date` and `Time` columns should be gathered in one and transformed in `yyyy-mm-dd hh:mm:ss` format.
+- Some column names contain space
+- Some columns are not needed, removing them will make things easier later on: `Type` (nothing to do with the type of measurement, something from the logger), `CO2 (V)`, `H2O (V)` (those two are the voltage input to the logger, not needed), and `H2O_calc (ppt)` (that one was not calibrated for this campaign so better remove it to avoid confusion)
+- The `Date` and `Time` columns should be united in one and transformed in `yyyy-mm-dd hh:mm:ss` format
 
-```{r}
-library(lubridate) # lubridate is what you want to deal with datetime issues
-
+```{r cols-correction}
 raw_conc <- raw_conc |>
   rename(
     co2_conc = "CO2_calc (ppm)"
   ) |>
   mutate(
-    Date = dmy(Date), # to transform the date as a yyyy-mm-dd format
-    datetime = paste(Date, Time), # we paste date and time together
-    datetime = as_datetime(datetime) # datetime instead of character
+    datetime = paste0(Date, Time), # we paste date and time together
+    datetime = dmy_hms(datetime) # datetime instead of character
   ) |>
   select(datetime, co2_conc)
-
-head(raw_conc) # Et voila!
 ```
 
-Note that it is also possible to use the `col_names` and `col_select` arguments directly in `read_delim`, but it has a higher risk of errors.
+Et voilà:
+```{r rawconc-str2, echo=FALSE}
 
-```{r, message = FALSE}
 
-raw_conc <- read_delim(
-  "ex_data/26124054001.#00",
-  delim = ",", # our file is comma separated
-  skip = 26, # removing the first 25th row and the header
-  col_select = c(1, 2, 6),
-  col_names = c("date", "time", rep(NA, 3), "co2_conc", NA)
-)
-head(raw_conc)
+str(raw_conc, width = 70, strict.width = "cut", give.attr = FALSE)
 ```
 
-# Importing multiple files
 
-Quite often a field campaign will result in several files, because the logger was restarted or other events.
-In this example we will read all the files in "ex_data/" that contains "CO2" in their names.
 
-```{r, message = FALSE}
-library(fs)
+## Importing multiple files
 
-raw_conc <- dir_ls( #listing all the files
+Quite often a field season will result in several files.
+In this example we will read all the files in "ex_data/" that contain "CO2" in their names.
+
+```{r multiple-files, message=FALSE}
+library(tidyverse)
+
+raw_conc <- list.files( # list the files
   "ex_data", # at location "ex_data"
-  regexp = "*CO2*" # that contains "CO2" in their name
+  full.names = TRUE,
+  pattern = "*CO2*" # that contains "CO2" in their name
 ) |>
   map_dfr(
     read_csv, # we map read_csv on all the files
     na = c("#N/A", "Over") # "#N/A" and Over should be treated as NA
   ) |>
   rename(
-    conc = "CO2 (ppm)",
-    datetime = "Date/Time"
+    conc = "CO2 (ppm)"
   ) |>
   mutate(
-    datetime = dmy_hms(datetime)
+    datetime = dmy_hms(`Date/Time`)
   ) |>
   select(datetime, conc)
-
-head(raw_conc)
 ```
 
 
-
-# The one file per flux approach
-The Fluxible R package is designed to process data that were measured continuously (in a single or several files) and a `field_record` that records what was measured when.
+## The one file per flux approach
+Fluxible is designed to process data that were measured continuously (in a single or several files) and a `field_record` that records what was measured when.
 Another strategy while measuring gas fluxes on the field is to create a new file for each measurement, with the file name as the flux ID.
-The approach is similar to reading multiple files, except we add a column with the file name, and then can by-pass `flux_match`.
+The approach is similar to reading multiple files, except we add a column with the file name, and can then by-pass `flux_match`.
 
-```{r}
-#| message: FALSE
+```{r one-file-one-flux, message=FALSE}
+
 library(tidyverse)
-library(lubridate)
-library(fs)
 
-raw_conc <- dir_ls( #listing all the files
-  "ex_data/field_campaign" # at location "ex_data/field_campaign"
+raw_conc <- list.files( #listing all the files
+  "ex_data/field_campaign", # at location "ex_data/field_campaign"
+  full.names = TRUE
 ) |>
   map_dfr( # we map read_tsv on all the files
-    read_tsv, # read_tsv is for tab separated value files
+    # read_tsv is the version of read_delim for tab separated value files
+    read_tsv,
     skip = 3,
-    id = "filename" # column with the filename, that we can use as flux ID
+    # creates a column with the filename, that we can use as flux ID
+    id = "filename"
   ) |>
   rename( # a bit of renaming to make the columns more practical
     co2_conc = "CO2 (umol/mol)",
@@ -176,24 +183,29 @@ raw_conc <- dir_ls( #listing all the files
   ) |>
   mutate(
     datetime = paste(Date, Time),
-    datetime = as.POSIXct(
-      datetime, format = "%Y-%m-%d %H:%M:%OS"
-    ), # we get rid of the milliseconds
+    # we get rid of the milliseconds
+    datetime = as.POSIXct(datetime, format="%Y-%m-%d %H:%M:%OS"),
     pressure = pressure / 101.325, # conversion from kPa to atm
-    filename = substr(filename, 24, 70) # removing folder names
+    filename = basename(filename) # removing folder names
   ) |>
   select(datetime, co2_conc, h2o_conc, air_temp, pressure, filename)
-
-head(raw_conc)
 ```
 
+`raw_conc` structure:
+```{r rawconc-str3, echo=FALSE}
 
-# The tricky one
+
+str(raw_conc, width = 70, strict.width = "cut", give.attr = FALSE)
+```
+
+## The tricky one
+
+<!-- (should I keept that?) -->
 
 What happens when you extract a logger file in csv using a computer with settings using comma as a decimal point (which is quite standard in Europe)?
 Well, you get a comma separated values (csv) file, with decimals separated by... comma.
 
-Ideally the file should have been extracted in European csv, that is with comma for decimals and semi-colon as column separator.
+Ideally the file should have been extracted in European csv, which means comma for decimals and semi-colon as column separator.
 But here we are.
 
 ![Screenshot of the file `011023001.#01` opened in a text editor. We can see that it is comma separated, but that the decimal point is also a comma. Additionally, we see that some variables were measured only every 10 seconds, meaning that each row has a different number of commas... Gnnnnnnn](tricky.png){#fig-tricky}
@@ -201,48 +213,58 @@ But here we are.
 \
 Let's try the usual way first:
 
-```{r, message = FALSE, warning = FALSE}
+```{r tricky, message=FALSE, warning=FALSE}
+library(tidyverse)
 
 raw_conc <- read_csv( # read_csv is the same as read_delim(delim = ",")
   "ex_data/011023001.#01",
   col_types = "Tcdddddd",
   na = "#N/A" # we tell read_csv what NA look like in that file
 )
+```
 
-head(raw_conc)
+```{r rawconc-str4, echo=FALSE}
+
+
+str(raw_conc, width = 70, strict.width = "cut", give.attr = FALSE)
 ```
 
 It took the column names right, but then of course interpreted all comma as separators, and made a mess.
 Let's see if we can skipped the header and then assemble the columns with left and right side of the decimal point:
 
-```{r, message = FALSE, warning = FALSE}
+```{r tricky2, warning=FALSE, message=FALSE}
 raw_conc <- read_csv(
   "ex_data/011023001.#01",
   skip = 1, # this time we skip the row with the column names
-  col_names = FALSE, # and we tell read_csv that we do not provide column names
-  na = "#N/A" # we tell read_csv what NA look like in that file
+  col_names = FALSE, # we tell read_csv that column names are not provided
+  na = "#N/A" # we tell read_csv what NA looks like in that file
 )
-
-head(raw_conc)
 ```
 
-The problem now is that CO2 concentration was measured every second (with a comma!), while other variable were measured every 10 seconds.
+```{r rawconc-str5, echo=FALSE}
+
+
+str(raw_conc, width = 70, strict.width = "cut", give.attr = FALSE)
+```
+
+The problem now is that CO~2~ concentration was measured every second (with a comma!), while other variable were measured every 10 seconds.
 That means every 10th row has 14 comma separated elements, while the others have only 10.
 Uhhhhhhhhh
 
-At this point, you might want to get the field computer out again and reprocess your raw file with a european csv output, or anything that is not comma separated, or set the decimal point as a... point.
+At this point, you might want to get the field computer out again and re extract your raw file with a European csv output, or anything that is not comma separated, or set the decimal point as a... point.
 But for the sake of it, let's pretend that it is not an option and solve that issue in R:
 
-```{r}
+```{r tricky3}
+
 # we read each row of our file as an element of a list
-list <- readLines("ex_data/011023001.#01")
-list <- list[-1] # removing the first element with the column names
+lines <- readLines("ex_data/011023001.#01")
+lines <- lines[-1] # removing the first element with the column names
 
 # we first deal with the elements where we have those environmental data
 # that were measured every 10 seconds
-listenv <- list[seq(1, length(list), 10)]
+linesenv <- lines[seq(1, length(lines), 10)]
 env_df <- read.csv(
-  textConnection(listenv), # we read the list into a csv
+  textConnection(linesenv), # we read the list into a csv
   header = FALSE, # there is no header
   colClasses = rep("character", 14)
   # specifying that those columns are character is important
@@ -266,9 +288,9 @@ env_df <- env_df |>
   select(datetime, temp_air, temp_soil, co2_conc, PAR)
 
 # now we do the same with the other elements of the list
-list_other <- list[-seq(1, length(list), 10)]
+lines_other <- lines[-seq(1, length(lines), 10)]
 other_df <- read.csv(
-  textConnection(list_other),
+  textConnection(lines_other),
   header = FALSE,
   colClasses = rep("character", 10)
 )
@@ -281,10 +303,18 @@ other_df <- other_df  |>
   select(datetime, co2_conc)
 
 # and finally we do a full join with both
-conc_df <- full_join(env_df, other_df, by = c("datetime", "co2_conc")) |>
+conc_df <- bind_rows(env_df, other_df) |>
   arrange(datetime) # I like my dataframes in chronological order
-head(conc_df)
+```
+
+Et voilà:
+```{r rawconc-str6, echo=FALSE}
+
+
+str(conc_df, width = 70, strict.width = "cut", give.attr = FALSE)
 ```
 
 That was a strange mix of tidyverse and base R, and I would definitely try to do some plots to check if the data are making sense (number around 420 are most likely CO~2~ concentration, those between 5 and 20 probably temperature, and soil temperature should be lower than air temperature).
 But it worked...
+
+#### References

@@ -42,7 +42,11 @@ Values of datetime and columns in \code{cols_keep} for GEP row are taken from
 NEE measurements.
 }
 \description{
-to calculate gross ecosystem production (GEP) from net ecosystem
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+\code{flux_gep} was renamed \code{flux_gpp} out of consistancy with the litterature.
+
+Calculate gross ecosystem production (GEP) from net ecosystem
 (NEE) exchange and ecosystem respiration (ER) as GEP = NEE - ER.
 Datetime and other variables to keep will be taken from the NEE measurement.
 Fluxes presents in the dataset that are neither NEE nor ER

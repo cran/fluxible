@@ -11,14 +11,14 @@ flux_fitting(
   f_start = f_start,
   f_end = f_end,
   f_fluxid = f_fluxid,
+  fit_type,
   start_cut = 0,
   end_cut = 0,
+  t_zero = 0,
   cz_window = 15,
   b_window = 10,
   a_window = 10,
-  roll_width = 15,
-  t_zero = 0,
-  fit_type
+  roll_width = 15
 )
 }
 \arguments{
@@ -36,25 +36,6 @@ the first row will be kept}
 
 \item{f_fluxid}{column with ID of each flux}
 
-\item{start_cut}{time to discard at the start of the measurements
-(in seconds)}
-
-\item{end_cut}{time to discard at the end of the measurements (in seconds)}
-
-\item{cz_window}{window used to calculate Cz, at the beginning of cut window
-(exponential fit)}
-
-\item{b_window}{window to estimate b. It is an interval after tz where
-it is assumed that the model fits the data perfectly (exponential fit)}
-
-\item{a_window}{window at the end of the flux to estimate a (exponential fit)}
-
-\item{roll_width}{width of the rolling mean for CO2 when looking for \code{tz},
-ideally same as \code{cz_window} (exponential fit)}
-
-\item{t_zero}{time at which the slope should be calculated
-(for \code{quadratic} and \code{exp_tz} fits)}
-
 \item{fit_type}{\code{exp_zhao18}, \code{exp_tz}, \code{exp_hm}, \code{quadratic} or \code{linear.}
 \code{exp_zhao18} is using the exponential model
 \ifelse{html}{\out{C(t) = C_m + a (t - t_z) + (C_z - C_m) exp(-b (t - t_z))}}{\eqn{C(t) = C_m + a (t - t_z) + (C_z - C_m) \exp(-b (t - t_z))}{ASCII}}
@@ -65,6 +46,28 @@ from Zhao et al (2018).
 (Pedersen et al., 2010; Hutchinson and Mosier, 1981)
 \ifelse{html}{\out{C(t) = C_m + (C_z - C_m) exp(-b * t)}}{\eqn{C(t) = C_m + (C_z - C_m) \exp(-b * t)}{ASCII}}
 \code{exponential} is equal to \code{exp_zhao18}, for backwards compatibility}
+
+\item{start_cut}{time to discard at the start of the measurements
+(in seconds)}
+
+\item{end_cut}{time to discard at the end of the measurements (in seconds)}
+
+\item{t_zero}{time at which the slope should be calculated
+(for \code{quadratic}, \code{exp_tz} and \code{exp_hm} fits)}
+
+\item{cz_window}{window used to calculate Cz, at the beginning of cut window
+(\code{exp_zhao18} and \code{exp_tz} fits)}
+
+\item{b_window}{window to estimate b. It is an interval after tz where
+it is assumed that the model fits the data perfectly
+(\code{exp_zhao18} and \code{exp_tz} fits)}
+
+\item{a_window}{window at the end of the flux to estimate a
+(\code{exp_zhao18} and \code{exp_tz} fits)}
+
+\item{roll_width}{width of the rolling mean for gas concentration when
+looking for \code{tz}, ideally same as \code{cz_window}
+(\code{exp_zhao18} and \code{exp_tz} fits)}
 }
 \value{
 a dataframe with the slope at t zero (\code{f_slope}),

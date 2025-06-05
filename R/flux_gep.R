@@ -1,5 +1,10 @@
 #' Calculates GEP
-#' @description to calculate gross ecosystem production (GEP) from net ecosystem
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `flux_gep` was renamed `flux_gpp` out of consistancy with the litterature.
+#'
+#' Calculate gross ecosystem production (GEP) from net ecosystem
 #' (NEE) exchange and ecosystem respiration (ER) as GEP = NEE - ER.
 #' Datetime and other variables to keep will be taken from the NEE measurement.
 #' Fluxes presents in the dataset that are neither NEE nor ER
@@ -23,6 +28,7 @@
 #' cur_group_id bind_rows
 #' @importFrom tidyr pivot_wider fill
 #' @importFrom purrrlyr slice_rows unslice
+#' @importFrom lifecycle deprecate_warn
 #' @examples
 #' data(co2_fluxes)
 #' flux_gep(co2_fluxes, type, f_start, id_cols = "turfID",
@@ -38,163 +44,15 @@ flux_gep <- function(fluxes_df,
                      er_arg = "ER",
                      cols_keep = "none") {
 
-  .Deprecated("flux_gpp")
-
-  name <- deparse(substitute(fluxes_df))
-
-  fluxes_df_check <- fluxes_df |>
-    select({{f_flux}})
-
-  fluxes_df_ok <- flux_fun_check(fluxes_df_check,
-                                 fn = list(is.numeric),
-                                 msg = "has to be numeric",
-                                 name_df = name)
-
-
-  if (!fluxes_df_ok)
-    stop("Please correct the arguments", call. = FALSE)
-
-
-
-  if (length(cols_keep) == 1 && cols_keep == "all") {
-    cols_keep <- fluxes_df |>
-      select(!c(
-        all_of(id_cols),
-        {{type_col}},
-        {{f_flux}},
-        {{f_datetime}}
-      )) |>
-      names()
-  }
-
-  if (length(cols_keep) == 1 && cols_keep == "none") {
-    cols_keep <- c()
-  }
-
-
-  fluxes_df <- fluxes_df |>
-    mutate(
-      id = cur_group_id(),
-      .by = all_of(id_cols)
-    )
-
-  nee_df <- fluxes_df |>
-    select(
-      "id",
-      all_of(c(cols_keep, id_cols)),
-      {{type_col}},
-      {{f_flux}},
-      {{f_datetime}}
-    ) |>
-    filter(
-      {{type_col}} == nee_arg
-    )
-
-  er_df <- fluxes_df |>
-    select(
-      "id",
-      all_of(c(cols_keep, id_cols)),
-      {{type_col}},
-      {{f_flux}},
-      {{f_datetime}}
-    ) |>
-    filter(
-      {{type_col}} == er_arg
-    )
-
-  other_df <- fluxes_df |>
-    select(
-      "id",
-      all_of(c(cols_keep, id_cols)),
-      {{type_col}},
-      {{f_flux}},
-      {{f_datetime}}
-    ) |>
-    filter(
-      {{type_col}} != er_arg
-      & {{type_col}} != nee_arg
-    )
-
-  fluxes_gep <- fluxes_df |>
-    select(
-      {{f_flux}},
-      {{type_col}},
-      {{f_datetime}},
-      "id"
-    ) |>
-    mutate(
-      type = case_when(
-        .data$type == nee_arg ~ "NEE",
-        .data$type == er_arg ~ "ER"
-      )
-    ) |>
-    filter(
-      .data$type == "NEE" |
-        .data$type == "ER"
-    )
-
-  fluxes_gep <- fluxes_gep |>
-    rename(
-      f_flux = {{f_flux}},
-      f_datetime = {{f_datetime}}
-    ) |>
-    pivot_wider(id_cols = "id",
-      names_from = {{type_col}},
-      values_from = c("f_flux", "f_datetime")
-    ) |>
-    rename(
-      {{f_datetime}} := "f_datetime_NEE"
-    ) |>
-    mutate(
-      {{f_flux}} := .data$f_flux_NEE - .data$f_flux_ER,
-      {{type_col}} := "GEP"
-    ) |>
-    select(
-      {{f_datetime}},
-      "id",
-      {{type_col}},
-      {{f_flux}}
-    )
-
-  id_cols_df <- fluxes_df |>
-    select(all_of(id_cols), "id")
-
-  nee_missing <- fluxes_gep |>
-    filter(
-      is.na({{f_datetime}})
-    ) |>
-    select("id") |>
-    left_join(id_cols_df, by = "id")
-
-  nee_missing[] <- Map(paste, names(nee_missing), nee_missing, sep = ": ")
-
-  nee_missing <- nee_missing |>
-    mutate(
-      msg = apply(nee_missing[, id_cols], 1, paste, collapse = ", "),
-      f_warnings = paste(
-        "\n", "NEE missing for measurement", .data$msg
-      )
-    ) |>
-    pull(.data$f_warnings)
-
-  fluxes_gep <- fluxes_gep |>
-    drop_na({{f_datetime}})
-
-  fluxes_gep <- fluxes_gep |>
-    bind_rows(nee_df) |>
-    group_by(.data$id) |>
-    fill(all_of(c(cols_keep, id_cols)), .direction = "updown") |>
-    ungroup() |>
-    bind_rows(er_df) |>
-    bind_rows(other_df) |>
-    select(!"id") |>
-    arrange({{f_datetime}})
-
-  f_warnings <- str_c(nee_missing)
-
-
-  if (any(!is.na(nee_missing))) warning(f_warnings)
-
-  fluxes_gep
-
+  deprecate_warn("1.1.1", "flux_gep()", "flux_gpp()")
+  flux_gpp(
+    fluxes_df = fluxes_df,
+    type_col = {{type_col}},
+    f_datetime = {{f_datetime}},
+    f_flux = {{f_flux}},
+    id_cols = id_cols,
+    nee_arg = nee_arg,
+    er_arg = er_arg,
+    cols_keep = cols_keep
+  )
 }

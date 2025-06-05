@@ -30,7 +30,8 @@ averaged over the flux measurement.}
 co2_fluxes
 }
 \description{
-Calculated CO2 fluxes
+Manually calculated CO2 fluxes for testing purpose.
+df_short and record_short were used, with a zhao18 fit.
 }
 \examples{
 co2_fluxes

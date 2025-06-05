@@ -15,12 +15,15 @@
 #' @param conc_df dataframe of gas concentration over time
 #' @param f_conc column with gas concentration
 #' @param cz_window window used to calculate Cz, at the beginning of cut window
-#' (exponential fit)
+#' (`exp_zhao18` and `exp_tz` fits)
 #' @param b_window window to estimate b. It is an interval after tz where
-#' it is assumed that the model fits the data perfectly (exponential fit)
-#' @param a_window window at the end of the flux to estimate a (exponential fit)
-#' @param roll_width width of the rolling mean for CO2 when looking for `tz`,
-#' ideally same as `cz_window` (exponential fit)
+#' it is assumed that the model fits the data perfectly
+#' (`exp_zhao18` and `exp_tz` fits)
+#' @param a_window window at the end of the flux to estimate a
+#' (`exp_zhao18` and `exp_tz` fits)
+#' @param roll_width width of the rolling mean for gas concentration when
+#' looking for `tz`, ideally same as `cz_window`
+#' (`exp_zhao18` and `exp_tz` fits)
 #' @param start_cut time to discard at the start of the measurements
 #' (in seconds)
 #' @param end_cut time to discard at the end of the measurements (in seconds)
@@ -32,7 +35,7 @@
 #' @param f_conc column with gas concentration data
 #' @param f_fluxid column with ID of each flux
 #' @param t_zero time at which the slope should be calculated
-#' (for `quadratic` and `exp_tz` fits)
+#' (for `quadratic`, `exp_tz` and `exp_hm` fits)
 #' @return a dataframe with the slope at t zero (`f_slope`),
 #' a datetime column of t zero (`f_start_z`), a factor column indicating the
 #' cuts (`f_cut`), the time in seconds since the start of the measurement
@@ -66,14 +69,14 @@ flux_fitting <- function(conc_df,
                          f_start = f_start,
                          f_end = f_end,
                          f_fluxid = f_fluxid,
+                         fit_type,
                          start_cut = 0,
                          end_cut = 0,
+                         t_zero = 0,
                          cz_window = 15,
                          b_window = 10,
                          a_window = 10,
-                         roll_width = 15,
-                         t_zero = 0,
-                         fit_type) {
+                         roll_width = 15) {
 
   name_df <- deparse(substitute(conc_df))
 

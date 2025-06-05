@@ -9,7 +9,8 @@ flux_calc(
   slope_col,
   f_datetime = f_datetime,
   temp_air_col,
-  chamber_volume,
+  chamber_volume = deprecated(),
+  setup_volume,
   atm_pressure,
   plot_area,
   f_fluxid = f_fluxid,
@@ -19,7 +20,8 @@ flux_calc(
   cols_ave = c(),
   cols_sum = c(),
   cols_med = c(),
-  tube_volume,
+  cols_nest = "none",
+  tube_volume = deprecated(),
   temp_air_unit = "celsius",
   f_cut = f_cut,
   keep_arg = "keep",
@@ -39,10 +41,12 @@ datetime of each flux in the output.}
 \item{temp_air_col}{column containing the air temperature used
 to calculate fluxes. Will be averaged with NA removed.}
 
-\item{chamber_volume}{volume of the flux chamber in L,
+\item{chamber_volume}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} see \code{setup_volume}}
+
+\item{setup_volume}{volume of the flux chamber and instrument together in L,
 can also be a column in case it is a variable}
 
-\item{atm_pressure}{atmospheric pressure,
+\item{atm_pressure}{atmospheric pressure in atm,
 can be a constant (numerical) or a variable (column name)}
 
 \item{plot_area}{area of the plot in m^2,
@@ -64,16 +68,22 @@ Those columns need to have unique values for each flux,
 as \link[dplyr:distinct]{distinct} is applied.}
 
 \item{cols_ave}{columns with values that should be averaged
-for each flux in the output. Note that NA are removed in mean calculation.}
+for each flux in the output. Note that NA are removed in mean calculation.
+Those columns will get the \verb{_ave} suffix in the output.}
 
 \item{cols_sum}{columns with values for which is sum is provided
-for each flux in the output. Note that NA are removed in sum calculation.}
+for each flux in the output. Those columns will get the \verb{_sum} suffix in the
+output.}
 
 \item{cols_med}{columns with values for which is median is provided
-for each flux in the output. Note that NA are removed in median calculation.}
+for each flux in the output. Note that NA are removed in median calculation.
+Those columns will get the \verb{_med} suffix in the output.}
 
-\item{tube_volume}{volume of the tubing in L,
-can also be a column in case it is a variable}
+\item{cols_nest}{columns to nest in \code{nested_variables} for each flux in the
+output. Can be character vector of column names, \code{"none"} (default) selects
+none, or \code{"all"} selects all the column except those in \code{cols_keep}.}
+
+\item{tube_volume}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} see \code{setup_volume}}
 
 \item{temp_air_unit}{units in which air temperature was measured.
 Has to be either \code{celsius} (default), \code{fahrenheit} or \code{kelvin.}}
@@ -85,7 +95,8 @@ Has to be either \code{celsius} (default), \code{fahrenheit} or \code{kelvin.}}
 \item{cut}{if 'TRUE' (default), the measurements will be cut according to
 'f_cut' before calculating fluxes. This has no influence on the flux itself
 since the slope is provided from \link[fluxible:flux_fitting]{flux_fitting},
-but it will influence the values of the columns in \code{cols_ave}.}
+but it will influence the values of the variables in \code{cols_ave}, \code{cols_cum},
+and \code{cols_med}.}
 
 \item{fit_type}{(optional) model used in
 \link[fluxible:flux_fitting]{flux_fitting}. Will be automatically filled if
@@ -117,8 +128,7 @@ datetime,
 temp_air,
 conc_unit = "ppm",
 flux_unit = "mmol",
-chamber_volume = 24.5,
-tube_volume = 0.075,
+setup_volume = 24.575,
 atm_pressure = 1,
 plot_area = 0.0625)
 }

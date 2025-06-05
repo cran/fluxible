@@ -7,13 +7,8 @@
 #' @param field_record dataframe recording which measurement happened when.
 #' Has to contain at least a column containing the start of each measurement,
 #' and any other column identifying the measurements.
-#' @param startcrop how many seconds should be discarded at the beginning of
-#' the measurement
 #' @param measurement_length length of the measurement (in seconds)
 #' from the start specified in the field_record
-#' @param ratio_threshold ratio (number of concentration measurement compared to
-#' length of measurement in seconds) below which the data should be flagged as
-#' too little
 #' @param time_diff time difference (in seconds) between the two datasets.
 #' Will be added to the datetime column of the raw_conc dataset.
 #' For situations where the time was not synchronized correctly.
@@ -33,12 +28,14 @@
 #' (Pedersen et al., 2010; Hutchinson and Mosier, 1981)
 #' \ifelse{html}{\out{C(t) = C_m + (C_z - C_m) exp(-b * t)}}{\eqn{C(t) = C_m + (C_z - C_m) \exp(-b * t)}{ASCII}}
 #' @param cz_window window used to calculate Cz, at the beginning of cut window
-#' (exponential fit)
+#' (`exp_zhao18` and `exp_tz` fits)
 #' @param b_window window to estimate b. It is an interval after tz where
-#' it is assumed that the model fits the data perfectly (exponential fit)
-#' @param a_window window at the end of the flux to estimate a (exponential fit)
+#' it is assumed that the model fits the data perfectly
+#' (`exp_zhao18` and `exp_tz` fits)
+#' @param a_window window at the end of the flux to estimate a
+#' (`exp_zhao18` and `exp_tz` fits)
 #' @param roll_width width of the rolling mean for CO2 when looking for tz,
-#' ideally same as cz_window (exponential fit)
+#' ideally same as cz_window (`exp_zhao18` and `exp_tz` fits)
 #' @param start_cut time to discard at the start of the measurements
 #' (in seconds)
 #' @param end_cut time to discard at the end of the measurements (in seconds)
@@ -64,13 +61,13 @@
 #' the linear model is considered an unsatisfactory fit
 #' (linear and quadratic fit)
 #' @param rmse_threshold threshold for the RMSE of each flux above which
-#' the fit is considered unsatisfactory (exponential fit)
+#' the fit is considered unsatisfactory (`exp_zhao18` and `exp_tz` fits)
 #' @param cor_threshold threshold for the correlation coefficient of
 #' gas concentration with time below which the correlation
-#' is considered not significant (exponential fit)
+#' is considered not significant (`exp_zhao18` and `exp_tz` fits)
 #' @param b_threshold threshold for the b parameter.
 #' Defines a window with its opposite inside which the fit is
-#' considered good enough (exponential fit)
+#' considered good enough (`exp_zhao18` and `exp_tz` fits)
 #' @param slope_correction logical. If `TRUE`, the flux will be calculated with
 #' the slope corrected according to the recommandations of the quality flags.
 #' @param conc_unit unit in which the concentration of gas was measured
@@ -80,9 +77,7 @@
 #' \ifelse{html}{\out{mmol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{mmol*m^{-2}*h^{-1}}{ASCII}};
 #' `micromol` outputs fluxes in
 #' \ifelse{html}{\out{micromol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{micromol*m^{-2}*h^{-1}}{ASCII}}
-#' @param chamber_volume volume of the flux chamber in L,
-#' can also be a column in case it is a variable
-#' @param tube_volume volume of the tubing in L,
+#' @param setup_volume volume of the flux chamber and instrument together in L,
 #' can also be a column in case it is a variable
 #' @param atm_pressure atmospheric pressure,
 #' can be a constant (numerical) or a variable (column name)
@@ -137,14 +132,12 @@
 #' f_datetime = datetime,
 #' start_col = start,
 #' f_conc = conc,
-#' startcrop = 10,
 #' measurement_length = 180,
 #' fit_type = "exp_zhao18",
 #' temp_air_col = temp_air,
 #' conc_unit = "ppm",
 #' flux_unit = "mmol",
-#' chamber_volume = 24.5,
-#' tube_volume = 0.075,
+#' setup_volume = 24.575,
 #' atm_pressure = 1,
 #' plot_area = 0.0625
 #' )
@@ -156,11 +149,10 @@ stupeflux <- function(raw_conc,
                       start_col,
                       end_col,
                       f_conc,
-                      startcrop,
+                      setup_volume,
                       measurement_length,
                       fit_type,
                       temp_air_col,
-                      chamber_volume,
                       atm_pressure,
                       plot_area,
                       conc_unit,
@@ -170,7 +162,6 @@ stupeflux <- function(raw_conc,
                       cols_ave = c(),
                       cols_sum = c(),
                       cols_med = c(),
-                      tube_volume,
                       ratio_threshold = 0.5,
                       time_diff = 0,
                       start_cut = 0,
@@ -198,12 +189,9 @@ stupeflux <- function(raw_conc,
     field_record,
     f_datetime = {{f_datetime}},
     start_col = {{start_col}},
-    f_conc = {{f_conc}},
     end_col = {{end_col}},
     fixed_length = fixed_length,
-    startcrop = startcrop,
     measurement_length = measurement_length,
-    ratio_threshold = ratio_threshold,
     time_diff = time_diff
   )
 
@@ -243,7 +231,6 @@ stupeflux <- function(raw_conc,
       slope_col = f_slope_corr,
       {{f_datetime}},
       {{temp_air_col}},
-      chamber_volume = chamber_volume,
       atm_pressure = atm_pressure,
       plot_area = plot_area,
       conc_unit = conc_unit,
@@ -252,7 +239,7 @@ stupeflux <- function(raw_conc,
       cols_ave = cols_ave,
       cols_sum = cols_sum,
       cols_med = cols_med,
-      tube_volume = tube_volume,
+      setup_volume = setup_volume,
       temp_air_unit = temp_air_unit,
       cut = cut
     ))
@@ -264,14 +251,13 @@ stupeflux <- function(raw_conc,
       slope_col = f_slope,
       {{f_datetime}},
       {{temp_air_col}},
-      chamber_volume = chamber_volume,
       atm_pressure = atm_pressure,
       plot_area = plot_area,
       conc_unit = conc_unit,
       flux_unit = flux_unit,
       cols_keep = cols_keep,
       cols_ave = cols_ave,
-      tube_volume = tube_volume,
+      setup_volume = setup_volume,
       temp_air_unit = temp_air_unit,
       cut = cut
     ))

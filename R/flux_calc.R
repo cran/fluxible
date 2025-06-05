@@ -15,11 +15,11 @@
 #' \ifelse{html}{\out{micromol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{micromol*m^{-2}*h^{-1}}{ASCII}}
 #' @param f_cut column containing cutting information
 #' @param keep_arg name in `f_cut` of data to keep
-#' @param chamber_volume volume of the flux chamber in L,
+#' @param chamber_volume `r lifecycle::badge("deprecated")` see `setup_volume`
+#' @param tube_volume `r lifecycle::badge("deprecated")` see `setup_volume`
+#' @param setup_volume volume of the flux chamber and instrument together in L,
 #' can also be a column in case it is a variable
-#' @param tube_volume volume of the tubing in L,
-#' can also be a column in case it is a variable
-#' @param atm_pressure atmospheric pressure,
+#' @param atm_pressure atmospheric pressure in atm,
 #' can be a constant (numerical) or a variable (column name)
 #' @param plot_area area of the plot in m^2,
 #' can also be a column in case it is a variable
@@ -28,10 +28,16 @@
 #' as \link[dplyr:distinct]{distinct} is applied.
 #' @param cols_ave columns with values that should be averaged
 #' for each flux in the output. Note that NA are removed in mean calculation.
+#' Those columns will get the `_ave` suffix in the output.
 #' @param cols_sum columns with values for which is sum is provided
-#' for each flux in the output. Note that NA are removed in sum calculation.
+#' for each flux in the output. Those columns will get the `_sum` suffix in the
+#' output.
 #' @param cols_med columns with values for which is median is provided
 #' for each flux in the output. Note that NA are removed in median calculation.
+#' Those columns will get the `_med` suffix in the output.
+#' @param cols_nest columns to nest in `nested_variables` for each flux in the
+#' output. Can be character vector of column names, `"none"` (default) selects
+#' none, or `"all"` selects all the column except those in `cols_keep`.
 #' @param f_fluxid column containing the flux IDs
 #' @param temp_air_col column containing the air temperature used
 #' to calculate fluxes. Will be averaged with NA removed.
@@ -40,7 +46,8 @@
 #' @param cut if 'TRUE' (default), the measurements will be cut according to
 #' 'f_cut' before calculating fluxes. This has no influence on the flux itself
 #' since the slope is provided from \link[fluxible:flux_fitting]{flux_fitting},
-#' but it will influence the values of the columns in `cols_ave`.
+#' but it will influence the values of the variables in `cols_ave`, `cols_cum`,
+#' and `cols_med`.
 #' @param fit_type (optional) model used in
 #' \link[fluxible:flux_fitting]{flux_fitting}. Will be automatically filled if
 #' `slopes_df` was produced using \link[fluxible:flux_fitting]{flux_fitting}.
@@ -56,10 +63,11 @@
 #' `cols_keep`, any column specified in `cols_ave` with
 #' their value averaged over the measurement after cuts and discarding NA.
 #' @importFrom rlang .data :=
-#' @importFrom dplyr select group_by summarise
+#' @importFrom dplyr select group_by summarise rename_with nest_by
 #' ungroup mutate case_when distinct left_join across everything
 #' @importFrom tidyselect any_of
 #' @importFrom stats median
+#' @importFrom lifecycle deprecated deprecate_stop
 #' @examples
 #' data(co2_conc)
 #' slopes <- flux_fitting(co2_conc, conc, datetime, fit_type = "exp_zhao18")
@@ -69,8 +77,7 @@
 #' temp_air,
 #' conc_unit = "ppm",
 #' flux_unit = "mmol",
-#' chamber_volume = 24.5,
-#' tube_volume = 0.075,
+#' setup_volume = 24.575,
 #' atm_pressure = 1,
 #' plot_area = 0.0625)
 #' @export
@@ -81,7 +88,8 @@ flux_calc <- function(slopes_df,
                       slope_col,
                       f_datetime = f_datetime,
                       temp_air_col,
-                      chamber_volume,
+                      chamber_volume = deprecated(),
+                      setup_volume,
                       atm_pressure,
                       plot_area,
                       f_fluxid = f_fluxid,
@@ -91,12 +99,29 @@ flux_calc <- function(slopes_df,
                       cols_ave = c(),
                       cols_sum = c(),
                       cols_med = c(),
-                      tube_volume,
+                      cols_nest = "none",
+                      tube_volume = deprecated(),
                       temp_air_unit = "celsius",
                       f_cut = f_cut,
                       keep_arg = "keep",
                       cut = TRUE,
                       fit_type = c()) {
+
+  if (is_present(chamber_volume)) {
+    deprecate_stop(
+      when = "1.2.2",
+      what = "flux_calc(chamber_volume)",
+      with = "flux_calc(setup_volume)"
+    )
+  }
+
+  if (is_present(tube_volume)) {
+    deprecate_stop(
+      when = "1.2.2",
+      what = "flux_calc(tube_volume)",
+      with = "flux_calc(setup_volume)"
+    )
+  }
 
   name_df <- deparse(substitute(slopes_df))
 
@@ -133,6 +158,18 @@ flux_calc <- function(slopes_df,
 
   if (any(!df_ok))
     stop("Please correct the arguments", call. = FALSE)
+
+  if (length(cols_nest) == 1 && cols_nest == "all") {
+    cols_nest <- slopes_df |>
+      select(!c(
+        {{cols_keep}}
+      )) |>
+      names()
+  }
+
+  if (length(cols_nest) == 1 && cols_nest == "none") {
+    cols_nest <- c()
+  }
 
 
   fit_type <- flux_fit_type(
@@ -176,7 +213,7 @@ flux_calc <- function(slopes_df,
   }
 
 
-  name_vol <- deparse(substitute(chamber_volume))
+  name_vol <- deparse(substitute(setup_volume))
   name_atm <- deparse(substitute(atm_pressure))
   name_plot <- deparse(substitute(plot_area))
 
@@ -231,7 +268,8 @@ flux_calc <- function(slopes_df,
       ) |>
       left_join(slope_keep, by = join_by(
         {{f_fluxid}} == {{f_fluxid}}
-      ))
+      )) |>
+      rename_with(~paste0(.x, "_ave"), all_of(cols_ave))
   } else {
     slope_ave <- slope_keep
   }
@@ -248,7 +286,8 @@ flux_calc <- function(slopes_df,
       ) |>
       left_join(slope_ave, by = join_by(
         {{f_fluxid}} == {{f_fluxid}}
-      ))
+      )) |>
+      rename_with(~paste0(.x, "_sum"), all_of(cols_sum))
   } else {
     slope_sum <- slope_ave
   }
@@ -265,10 +304,12 @@ flux_calc <- function(slopes_df,
       ) |>
       left_join(slope_sum, by = join_by(
         {{f_fluxid}} == {{f_fluxid}}
-      ))
+      )) |>
+      rename_with(~paste0(.x, "_med"), all_of(cols_med))
   } else {
     slope_med <- slope_sum
   }
+
 
   message("Calculating fluxes...")
 
@@ -291,9 +332,8 @@ flux_calc <- function(slopes_df,
 
   fluxes <- slope_med |>
     mutate(
-      f_volume_setup = {{chamber_volume}} + tube_volume,
       f_flux =
-        ({{slope_col}} * {{atm_pressure}} * .data$f_volume_setup)
+        ({{slope_col}} * {{atm_pressure}} * {{setup_volume}})
         / (r_const *
            .data$f_temp_air_ave
            * {{plot_area}}) # flux in micromol/s/m^2
@@ -306,6 +346,20 @@ flux_calc <- function(slopes_df,
       ),
       .by = {{f_fluxid}}
     )
+
+  if (length(cols_nest) > 0) {
+    message("Creating a df with the columns from 'cols_nest' argument...")
+    slope_nest <- slopes_df |>
+      select(all_of(cols_nest), {{f_fluxid}}) |>
+      nest_by(
+        {{f_fluxid}}, .key = "nested_variables"
+      ) |>
+      left_join(fluxes, by = join_by(
+        {{f_fluxid}} == {{f_fluxid}}
+      ))
+    fluxes <- slope_nest
+  }
+
   if (isTRUE(kappamax)) {
     fluxes <- fluxes |>
       mutate(

@@ -24,7 +24,7 @@ flux_quality(
   force_zero = c(),
   force_lm = c(),
   force_exp = c(),
-  ratio_threshold = 0,
+  ratio_threshold = 0.5,
   gfactor_threshold = 10,
   fit_type = c(),
   ambient_conc = 421,
