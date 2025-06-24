@@ -132,7 +132,7 @@ fluxes_df <- flux_calc(
   datetime,
   temp_air,
   conc_unit = "ppm",
-  flux_unit = "mmol",
+  flux_unit = "mmol/m2/h",
   cols_keep = c("turfID", "type"),
   cols_ave = c("temp_soil", "PAR"),
   setup_volume = 24.575,

@@ -105,7 +105,7 @@ fluxes_twogases_co2 <- flux_calc(
   f_datetime = datetime,
   temp_air_col = temp_air,
   conc_unit = "ppm",
-  flux_unit = "mmol",
+  flux_unit = "mmol/m2/h",
   setup_volume = 6.31,
   atm_pressure = 1,
   plot_area = 0.31,
@@ -123,7 +123,7 @@ fluxes_twogases_ch4 <- flux_calc(
   f_datetime = datetime,
   temp_air_col = temp_air,
   conc_unit = "ppb", # ch4 is measured in ppb
-  flux_unit = "micromol", # we want a flux in umol/m2/h
+  flux_unit = "umol/m2/h", # we want a flux in umol/m2/h
   setup_volume = 6.31,
   atm_pressure = 1,
   plot_area = 0.31

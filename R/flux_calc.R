@@ -7,12 +7,11 @@
 #' measurements in `slopes_df`. The first one after cutting will be kept as
 #' datetime of each flux in the output.
 #' @param conc_unit unit in which the concentration of gas was measured
-#' `ppm` or `ppb`
-#' @param flux_unit unit in which the calculated flux will be:
-#' `mmol` outputs fluxes in
-#' \ifelse{html}{\out{mmol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{mmol*m^{-2}*h^{-1}}{ASCII}}
-#' ; `micromol` outputs fluxes in
-#' \ifelse{html}{\out{micromol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{micromol*m^{-2}*h^{-1}}{ASCII}}
+#' `ppm`, `ppb`, or `ppt`
+#' @param flux_unit desired units for the calculated fluxes. Has to be of the
+#' form amount/surface/time. Amount can be `mol`, `mmol`, `umol`, `nmol` or
+#' `pmol`. Time can be `d` (day), `h` (hour), `mn` (minute) or `s` (seconds).
+#' Surface can be `m2`, `dm2` or `cm2`.
 #' @param f_cut column containing cutting information
 #' @param keep_arg name in `f_cut` of data to keep
 #' @param chamber_volume `r lifecycle::badge("deprecated")` see `setup_volume`
@@ -57,17 +56,17 @@
 #' or
 #' \ifelse{html}{\out{micromol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{micromol*m^{-2}*h^{-1}}{ASCII}}
 #' (`f_flux`) according to `flux_unit`, temperature average for each flux in
-#' Kelvin (`f_temp_ave`), the total volume of the setup for each measurement
-#' (`f_volume_setup`), the model used in
+#' Kelvin (`f_temp_ave`), the model used in
 #' \link[fluxible:flux_fitting]{flux_fitting}, any column specified in
-#' `cols_keep`, any column specified in `cols_ave` with
-#' their value averaged over the measurement after cuts and discarding NA.
+#' `cols_keep`, any column specified in `cols_ave`, `cols_med` or `cols_sum`
+#' with their values treated accordingly over the measurement after cuts, and a
+#' column `nested_variables` with the variables specified in `cols_nest`.
 #' @importFrom rlang .data :=
 #' @importFrom dplyr select group_by summarise rename_with nest_by
 #' ungroup mutate case_when distinct left_join across everything
 #' @importFrom tidyselect any_of
 #' @importFrom stats median
-#' @importFrom lifecycle deprecated deprecate_stop
+#' @importFrom lifecycle deprecated deprecate_stop deprecate_warn
 #' @examples
 #' data(co2_conc)
 #' slopes <- flux_fitting(co2_conc, conc, datetime, fit_type = "exp_zhao18")
@@ -76,7 +75,7 @@
 #' datetime,
 #' temp_air,
 #' conc_unit = "ppm",
-#' flux_unit = "mmol",
+#' flux_unit = "mmol/m2/h",
 #' setup_volume = 24.575,
 #' atm_pressure = 1,
 #' plot_area = 0.0625)
@@ -123,6 +122,25 @@ flux_calc <- function(slopes_df,
     )
   }
 
+  if (flux_unit == "mmol") {
+    deprecate_warn(
+      when = "1.2.4",
+      "flux_calc(flux_unit = 'should be in the form amount/surface/time')"
+    )
+
+    flux_unit <- "mmol/m2/h"
+  }
+
+
+  if (flux_unit == "micromol") {
+    deprecate_warn(
+      when = "1.2.4",
+      "flux_calc(flux_unit = 'should be in the form amount/surface/time')"
+    )
+
+    flux_unit <- "umol/m2/h"
+  }
+
   name_df <- deparse(substitute(slopes_df))
 
   colnames <- colnames(slopes_df)
@@ -159,6 +177,8 @@ flux_calc <- function(slopes_df,
   if (any(!df_ok))
     stop("Please correct the arguments", call. = FALSE)
 
+  flux_coeff <- flux_units(flux_unit, conc_unit)
+
   if (length(cols_nest) == 1 && cols_nest == "all") {
     cols_nest <- slopes_df |>
       select(!c(
@@ -192,16 +212,6 @@ flux_calc <- function(slopes_df,
     c("celsius", "fahrenheit", "kelvin")
   )
 
-  conc_unit <- match.arg(
-    conc_unit,
-    c("ppm", "ppb")
-  )
-
-  flux_unit <- match.arg(
-    flux_unit,
-    c("micromol", "mmol")
-  )
-
 
   if (cut == TRUE) {
     message("Cutting data according to 'keep_arg'...")
@@ -228,9 +238,10 @@ flux_calc <- function(slopes_df,
     ) |>
     summarise(
       f_temp_air_ave = mean({{temp_air_col}}, na.rm = TRUE),
+      f_atm_pressure_ave = mean({{atm_pressure}}, na.rm = TRUE),
       {{f_datetime}} := min({{f_datetime}}),
       .by = c(
-        {{f_fluxid}}, {{slope_col}}, any_of(c(name_vol, name_atm, name_plot))
+        {{f_fluxid}}, {{slope_col}}, any_of(c(name_vol, name_plot))
       )
     ) |>
     mutate(
@@ -316,28 +327,17 @@ flux_calc <- function(slopes_df,
   r_const <- 0.082057
   message("R constant set to 0.082057")
 
-
-  # putting slope in ppm/s
-  if (conc_unit == "ppm") {
-    message("Concentration was measured in ppm")
-  }
-  if (conc_unit == "ppb") {
-    message("Concentration was measured in ppb")
-    slope_med <- slope_med |>
-      mutate(
-        {{slope_col}} := {{slope_col}} * 0.001 # now the slope is in ppm/s
-      )
-  }
+  message(paste("Concentration was measured in", conc_unit))
 
 
   fluxes <- slope_med |>
     mutate(
       f_flux =
-        ({{slope_col}} * {{atm_pressure}} * {{setup_volume}})
+        ({{slope_col}} * .data$f_atm_pressure_ave * {{setup_volume}})
         / (r_const *
            .data$f_temp_air_ave
-           * {{plot_area}}) # flux in micromol/s/m^2
-        * 3600, # secs to hours, flux is now in micromol/m^2/h
+           * {{plot_area}}), # flux in micromol/s/m^2
+      f_flux = .data$f_flux * flux_coeff, # converting to desired unit
       f_temp_air_ave = case_when(
         temp_air_unit == "celsius" ~ .data$f_temp_air_ave - 273.15,
         temp_air_unit == "fahrenheit"
@@ -346,6 +346,11 @@ flux_calc <- function(slopes_df,
       ),
       .by = {{f_fluxid}}
     )
+
+  if (is.numeric({{atm_pressure}})) {
+    fluxes <- fluxes |>
+      select(!"f_atm_pressure_ave")
+  }
 
   if (length(cols_nest) > 0) {
     message("Creating a df with the columns from 'cols_nest' argument...")
@@ -374,17 +379,10 @@ flux_calc <- function(slopes_df,
       )
   }
 
-  # output unit
-  if (flux_unit == "micromol") {
-    message("Fluxes are in micromol/m2/h")
-  }
-  if (flux_unit == "mmol") {
-    fluxes <- fluxes |>
-      mutate(
-        f_flux = .data$f_flux / 1000
-      )
-    message("Fluxes are in mmol/m2/h")
-  }
+
+  message(
+    paste0("Fluxes are in ", flux_unit)
+  )
 
   fluxes
 

@@ -17,9 +17,9 @@
 
     Code
       dplyr::select(flux_calc(slopes0, f_slope, datetime, temp_air, conc_unit = "ppm",
-        flux_unit = "mmol", cols_keep = c("turfID", "type", "f_start"), setup_volume = 24.575,
-        atm_pressure = 1, plot_area = 0.0625, cut = FALSE), f_fluxid, f_flux, turfID,
-      type, f_start, f_slope)
+        flux_unit = "mmol/m2/h", cols_keep = c("turfID", "type", "f_start"),
+        setup_volume = 24.575, atm_pressure = 1, plot_area = 0.0625, cut = FALSE),
+      f_fluxid, f_flux, turfID, type, f_start, f_slope)
     Message
       Averaging air temperature for each flux...
       Creating a df with the columns from 'cols_keep' argument...
@@ -42,9 +42,10 @@
 
     Code
       dplyr::select(flux_calc(slopes0, f_slope, datetime, temp_air, conc_unit = "ppm",
-        flux_unit = "mmol", cols_keep = c("turfID", "type", "f_start"), cols_ave = c(
-          "PAR", "temp_soil"), setup_volume = 24.575, atm_pressure = 1, plot_area = 0.0625,
-        cut = FALSE), f_fluxid, f_flux, turfID, type, f_start, PAR_ave, temp_soil_ave)
+        flux_unit = "mmol/m2/h", cols_keep = c("turfID", "type", "f_start"),
+        cols_ave = c("PAR", "temp_soil"), setup_volume = 24.575, atm_pressure = 1,
+        plot_area = 0.0625, cut = FALSE), f_fluxid, f_flux, turfID, type, f_start,
+      PAR_ave, temp_soil_ave)
     Message
       Averaging air temperature for each flux...
       Creating a df with the columns from 'cols_keep' argument...
@@ -116,7 +117,7 @@
 
     Code
       dplyr::select(flux_calc(slopes0_temp, f_slope, datetime, temp_fahr, conc_unit = "ppm",
-        flux_unit = "mmol", temp_air_unit = "fahrenheit", setup_volume = 24.575,
+        flux_unit = "mmol/m2/h", temp_air_unit = "fahrenheit", setup_volume = 24.575,
         atm_pressure = 1, plot_area = 0.0625, cut = FALSE), f_fluxid, f_temp_air_ave,
       datetime, f_flux)
     Message
@@ -140,7 +141,7 @@
 
     Code
       dplyr::select(flux_calc(slopes0_temp, f_slope, datetime, temp_kelvin,
-        conc_unit = "ppm", flux_unit = "mmol", temp_air_unit = "kelvin",
+        conc_unit = "ppm", flux_unit = "mmol/m2/h", temp_air_unit = "kelvin",
         setup_volume = 24.575, atm_pressure = 1, plot_area = 0.0625, cut = FALSE),
       f_fluxid, f_temp_air_ave, datetime, f_flux)
     Message
@@ -164,7 +165,7 @@
 
     Code
       dplyr::select(flux_calc(slopes30_flag, f_slope_corr, datetime, temp_air,
-        conc_unit = "ppm", flux_unit = "mmol", keep_arg = "keep", setup_volume = 24.575,
+        conc_unit = "ppm", flux_unit = "mmol/m2/h", keep_arg = "keep", setup_volume = 24.575,
         atm_pressure = 1, plot_area = 0.0625), f_fluxid, f_temp_air_ave, datetime,
       f_flux)
     Message
@@ -189,7 +190,7 @@
 
     Code
       dplyr::select(flux_calc(slopes0_vol, f_slope, datetime, temp_air, setup_volume = volume,
-        conc_unit = "ppm", flux_unit = "mmol", atm_pressure = 1, plot_area = 0.0625),
+        conc_unit = "ppm", flux_unit = "mmol/m2/h", atm_pressure = 1, plot_area = 0.0625),
       f_fluxid, f_temp_air_ave, datetime, f_flux)
     Message
       Cutting data according to 'keep_arg'...
@@ -228,7 +229,7 @@
       stupeflux(raw_conc = co2_df_short, field_record = record_short, f_datetime = datetime,
         start_col = start, f_conc = conc, start_cut = 10, measurement_length = 180,
         fit_type = "exp_zhao18", temp_air_col = temp_air, conc_unit = "ppm",
-        flux_unit = "mmol", setup_volume = 24.575, atm_pressure = 1, plot_area = 0.0625,
+        flux_unit = "mmol/m2/h", setup_volume = 24.575, atm_pressure = 1, plot_area = 0.0625,
         slope_correction = FALSE)
     Message
       Cutting measurements...

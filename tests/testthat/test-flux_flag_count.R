@@ -26,7 +26,7 @@ test_that("quality flags count works after calculating fluxes", {
     fit_type = "exp_zhao18",
     temp_air_col = temp_air,
     conc_unit = "ppm",
-    flux_unit = "mmol",
+    flux_unit = "mmol/m2/h",
     setup_volume = 24.575,
     atm_pressure = 1,
     plot_area = 0.0625,

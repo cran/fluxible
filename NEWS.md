@@ -1,3 +1,20 @@
+# fluxible 1.2.6
+
+* `flux_calc`: gas concentration unit can be ppm, ppb or ppt. The conversion coefficient is integrated in `flux_units`
+
+# fluxible 1.2.5
+
+* `flux_calc`: `atm_pressure` is averaged like `temp_air_col` if it is a variable with more than one value per flux measurement
+
+# fluxible 1.2.4
+
+* `flux_units`: new function returning a conversion factor to transform fluxes into the desired unit
+* `flux_calc`: `flux_unit` argument now takes units in the form amount/surface/time
+
+# fluxible 1.2.3
+
+* `flux_lrc`: new function to standardize CO2 fluxes with PAR values
+
 # fluxible 1.2.2
 
 * `flux_calc`:

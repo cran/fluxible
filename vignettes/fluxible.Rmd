@@ -301,7 +301,7 @@ fluxes_liahovden_60 <- flux_calc(
   f_datetime = datetime,
   temp_air_col = temp_air,
   conc_unit = "ppm", # unit of gas concentration
-  flux_unit = "mmol", # unit of flux
+  flux_unit = "mmol/m2/h", # unit of flux
   temp_air_unit = "celsius",
   setup_volume = 24.575, # in liters, can also be a variable
   atm_pressure = 1, # in atm, can also be a variable
@@ -409,7 +409,7 @@ str(gpp_liahovden_60, width = 70, strict.width = "cut")
 
 
 library(ggplot2)
-  fluxes_exp_liahovden_60_gep |>
+fluxes_exp_liahovden_60_gep |>
   ggplot(aes(x = datetime, y = f_flux)) +
   geom_point() +
   geom_smooth() +
