@@ -86,7 +86,7 @@
 
     Code
       dplyr::distinct(dplyr::select(flux_match(co2_df_short, record_short_end,
-        datetime, start, end, fixed_length = FALSE), f_fluxid, f_start, f_end))
+        datetime, start, end), f_fluxid, f_start, f_end))
     Output
       # A tibble: 6 x 3
         f_fluxid f_start             f_end              

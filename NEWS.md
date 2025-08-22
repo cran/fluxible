@@ -1,3 +1,41 @@
+# fluxible 1.3.0
+
+* `flux_match`: checks that the two inputs have different column names
+* `flux_plot`: dots in legend and lines bigger
+* `flux_fitting`: `exp_zhao18` now default model
+* various fixes and code improvements
+
+# fluxible 1.2.13
+
+* `flux_fitting`: `cut_direction` allows to cut from both sides, or start, or end
+
+
+# fluxible 1.2.12
+
+* `flux_drygas`: does the wet air correction
+* `flux_units`: added `mmol/mol` as a possible concentration unit
+* `flux_diff`: calculates the difference between fluxes (GPP, transpiration, etc)
+
+# fluxible 1.2.11
+
+* `flux_calc`: fixed bug when `atm_pressure` is a variable
+
+# fluxible 1.2.10
+
+* `flux_lrc`: output is now in long format (fluxes in same column, additional column indicating PAR correction), which makes it easier to handle with `flux_gpp`.
+
+# fluxible 1.2.9
+
+* `flux_plot`: `output = "longpdf"` exports a single page pdf (default width 29.7 cm and as long as needed). This method is considerably faster than `pdfpages`, because it bypasses `facet_wrap_paginate`, but is a bit less aesthetic.
+
+# fluxible 1.2.8
+
+* `flux_plot`: `f_facetid` argument allows to display more information in the facet IDs when plotting
+
+# fluxible 1.2.7
+
+* `flux_match`: `fixed_length` is deprecated. `flux_match` will detect whether `end_col` or `measurement_length` are provided.
+
 # fluxible 1.2.6
 
 * `flux_calc`: gas concentration unit can be ppm, ppb or ppt. The conversion coefficient is integrated in `flux_units`
@@ -100,13 +138,13 @@
 
 * Added a vignette describing how to prepare the data for `fluxible`.
 * `flux_plot` now adds a vertical line showing where t_zero is.
-* 'flux_plot': scale_x_datetime arguments are now past as a list.
-* Functions now recycle user's column names instead of renaming them.
-  Columns created by fluxible functions have the suffix 'f_'.
+* `flux_plot`: scale_x_datetime arguments are now past as a list.
+* Functions now recycle user`s column names instead of renaming them.
+  Columns created by fluxible functions have the suffix `f_`.
 
 # fluxible 0.0.6
 
-* Correction in `flux_quality`: 'zero' and 'discard' flags were inverted when
+* Correction in `flux_quality`: `zero` and `discard` flags were inverted when
   using the linear fit.
 
 # fluxible 0.0.5
@@ -127,6 +165,6 @@
 # fluxible 0.0.2
 
 * `flux_calc` allows to choose units.
-* `flux_calc` alows plot area as a variable.
+* `flux_calc` allows plot area as a variable.
 * `flux_fitting` with exponential model works when concentration data are
   missing in the middle of the measurement.

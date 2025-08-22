@@ -15,3 +15,4 @@ flux_plot_flag(slopes_df, param_df)
 creates a column with quality flags (from flux_quality)
 for the part of the rows to be kept, and cut flag for rows to be discarded
 }
+\keyword{internal}

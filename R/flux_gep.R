@@ -2,7 +2,7 @@
 #' @description
 #' `r lifecycle::badge("deprecated")`
 #'
-#' `flux_gep` was renamed `flux_gpp` out of consistancy with the litterature.
+#' `flux_gep` was renamed `flux_gpp` out of consistency with the literature.
 #'
 #' Calculate gross ecosystem production (GEP) from net ecosystem
 #' (NEE) exchange and ecosystem respiration (ER) as GEP = NEE - ER.
@@ -29,11 +29,7 @@
 #' @importFrom tidyr pivot_wider fill
 #' @importFrom purrrlyr slice_rows unslice
 #' @importFrom lifecycle deprecate_warn
-#' @examples
-#' data(co2_fluxes)
-#' flux_gep(co2_fluxes, type, f_start, id_cols = "turfID",
-#' cols_keep = c("temp_soil"))
-#' @export
+#' @keywords internal
 
 flux_gep <- function(fluxes_df,
                      type_col,

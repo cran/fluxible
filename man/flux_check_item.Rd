@@ -23,3 +23,4 @@ check the items inside \code{flux_fun_check}
 \author{
 Adam Klimes
 }
+\keyword{internal}

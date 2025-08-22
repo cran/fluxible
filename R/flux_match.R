@@ -11,8 +11,10 @@
 #' and any other column identifying the measurements.
 #' @param startcrop `r lifecycle::badge("deprecated")` `startcrop` is no longer
 #' supported. Please use `start_cut` in `flux_fitting` instead.
-#' @param measurement_length length of the measurement (in seconds)
-#' from the start specified in the `field_record`
+#' @param measurement_length length of the measurements (in seconds)
+#' from the start specified in the `field_record`. Use `measurement_length` if
+#' all the measurements have the same length and no end column is present in
+#' `field_record`.
 #' @param ratio_threshold `r lifecycle::badge("deprecated")` `ratio_threshold`
 #' is no longer supported. Please use `ratio_threshold` in `flux_quality`
 #' instead.
@@ -23,17 +25,21 @@
 #' @param f_conc `r lifecycle::badge("deprecated")` `f_conc` is no longer
 #' required
 #' @param start_col start column in field_record (`ymd_hms` format)
-#' @param end_col end columne in field_record (`ymd_hms` format).
-#' Only needed if `fixed_length = "FALSE"`.
-#' @param fixed_length if `TRUE` (default), the `measurement_length` is used to
-#' create the end column. If `FALSE`, `end_col` has to be provided.
+#' @param end_col end column in field_record (`ymd_hms` format), if present
+#' (see `measurement_length`).
+#' @param fixed_length `r lifecycle::badge("deprecated")` no longer required.
+#' `flux_match` will detect if `end_col` or `measurement_length` are provided.
 #' @return a dataframe with concentration measurements, corresponding datetime,
 #' flux ID (`f_fluxid`), measurements start (`f_start`) and end (`f_end`).
+#' @details If both `end_col` and `measurement_length` are provided, `end_col`
+#' will be ignored. Measurements either all have the same length (provide
+#' `measurement_length`), or the length varies and `end_col` has to be provided.
 #' @importFrom dplyr arrange mutate row_number full_join case_when
 #' group_by filter ungroup select distinct pull join_by coalesce
 #' @importFrom tidyr fill drop_na
 #' @importFrom lubridate is.POSIXct
 #' @importFrom lifecycle deprecate_stop deprecated deprecate_warn is_present
+#' @importFrom rlang as_label enquo
 #' @examples
 #' data(co2_df_short, record_short)
 #' flux_match(co2_df_short, record_short, datetime, start,
@@ -47,7 +53,7 @@ flux_match <- function(raw_conc,
                        start_col,
                        end_col,
                        measurement_length,
-                       fixed_length = TRUE,
+                       fixed_length = deprecated(),
                        time_diff = 0,
                        startcrop = 0,
                        ratio_threshold = deprecated(),
@@ -77,8 +83,16 @@ flux_match <- function(raw_conc,
     )
   }
 
-  name_raw_conc <- deparse(substitute(raw_conc))
-  name_field_record <- deparse(substitute(field_record))
+  if (is_present(fixed_length)) {
+    deprecate_warn(
+      when = "1.2.7",
+      what = "flux_match(fixed_length)",
+      details = "fixed_length is no longer required"
+    )
+  }
+
+  name_raw_conc <- as_label(enquo(raw_conc))
+  name_field_record <- as_label(enquo(field_record))
 
   args_ok <- flux_fun_check(
     list(time_diff = time_diff),
@@ -105,10 +119,15 @@ flux_match <- function(raw_conc,
   if (any(!c(args_ok, raw_conc_ok, field_record_ok)))
     stop("Please correct the arguments", call. = FALSE)
 
+  # test if cols in field_record and raw_conc are different
+  colnames_raw_conc <- names(raw_conc)
+  colnames_field_record <- names(field_record)
 
+  colnames_test <- colnames_raw_conc %in% colnames_field_record
 
-
-
+  if (any(colnames_test)) {
+    stop("raw_conc and field_record must have different column names")
+  }
 
 
   field_record <- field_record |>
@@ -118,7 +137,7 @@ flux_match <- function(raw_conc,
       f_fluxid = row_number()
     )
 
-  if (fixed_length) {
+  if (is_present(measurement_length)) {
 
     field_record <- flux_match_fixed(
       field_record,
@@ -128,7 +147,7 @@ flux_match <- function(raw_conc,
   }
 
 
-  if (!fixed_length) {
+  if (!is_present(measurement_length)) {
 
     field_record <- flux_match_col(
       field_record,

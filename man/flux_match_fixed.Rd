@@ -19,3 +19,4 @@ from the start specified in the \code{field_record}}
 \description{
 Provides the \code{f_end} column for \code{flux_match}
 }
+\keyword{internal}

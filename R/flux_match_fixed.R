@@ -7,6 +7,7 @@
 #' @param measurement_length length of the measurement (in seconds)
 #' from the start specified in the `field_record`
 #' @importFrom dplyr mutate
+#' @keywords internal
 
 flux_match_fixed <- function(
   field_record,

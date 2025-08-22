@@ -13,4 +13,5 @@
 #' }
 #' @examples
 #' co2_df_missing
+#' @keywords internal
 "co2_df_missing"

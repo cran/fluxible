@@ -22,3 +22,4 @@ checking that arguments and columns are in the correct class
 \author{
 Adam Klimes
 }
+\keyword{internal}

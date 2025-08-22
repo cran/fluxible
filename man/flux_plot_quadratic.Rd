@@ -19,3 +19,4 @@ flux_plot_quadratic(slopes_df, f_conc, f_datetime, y_text_position)
 specific part of flux_plot for
 quadratic fit
 }
+\keyword{internal}

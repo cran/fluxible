@@ -16,3 +16,4 @@ flux_cut(slopes_df, cut_col, keep_arg)
 \description{
 filter cut data before calculating fluxes
 }
+\keyword{internal}

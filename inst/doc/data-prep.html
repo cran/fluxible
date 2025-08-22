@@ -363,30 +363,31 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<p>Loggers and field equipement provide many different datasets format.
+<p>Loggers and field equipment provide many different datasets format.
 The <code>readr::read_delim</code> <span class="citation">(Wickham
 <em>et al.</em>, 2024)</span> function works perfectly in most cases,
 given that the data are in a delimited file.</p>
 <p>We provide here examples on how to use <code>read_delim</code> to
-prepare your raw data files for the Fluxible R package. For users of
-Li-COR instruments, the <a href="https://jogaudard.github.io/licoread/index.html">licoread R
-package</a>, developped in collaboration with Li-COR, is designed to
-read 82z and 81x files and import them as fluxible-friendly objets.
+prepare your raw data files for the <code>fluxible</code> R package. For
+users of Li-COR instruments, the <a href="https://jogaudard.github.io/licoread/index.html"><code>licoread</code>
+R package</a>, developed in collaboration with Li-COR, is designed to
+read 82z and 81x files and import them as <code>fluxible</code>-friendly
+objets.
 <!-- For users of LI-COR instruments, we present at the end of this section the Licoread R package [@gaudardLicoreadReadsRaw2025], to read specific LI-COR formats (82z and 81x). --></p>
 <div id="checklists-for-inputs" class="section level2">
 <h2>Checklists for inputs</h2>
 <p>The first function to use when processing ecosystem gas fluxes data
-with Fluxible is <code>flux_match</code>, which requires two inputs:
-<code>row_conc</code> and <code>field_record</code>. The columns in both
-files do not require specific names, and those will be kept during the
-entire workflow. We however advise that those names do not contain
-spaces or special characters.</p>
+with <code>fluxible</code> is <code>flux_match</code>, which requires
+two inputs: <code>row_conc</code> and <code>field_record</code>. The
+columns in both files do not require specific names, and those will be
+kept during the entire workflow. We however advise that those names do
+not contain spaces or special characters.</p>
 <div id="input-raw_conc" class="section level3">
 <h3>Input <code>raw_conc</code></h3>
 <p>The input <code>raw_conc</code> is the file with the gas
 concentration measured over time, typically the file exported by the
 logger or instrument, and needs to fulfill the following criteria:</p>
-<!-- - Columns that will be used in Fluxible do not contain space or special characters -->
+<!-- - Columns that will be used in `fluxible` do not contain space or special characters -->
 <ul>
 <li>A column with gas concentration as numeric values</li>
 <li>A column in datetime format (<code>yyyy-mm-dd hh:mm:ss</code>)
@@ -399,7 +400,7 @@ corresponding to each data point of gas concentration</li>
 contains the information of when which sample or plot was measured. It
 can also provide other meta data, such as campaign, site, type of
 measurement, etc. This file should contain:</p>
-<!-- - Colum that will be used in Fluxible do not contain space or special characters -->
+<!-- - Colum that will be used in `fluxible` do not contain space or special characters -->
 <ul>
 <li>A column indicating the start of each measurement in datetime format
 (<code>yyyy-mm-dd hh:mm:ss</code>)</li>
@@ -416,7 +417,7 @@ in between measurements. Depending on your setup, this step might not be
 necessary. The <code>flux_fitting</code> function is the step after
 <code>flux_match</code> and its input should check the following
 points:</p>
-<!-- - Columns that will be used in Fluxible do not contain space or special characters -->
+<!-- - Columns that will be used in `fluxible` do not contain space or special characters -->
 <ul>
 <li>A gas concentration column as numeric</li>
 <li>A column in datetime format (<code>yyyy-mm-dd hh:mm:ss</code>)
@@ -430,22 +431,18 @@ corresponding to each gas concentration data points</li>
 </div>
 <div id="defining-your-dataset" class="section level3">
 <h3>Defining your dataset</h3>
-<p>Fluxible treats the entire dataset homogeneously in terms of choice
-of model to fit the data and quality control. This is because every step
-in this process has a risk of adding a bias to the final data (for
-example, a linear fit tends to under estimate fluxes while an
-exponential one tends to over estimate fluxes). By treating the data
-homogeneously, the bias are consistent and therefore will affect further
-analysis less.
+<p><code>fluxible</code> treats the entire dataset homogeneously in
+terms of choice of model to fit the data and quality control. This is
+because every step in this process has a risk of adding a bias to the
+final data (for example, a linear fit tends to under estimate fluxes
+while an exponential one tends to over estimate fluxes). By treating the
+data homogeneously, the bias are consistent and therefore will affect
+further analysis less.
 <!-- Homogeneous treatement of the dataset also means that the dataset should be carefully defined, as to avoid introducing bias (fitting all treatment A with a linear model and all treatment B with an exponential model might show that B has higher fluxes than than A, because of the way those models tend to under and over estimate fluxes). -->
 Measurements done under similar conditions and with the same equipment
 should ideally be processed together.</p>
-<p>Note that the “flux after flux” approach, treating each measurement
-individually in terms of fit, cut and quality control, is also possible
-(but this is not what Fluxible is optimised for!). It would require
-looping the <code>flux_fitting</code> and <code>flux_quality</code>
-(optionally <code>flux_plot</code> too for visualization) functions on
-each flux ID with a prompt asking for the arguments.</p>
+<!-- Note that the "flux after flux" approach, treating each measurement individually in terms of fit, cut and quality control, is also possible (but this is not what `fluxible` is optimised for!). -->
+<!-- It would require looping the `flux_fitting` and `flux_quality` (optionally `flux_plot` too for visualization) functions on each flux ID with a prompt asking for the arguments. -->
 </div>
 </div>
 <div id="importing-a-single-file" class="section level2">
@@ -539,49 +536,76 @@ their names.</p>
 </div>
 <div id="the-one-file-per-flux-approach" class="section level2">
 <h2>The one file per flux approach</h2>
-<p>Fluxible is designed to process data that were measured continuously
-(in a single or several files) and a <code>field_record</code> that
-records what was measured when. Another strategy while measuring gas
-fluxes on the field is to create a new file for each measurement, with
-the file name as the flux ID. The approach is similar to reading
-multiple files, except we add a column with the file name, and can then
-by-pass <code>flux_match</code>.</p>
+<p><code>fluxible</code> can also be used with data that were recorded
+with one file per flux and the file names as flux ID. In that case,
+<code>flux_match</code> can be skipped as we will directly import the
+data with the flux IDs, and start and end of each flux measurements. In
+this example we use the <code>fluxible</code> default column names to
+make it easier for the rest of the data processing. The measurement
+lengths are based on the start and end of the files, which might not be
+accurate depending on the field routine. This can be adjusted with the
+arguments <code>start_cut</code>, <code>end_cut</code> and
+<code>cut_direction</code> in <code>flux_fitting</code>:
+<!-- By default, `flux_fitting` cuts the focus window as `start + start_cut` to `end - end_cut`. -->
+<!-- The argument `cut_direction` allows to change that: --></p>
+<ul>
+<li><code>cut_direction = &quot;none&quot;</code> (default) means the focus window
+is defined as <code>start + start_cut</code> to
+<code>end - end_cut</code></li>
+<li><code>cut_direction = &quot;from_start&quot;</code> means the focus window is
+defined as <code>start + start_cut</code> to
+<code>start + end_cut</code></li>
+<li><code>cut_direction = &quot;from_end&quot;</code> means the focus window is
+defined as <code>end - start_cut</code> to
+<code>end - end_cut</code></li>
+</ul>
+<!-- `fluxible` is designed to process data that were measured continuously (in a single or several files) and a `field_record` that records what was measured when. -->
+<!-- Another strategy while measuring gas fluxes on the field is to create a new file for each measurement, with the file name as the flux ID. -->
+<!-- The approach is similar to reading multiple files, except we add a column with the file name, and can then by-pass `flux_match`. -->
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a></span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>raw_conc <span class="ot">&lt;-</span> <span class="fu">list.files</span>( <span class="co">#listing all the files</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="st">&quot;ex_data/field_campaign&quot;</span>, <span class="co"># at location &quot;ex_data/field_campaign&quot;</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="at">full.names =</span> <span class="cn">TRUE</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>  <span class="fu">map_dfr</span>( <span class="co"># we map read_tsv on all the files</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>    <span class="co"># read_tsv is the version of read_delim for tab separated value files</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>    read_tsv,</span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>    <span class="at">skip =</span> <span class="dv">3</span>,</span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>    <span class="co"># creates a column with the filename, that we can use as flux ID</span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>    <span class="at">id =</span> <span class="st">&quot;filename&quot;</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>  <span class="fu">rename</span>( <span class="co"># a bit of renaming to make the columns more practical</span></span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>    <span class="at">co2_conc =</span> <span class="st">&quot;CO2 (umol/mol)&quot;</span>,</span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>    <span class="at">h2o_conc =</span> <span class="st">&quot;H2O (mmol/mol)&quot;</span>,</span>
-<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>    <span class="at">air_temp =</span> <span class="st">&quot;Temperature (C)&quot;</span>,</span>
-<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a>    <span class="at">pressure =</span> <span class="st">&quot;Pressure (kPa)&quot;</span></span>
-<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a>    <span class="at">datetime =</span> <span class="fu">paste</span>(Date, Time),</span>
-<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a>    <span class="co"># we get rid of the milliseconds</span></span>
-<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a>    <span class="at">datetime =</span> <span class="fu">as.POSIXct</span>(datetime, <span class="at">format=</span><span class="st">&quot;%Y-%m-%d %H:%M:%OS&quot;</span>),</span>
-<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a>    <span class="at">pressure =</span> pressure <span class="sc">/</span> <span class="fl">101.325</span>, <span class="co"># conversion from kPa to atm</span></span>
-<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a>    <span class="at">filename =</span> <span class="fu">basename</span>(filename) <span class="co"># removing folder names</span></span>
-<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a>  <span class="fu">select</span>(datetime, co2_conc, h2o_conc, air_temp, pressure, filename)</span></code></pre></div>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>raw_conc <span class="ot">&lt;-</span> <span class="fu">list.files</span>( <span class="co">#listing all the files</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="st">&quot;ex_data/field_campaign&quot;</span>, <span class="co"># at location &quot;ex_data/field_campaign&quot;</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  <span class="at">full.names =</span> <span class="cn">TRUE</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  <span class="fu">map_dfr</span>( <span class="co"># we map read_tsv on all the files</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>    <span class="co"># read_tsv is the version of read_delim for tab separated value files</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>    read_tsv,</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>    <span class="at">skip =</span> <span class="dv">3</span>,</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>    <span class="co"># creates a column with the filename, that we can use as flux ID</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>    <span class="at">id =</span> <span class="st">&quot;f_fluxid&quot;</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>  <span class="fu">rename</span>( <span class="co"># a bit of renaming to make the columns more practical</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>    <span class="at">co2_conc =</span> <span class="st">&quot;CO2 (umol/mol)&quot;</span>,</span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>    <span class="at">h2o_conc =</span> <span class="st">&quot;H2O (mmol/mol)&quot;</span>,</span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a>    <span class="at">air_temp =</span> <span class="st">&quot;Temperature (C)&quot;</span>,</span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>    <span class="at">pressure =</span> <span class="st">&quot;Pressure (kPa)&quot;</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a>    <span class="at">.by =</span> f_fluxid,</span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a>    <span class="at">f_datetime =</span> <span class="fu">paste</span>(Date, Time),</span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a>    <span class="co"># we get rid of the milliseconds</span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a>    <span class="at">f_datetime =</span> <span class="fu">as.POSIXct</span>(f_datetime, <span class="at">format =</span> <span class="st">&quot;%Y-%m-%d %H:%M:%OS&quot;</span>),</span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a>    <span class="at">pressure =</span> pressure <span class="sc">/</span> <span class="fl">101.325</span>, <span class="co"># conversion from kPa to atm</span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a>    <span class="at">f_fluxid =</span> <span class="fu">basename</span>(f_fluxid), <span class="co"># removing folder names</span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a>    <span class="at">f_start =</span> <span class="fu">min</span>(f_datetime), <span class="co"># start is the smallest datetime of each flux</span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a>    <span class="at">f_end =</span> <span class="fu">max</span>(f_datetime) <span class="co"># end is the greatest datetime of each flux</span></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a>    f_datetime, co2_conc, h2o_conc, air_temp, pressure, f_fluxid, f_start, f_end</span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a>  )</span></code></pre></div>
 <p><code>raw_conc</code> structure:</p>
-<pre><code>#&gt; tibble [18 × 6] (S3: tbl_df/tbl/data.frame)
-#&gt;  $ datetime: POSIXct[1:18], format: &quot;2023-12-14 10:57:01&quot; ...
-#&gt;  $ co2_conc: num [1:18] 416 407 404 421 411 ...
-#&gt;  $ h2o_conc: num [1:18] 22.7 22.5 23 22.6 22.8 ...
-#&gt;  $ air_temp: num [1:18] 22.4 22.4 22.4 22.3 22.3 ...
-#&gt;  $ pressure: num [1:18] 0.79 0.791 0.79 0.79 0.791 ...
-#&gt;  $ filename: chr [1:18] &quot;1_2000_east_1_day_a-2023-12-14T105700.txt&quot;&quot;..</code></pre>
+<pre><code>#&gt; tibble [330 × 8] (S3: tbl_df/tbl/data.frame)
+#&gt;  $ f_datetime: POSIXct[1:330], format: &quot;2023-12-14 10:57:01&quot; ...
+#&gt;  $ co2_conc  : num [1:330] 416 407 404 421 411 ...
+#&gt;  $ h2o_conc  : num [1:330] 22.7 22.5 23 22.6 22.8 ...
+#&gt;  $ air_temp  : num [1:330] 22.4 22.4 22.4 22.3 22.3 ...
+#&gt;  $ pressure  : num [1:330] 0.79 0.791 0.79 0.79 0.791 ...
+#&gt;  $ f_fluxid  : chr [1:330] &quot;1_2000_east_1_day_a-2023-12-14T105700.t&quot;..
+#&gt;  $ f_start   : POSIXct[1:330], format: &quot;2023-12-14 10:57:01&quot; ...
+#&gt;  $ f_end     : POSIXct[1:330], format: &quot;2023-12-14 10:58:48&quot; ...</code></pre>
 </div>
 <div id="the-tricky-one" class="section level2">
 <h2>The tricky one</h2>

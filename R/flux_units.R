@@ -4,7 +4,8 @@
 #' form amount/time/surface. Amount can be `mol`, `mmol`, `umol`, `nmol` or
 #' `pmol`. Time can be `d` (day), `h` (hour), `mn` (minute) or `s` (seconds).
 #' Surface can be `m2`, `dm2` or `cm2`.
-#' @param conc_units units of gas concentration `ppm`, `ppb` or `ppt`.
+#' @param conc_units units of gas concentration `mmol/mol`, `ppm`, `ppb` or
+#' `ppt`.
 #' @param conc_units_list list of possible units for gas concentration.
 #' @param amount_units list of possible units for amount.
 #' @param time_units list of possible units for time.
@@ -21,7 +22,7 @@
 
 flux_units <- function(flux_units,
                        conc_units,
-                       conc_units_list = c("ppm", "ppb", "ppt"),
+                       conc_units_list = c("mmol/mol", "ppm", "ppb", "ppt"),
                        amount_units = c("mol", "mmol", "umol", "nmol", "pmol"),
                        surface_units = c("m2", "dm2", "cm2"),
                        time_units = c("d", "h", "mn", "s")) {
@@ -59,6 +60,7 @@ flux_units <- function(flux_units,
   )
 
   conc_coeff <- case_when(
+    conc_units == "mmol/mol" ~ 1e3,
     conc_units == "ppm" ~ 1,
     conc_units == "ppb" ~ 1e-3,
     conc_units == "ppt" ~ 1e-6

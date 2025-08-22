@@ -28,3 +28,9 @@ test_that("fit transfer from flux_fitting", {
     "exp_zhao18"
   )
 })
+
+test_that("error if type missing", {
+  expect_error(flux_fit_type(co2_conc),
+    "argument fit_type is missing"
+  )
+})

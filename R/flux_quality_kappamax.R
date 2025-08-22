@@ -16,6 +16,7 @@
 #' gas concentration
 #' @param name_df name of `slopes_df`
 #' @param f_fluxid column of ID for each measurement
+#' @keywords internal
 
 flux_quality_kappamax <- function(slopes_df,
                                   f_slope,

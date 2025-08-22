@@ -30,6 +30,7 @@
 #' @importFrom purrr map
 #' @importFrom broom tidy
 #' @importFrom zoo rollmean
+#' @keywords internal
 
 
 

@@ -23,3 +23,4 @@ filled only if the df was produced outside of the Fluxible workflow.}
 extracts the type of fit that was applied in flux_fitting
 or checks that the fit_type provided by the user is compatible with Fluxible
 }
+\keyword{internal}

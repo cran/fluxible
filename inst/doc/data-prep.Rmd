@@ -17,23 +17,23 @@ knitr::opts_chunk$set(
 options(tidyverse.quiet = TRUE)
 ```
 
-Loggers and field equipement provide many different datasets format.
+Loggers and field equipment provide many different datasets format.
 The `readr::read_delim` [@readr2024] function works perfectly in most cases, given that the data are in a delimited file.
 
-We provide here examples on how to use `read_delim` to prepare your raw data files for the Fluxible R package.
-For users of Li-COR instruments, the [licoread R package](https://jogaudard.github.io/licoread/index.html), developped in collaboration with Li-COR, is designed to read 82z and 81x files and import them as fluxible-friendly objets.
+We provide here examples on how to use `read_delim` to prepare your raw data files for the `fluxible` R package.
+For users of Li-COR instruments, the [`licoread` R package](https://jogaudard.github.io/licoread/index.html), developed in collaboration with Li-COR, is designed to read 82z and 81x files and import them as `fluxible`-friendly objets.
 <!-- For users of LI-COR instruments, we present at the end of this section the Licoread R package [@gaudardLicoreadReadsRaw2025], to read specific LI-COR formats (82z and 81x). -->
 
 ## Checklists for inputs
 
-The first function to use when processing ecosystem gas fluxes data with Fluxible is `flux_match`, which requires two inputs: `row_conc` and `field_record`.
+The first function to use when processing ecosystem gas fluxes data with `fluxible` is `flux_match`, which requires two inputs: `row_conc` and `field_record`.
 The columns in both files do not require specific names, and those will be kept during the entire workflow.
 We however advise that those names do not contain spaces or special characters.
 
 ### Input `raw_conc`
 The input `raw_conc` is the file with the gas concentration measured over time, typically the file exported by the logger or instrument, and needs to fulfill the following criteria:
 
-<!-- - Columns that will be used in Fluxible do not contain space or special characters -->
+<!-- - Columns that will be used in `fluxible` do not contain space or special characters -->
 - A column with gas concentration as numeric values
 - A column in datetime format (`yyyy-mm-dd hh:mm:ss`) corresponding to each data point of gas concentration
 
@@ -43,7 +43,7 @@ The input `field_record` is the metadata file that contains the information of w
 It can also provide other meta data, such as campaign, site, type of measurement, etc.
 This file should contain:
 
-<!-- - Colum that will be used in Fluxible do not contain space or special characters -->
+<!-- - Colum that will be used in `fluxible` do not contain space or special characters -->
 - A column indicating the start of each measurement in datetime format (`yyyy-mm-dd hh:mm:ss`)
 - If the length of the measurements is not a constant: a column containing the end of each measurement in datetime format (`yyyy-mm-dd hh:mm:ss`)
 
@@ -53,7 +53,7 @@ The `flux_match` function only intends to attribute a unique `flux_id` to each m
 Depending on your setup, this step might not be necessary.
 The `flux_fitting` function is the step after `flux_match` and its input should check the following points:
 
-<!-- - Columns that will be used in Fluxible do not contain space or special characters -->
+<!-- - Columns that will be used in `fluxible` do not contain space or special characters -->
 - A gas concentration column as numeric
 - A column in datetime format (`yyyy-mm-dd hh:mm:ss`) corresponding to each gas concentration data points
 - A column with a unique ID for each measurement
@@ -61,14 +61,14 @@ The `flux_fitting` function is the step after `flux_match` and its input should 
 - A column indicating the end of each measurement in datetime format (`yyyy-mm-dd hh:mm:ss`)
 
 ### Defining your dataset
-Fluxible treats the entire dataset homogeneously in terms of choice of model to fit the data and quality control.
+`fluxible` treats the entire dataset homogeneously in terms of choice of model to fit the data and quality control.
 This is because every step in this process has a risk of adding a bias to the final data (for example, a linear fit tends to under estimate fluxes while an exponential one tends to over estimate fluxes).
 By treating the data homogeneously, the bias are consistent and therefore will affect further analysis less.
 <!-- Homogeneous treatement of the dataset also means that the dataset should be carefully defined, as to avoid introducing bias (fitting all treatment A with a linear model and all treatment B with an exponential model might show that B has higher fluxes than than A, because of the way those models tend to under and over estimate fluxes). -->
 Measurements done under similar conditions and with the same equipment should ideally be processed together.
 
-Note that the "flux after flux" approach, treating each measurement individually in terms of fit, cut and quality control, is also possible (but this is not what Fluxible is optimised for!).
-It would require looping the `flux_fitting` and `flux_quality` (optionally `flux_plot` too for visualization) functions on each flux ID with a prompt asking for the arguments.
+<!-- Note that the "flux after flux" approach, treating each measurement individually in terms of fit, cut and quality control, is also possible (but this is not what `fluxible` is optimised for!). -->
+<!-- It would require looping the `flux_fitting` and `flux_quality` (optionally `flux_plot` too for visualization) functions on each flux ID with a prompt asking for the arguments. -->
 
 ## Importing a single file
 In this example we will import the file `26124054001.#00`, which is a text file extracted from a Squirrel Data Logger 2010 Series (Grant Instruments) through SquirrelView software.
@@ -156,13 +156,27 @@ raw_conc <- list.files( # list the files
 
 
 ## The one file per flux approach
-Fluxible is designed to process data that were measured continuously (in a single or several files) and a `field_record` that records what was measured when.
-Another strategy while measuring gas fluxes on the field is to create a new file for each measurement, with the file name as the flux ID.
-The approach is similar to reading multiple files, except we add a column with the file name, and can then by-pass `flux_match`.
+`fluxible` can also be used with data that were recorded with one file per flux and the file names as flux ID.
+In that case, `flux_match` can be skipped as we will directly import the data with the flux IDs, and start and end of each flux measurements.
+In this example we use the `fluxible` default column names to make it easier for the rest of the data processing.
+The measurement lengths are based on the start and end of the files, which might not be accurate depending on the field routine.
+This can be adjusted with the arguments `start_cut`, `end_cut` and `cut_direction` in `flux_fitting`:
+<!-- By default, `flux_fitting` cuts the focus window as `start + start_cut` to `end - end_cut`. -->
+<!-- The argument `cut_direction` allows to change that: -->
+
+- `cut_direction = "none"` (default) means the focus window is defined as `start + start_cut` to `end - end_cut`
+- `cut_direction = "from_start"` means the focus window is defined as `start + start_cut` to `start + end_cut`
+- `cut_direction = "from_end"` means the focus window is defined as `end - start_cut` to `end - end_cut`
+
+
+<!-- `fluxible` is designed to process data that were measured continuously (in a single or several files) and a `field_record` that records what was measured when. -->
+<!-- Another strategy while measuring gas fluxes on the field is to create a new file for each measurement, with the file name as the flux ID. -->
+<!-- The approach is similar to reading multiple files, except we add a column with the file name, and can then by-pass `flux_match`. -->
 
 ```{r one-file-one-flux, message=FALSE}
 
 library(tidyverse)
+
 
 raw_conc <- list.files( #listing all the files
   "ex_data/field_campaign", # at location "ex_data/field_campaign"
@@ -173,7 +187,7 @@ raw_conc <- list.files( #listing all the files
     read_tsv,
     skip = 3,
     # creates a column with the filename, that we can use as flux ID
-    id = "filename"
+    id = "f_fluxid"
   ) |>
   rename( # a bit of renaming to make the columns more practical
     co2_conc = "CO2 (umol/mol)",
@@ -182,13 +196,18 @@ raw_conc <- list.files( #listing all the files
     pressure = "Pressure (kPa)"
   ) |>
   mutate(
-    datetime = paste(Date, Time),
+    .by = f_fluxid,
+    f_datetime = paste(Date, Time),
     # we get rid of the milliseconds
-    datetime = as.POSIXct(datetime, format="%Y-%m-%d %H:%M:%OS"),
+    f_datetime = as.POSIXct(f_datetime, format = "%Y-%m-%d %H:%M:%OS"),
     pressure = pressure / 101.325, # conversion from kPa to atm
-    filename = basename(filename) # removing folder names
+    f_fluxid = basename(f_fluxid), # removing folder names
+    f_start = min(f_datetime), # start is the smallest datetime of each flux
+    f_end = max(f_datetime) # end is the greatest datetime of each flux
   ) |>
-  select(datetime, co2_conc, h2o_conc, air_temp, pressure, filename)
+  select(
+    f_datetime, co2_conc, h2o_conc, air_temp, pressure, f_fluxid, f_start, f_end
+  )
 ```
 
 `raw_conc` structure:

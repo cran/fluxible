@@ -34,4 +34,4 @@ of the measurements
 \examples{
 co2_conc_mid_missing
 }
-\keyword{datasets}
+\keyword{internal}

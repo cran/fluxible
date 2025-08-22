@@ -24,6 +24,7 @@
 #' (for quadratic fit)
 #' @return a dataframe with the slope at t zero,
 #' modeled concentration over time and exponential expression parameters
+#' @keywords internal
 #' @importFrom rlang .data
 #' @importFrom dplyr rename mutate select group_by case_when
 #' ungroup filter distinct left_join rowwise summarize pull slice

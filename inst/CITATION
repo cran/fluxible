@@ -3,7 +3,7 @@ bibentry(
   title = "Fluxible: an {R} package to process ecosystem gas fluxes from closed-loop chambers in an automated and reproducible way",
   year = "2025",
   author = "Joseph Gaudard and Julia Chacon-Labella and Hilary Rose Dawson and Brian Enquist and Richard J Telford and Joachim P Töpper and Jonas Trepel and Vigdis Vandvik and Marta Baumane and Kristine Birkeli and Mukhlish Jamal Musa Holle and Jason R Hupp and Paul Efren Santos-Andrade and Tin Widyani Satriawan and Aud H Halbritter",
-  journal = "Authorea",
-  note = "preprint",
-  doi = "10.22541/au.175071021.14153294/v1"
+  journal = "Authorea Preprints",
+  doi = "10.22541/au.175071021.14153294/v1",
+  publisher = "Authorea"
 )

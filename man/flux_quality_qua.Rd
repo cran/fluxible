@@ -69,3 +69,4 @@ according to parameters set by user.
 flux_quality_lm is for the model of the lm family.
 flux_quality_exp is for the exponential model.
 }
+\keyword{internal}

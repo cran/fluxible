@@ -33,4 +33,4 @@ CO2 concentration with measurements meta data, with missing data.
 \examples{
 co2_conc_missing
 }
-\keyword{datasets}
+\keyword{internal}

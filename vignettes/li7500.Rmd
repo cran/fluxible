@@ -1,0 +1,253 @@
+---
+title: "Using fluxible with the Li7500"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using fluxible with the Li7500}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: biblio_phd_zot.bib
+csl: emerald-harvard.csl
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+options(tidyverse.quiet = TRUE)
+```
+
+This vignette shows how to process ecosystem fluxes (CO~2~ and H~2~O) measured with the LI7500 tent setup presented in @halbritterPlantTraitVegetation2024.
+Because of field constraints, this setup differs from the smaller chamber in several points:
+
+- one file per flux
+- start and end of files do not represent start and end of measurements because setting up the tent can take more or less time
+- for similar reasons, the length of the measurements is not constant
+
+![Tent setup](tent_peru.jpg)
+
+
+# Importing the files
+
+We import the data with `licoread::import7500`.
+```{r reading, message=FALSE}
+library(licoread)
+li7500_data <- import7500(
+  "ex_data/li7500",
+  plotinfo = c("site", "treatment", "date", "plot_id", "trial")
+)
+```
+
+<!-- The `licoread::import7500` function provides `f_fluxid`, `f_start` and `f_end`, meaning we could skip `fluxible::flux_match`. -->
+The `licoread::import7500` function provides `f_start` and `f_end`, meaning we could skip `fluxible::flux_match`.
+However, `f_start` and `f_end` are based on the start and end of the files, which would require a strict data collection routine.
+If such a strict routine did not happen, there are two options to deal with that.
+
+## Making a new field record
+
+If `f_start` and `f_end` cannot be used as start and end of measurement, we can recreate a record file (for example in a spreadsheet) with the real start and end datetime:
+
+- use start and end from `licoread::import7500`
+- process fluxes until visualization (`flux_fitting`, `flux_quality` and `flux_plot`)
+- based on the plots, create a `record` file with metadata identifying the fluxes (`filename`), start and end (note that `flux_match` requires datetime format)
+- rename the columns `f_start`, `f_end` and `f_fluxid` to avoid losing those informations (`flux_match` will overwrite them)
+- include `flux_match` before `flux_fitting` in your workflow, and match the fluxes with the record file you created
+- adapt the record file if necessary and rerun until `flux_plot`
+- once satisfied with cutting and fitting, run `flux_calc` as normally
+
+That makes the processing non homogeneous but still reproducible.
+
+## One side is reliable
+
+
+If the start or the end are consistent but not the other, you can change the direction of the cutting in `flux_fitting`.
+By default, `flux_fitting` cuts the focus window as `start + start_cut` to `end - end_cut`.
+The argument `cut_direction` allows to change that:
+
+- `cut_direction = "from_start"` means the focus window will be from `start + start_cut` to `start + end_cut`
+- `cut_direction = "from_end"` means the focus window will be from `end - start_cut` to `end - end_cut`
+
+
+# Processing with `fluxible`
+<!-- Since the `licoread::import7500` already provides `f_fluxid`, `f_start` and `f_end`, we can skip `fluxible::flux_match` and directly fit with `fluxible::flux_fitting`. -->
+
+
+## CO~2~
+
+Wet air correction:
+```{r wetair_co2}
+library(fluxible)
+li7500_data_co2 <- flux_drygas(li7500_data, `CO2 umol/mol`, `H2O mmol/mol`)
+```
+
+
+Fitting a linear model:
+```{r fitting_co2, message = FALSE, warning = FALSE}
+li7500_fits_co2 <- flux_fitting(li7500_data_co2,
+                                f_conc = `CO2 umol/mol_dry`,
+                                fit_type = "linear")
+```
+
+Using `fluxible::flux_quality` to assess the quality of the dataset.
+```{r flags_co2}
+li7500_flags_co2 <- flux_quality(li7500_fits_co2,
+                                 f_conc = `CO2 umol/mol_dry`,
+                                 rsquared_threshold = 0.5)
+```
+
+
+Plotting:
+```{r plotting_co2, message=FALSE, warning=FALSE, fig.cap="Output of `flux_plot` for CO~2~ fluxes"}
+flux_plot(li7500_flags_co2,
+          f_conc = `CO2 umol/mol_dry`,
+          f_ylim_upper = 500,
+          y_text_position = 450,
+          print_plot = TRUE)
+```
+
+Can be exported in pdf directly (much easier to handle with a lot of data) with:
+```{r plotting_exp_co2_pdf, eval = FALSE}
+flux_plot(li7500_flags_co2,
+          f_conc = `CO2 umol/mol_dry`,
+          f_ylim_upper = 500,
+          y_text_position = 450,
+          print_plot = FALSE,
+          output = "longpdf",
+          f_plotname = "li7500_co2")
+```
+
+If other data (PAR and co) need processing, that would happen here.
+To "compress" environmental variables at a single value per flux, see the arguments `cols_ave`, `cols_sum`, and `cols_med` in `fluxible::flux_calc`.
+To keep the raw data (gas concentration or anything else) in a nested column, see the `cols_nest` argument.
+
+Now let's calculate the fluxes with `fluxible::flux_calc`.
+```{r calc_co2}
+li7500_fluxes_co2 <- flux_calc(li7500_flags_co2,
+                               slope_col = f_slope_corr,
+                               temp_air_col = Temperature,
+                               setup_volume = 2197,
+                               atm_pressure = pressure_atm,
+                               plot_area = 1.44,
+                               conc_unit = "ppm",
+                               flux_unit = "umol/m2/s",
+                               cols_keep = c(
+                                 "site", "treatment", "date", "plot_id", "trial"
+                               ))
+```
+
+## H~2~O
+
+
+Wet air correction:
+```{r wetair_h2o}
+li7500_data_h2o <- flux_drygas(li7500_data, `H2O mmol/mol`, `H2O mmol/mol`)
+```
+
+
+Fitting a linear model:
+```{r fitting_h2o, message = FALSE, warning = FALSE}
+li7500_fits_h2o <- flux_fitting(li7500_data_h2o,
+                                f_conc = `H2O mmol/mol_dry`,
+                                fit_type = "linear",
+                                start_cut = 0,
+                                end_cut = 0)
+```
+
+Using `fluxible::flux_quality` to assess the quality of the dataset:
+```{r flags_h2o}
+li7500_flags_h2o <- flux_quality(li7500_fits_h2o,
+                                 f_conc = `H2O mmol/mol_dry`,
+                                 rsquared_threshold = 0.5,
+                                 ambient_conc = 10, # the default is for CO2
+                                 error = 2)
+```
+
+
+Plotting:
+```{r plotting_h2o, message=FALSE, warning=FALSE, fig.cap="Output of `flux_plot` for H~2~O fluxes"}
+
+flux_plot(li7500_flags_h2o,
+          f_conc = `H2O mmol/mol_dry`,
+          print_plot = TRUE,
+          f_ylim_lower = 5,
+          f_ylim_upper = 15,
+          y_text_position = 12)
+```
+
+Or directly exported as a pdf:
+```{r plotting_h2o_pdf, eval = FALSE}
+flux_plot(li7500_flags_h2o,
+          f_conc = `H2O mmol/mol_dry`,
+          print_plot = FALSE,
+          output = "longpdf",
+          f_plotname = "li7500_h2o",
+          f_ylim_lower = 5,
+          f_ylim_upper = 15,
+          y_text_position = 12)
+```
+
+
+Flux calculations:
+```{r calc_h2o}
+li7500_fluxes_h2o <- flux_calc(li7500_flags_h2o,
+                               slope_col = f_slope_corr,
+                               temp_air_col = Temperature,
+                               setup_volume = 2197,
+                               atm_pressure = pressure_atm,
+                               plot_area = 1.44,
+                               conc_unit = "mmol/mol",
+                               flux_unit = "mmol/m2/s",
+                               cols_keep = c(
+                                 "site", "treatment", "date", "plot_id", "trial"
+                               ))
+```
+
+
+# Calculating Gross Primary Production and Transpiration
+
+I'm glad you asked!
+The function `fluxible::flux_diff` is precisely made for that.
+
+```{r gpp, warning=FALSE}
+li7500_fluxes_co2 <- flux_diff(li7500_fluxes_co2, type_col = trial,
+                               id_cols = c(
+                                 "site", "treatment", "date", "plot_id"
+                               ), type_a = "p", type_b = "r",
+                               diff_name = "GPP", cols_keep = "all")
+```
+
+```{r trans, warning=FALSE}
+li7500_fluxes_h2o <- flux_diff(li7500_fluxes_h2o, type_col = trial,
+                               id_cols = c(
+                                 "site", "treatment", "date", "plot_id"
+                               ), type_a = "p", type_b = "r",
+                               diff_name = "T", cols_keep = "all")
+```
+
+# Further calculations
+
+In order to calculate carbon and water use efficiencies, we need both H~2~O and CO~2~ fluxes in the same dataset.
+
+```{r joining}
+library(tidyverse)
+# to avoid confusion, we add a gas column
+# this might be implemented in flux_calc in the future
+
+li7500_fluxes_co2 <- li7500_fluxes_co2 |>
+  mutate(gas = "co2")
+
+li7500_fluxes_h2o <- li7500_fluxes_h2o |>
+  mutate(gas = "h2o")
+
+li7500_fluxes <- bind_rows(li7500_fluxes_co2, li7500_fluxes_h2o)
+
+# Now the data are in a single long df
+```
+```{r, str, message=FALSE, echo=FALSE}
+
+str(li7500_fluxes, width = 70, strict.width = "cut")
+```
+
+
+
+### References

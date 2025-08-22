@@ -4,9 +4,10 @@
 #' Has to contain at least a column containing the start of each measurement,
 #' and any other column identifying the measurements.
 #' @param start_col start column in field_record (`ymd_hms` format)
-#' @param end_col end columne in field_record (`ymd_hms` format)
+#' @param end_col end column in field_record (`ymd_hms` format)
 #' @param name_field_record name of the df (for error message)
 #' @importFrom dplyr mutate
+#' @keywords internal
 
 flux_match_col <- function(
   field_record,

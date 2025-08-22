@@ -13,10 +13,11 @@ and any other column identifying the measurements.}
 
 \item{start_col}{start column in field_record (\code{ymd_hms} format)}
 
-\item{end_col}{end columne in field_record (\code{ymd_hms} format)}
+\item{end_col}{end column in field_record (\code{ymd_hms} format)}
 
 \item{name_field_record}{name of the df (for error message)}
 }
 \description{
 Provides the \code{f_end} column for \code{flux_match}
 }
+\keyword{internal}

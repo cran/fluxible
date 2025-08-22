@@ -23,6 +23,7 @@
 #' @param name_df name of slopes_df (used for error message)
 #' @return same dataframe with added flag and corrected slopes columns
 #' @importFrom dplyr mutate case_when left_join
+#' @keywords internal
 
 
 

@@ -38,6 +38,7 @@
 #' @importFrom utils data
 #' @importFrom broom tidy
 #' @importFrom stats nls nls.control
+#' @keywords internal
 
 
 

@@ -165,4 +165,4 @@ str(fluxes_twogases, width = 70, strict.width = "cut", give.attr = FALSE)
 ```
 
 In this example we calculated the fluxes for two gases measured simultaneously by repeating the process for each gas, and in the end we joined them and applied a rule that discarded the fluxes of one gas based on the quality flags of the other.
-It is of course totally possible to apply other rules, or to just keep the fluxes as provided by Fluxible.
+It is of course totally possible to apply other rules, or to just keep the fluxes as provided by `fluxible`.

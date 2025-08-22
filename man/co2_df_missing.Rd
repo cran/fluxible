@@ -24,4 +24,4 @@ Continuous CO2 concentration as measured on the field, with missing data.
 \examples{
 co2_df_missing
 }
-\keyword{datasets}
+\keyword{internal}

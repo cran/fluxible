@@ -49,3 +49,4 @@ gas concentration}
 \description{
 selecting linear slope with kappamax method
 }
+\keyword{internal}

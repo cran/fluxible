@@ -5,6 +5,7 @@
 #' @param f_conc column with gas concentration
 #' @param f_datetime column with datetime of each data point
 #' @param y_text_position position of the text box
+#' @param kappamax indicating if kappamax was applied
 #' @importFrom dplyr select distinct mutate
 #' @importFrom ggplot2 ggplot aes geom_point geom_line theme_bw geom_vline
 #' scale_color_manual scale_x_datetime ylim facet_wrap labs geom_text
@@ -12,26 +13,24 @@
 #' @importFrom purrr quietly
 #' @importFrom grDevices pdf dev.off
 #' @importFrom tidyr pivot_longer
+#' @keywords internal
 
 
 
 flux_plot_exp <- function(slopes_df,
                           f_conc,
                           f_datetime,
-                          y_text_position) {
+                          y_text_position,
+                          kappamax) {
 
-  kappamax <- attributes(slopes_df)$kappamax
+
+
+  if (!is.null(kappamax) && kappamax == TRUE) {
+    param_df <- flux_param_kappamax(slopes_df)
+  }
 
   if (is.null(kappamax)) {
-    kappamax <- FALSE
-  }
-
-  if (kappamax == TRUE) {
-    param_df <- flux_param_kappamax(slopes_df, {{f_conc}})
-  }
-
-  if (kappamax == FALSE) {
-    param_df <- flux_param_exp(slopes_df, {{f_conc}})
+    param_df <- flux_param_exp(slopes_df)
   }
 
   slopes_df <- flux_plot_flag(slopes_df, param_df)
@@ -52,7 +51,7 @@ flux_plot_exp <- function(slopes_df,
                color = "grey", linewidth = 0.5) +
     geom_point(
       aes(y = {{f_conc}}, color = .data$f_quality_flag),
-      size = 0.2,
+      size = 0.4,
       na.rm = TRUE
     ) +
     geom_text(

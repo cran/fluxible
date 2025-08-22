@@ -15,8 +15,25 @@
 # plot for linear fit with jpg extension works
 
     Code
-      suppressMessages(flux_plot(slopes30lin_flag, conc, datetime, f_plotname = "test_lin_plot",
-        print_plot = FALSE, output = "ggsave", ggsave_args = list(device = "jpg")))
+      flux_plot(slopes30lin_flag, conc, datetime, f_plotname = "test_lin_plot",
+        print_plot = FALSE, output = "ggsave", ggsave_args = list(device = "jpg"))
+    Message
+      Plotting in progress
+      Saving plots with ggsave.
+      Saving 7 x 7 in image
+      Plots saved in f_quality_plots folder.
+
+# ggssave and print
+
+    Code
+      vdiffr::expect_doppelganger("ggssave and print", flux_plot(slopes30lin_flag,
+        conc, datetime, f_plotname = "test_lin_plot", print_plot = TRUE, output = "ggsave",
+        ggsave_args = list(device = "jpg")))
+    Message
+      Plotting in progress
+      Saving plots with ggsave.
+      Saving 10 x 8 in image
+      Plots saved in f_quality_plots folder.
 
 # plot for exp_tz fit
 
@@ -203,4 +220,32 @@
        force_lm 	 0 	 0 %
        no_slope 	 0 	 0 %
       Plotting in progress
+
+# plot with custom facet id
+
+    Code
+      vdiffr::expect_doppelganger("plot with custom facet id", flux_plot(
+        slopes30lin_flag, conc, datetime, f_facetid = c("type", "turfID")))
+    Message
+      Plotting in progress
+
+# longpdf works
+
+    Code
+      flux_plot(slopes0_flag, conc, datetime, f_plotname = "test_exp_plot",
+        print_plot = FALSE, output = "longpdf")
+    Message
+      Plotting in progress
+      Starting ggsave...
+      Plots saved in f_quality_plots folder.
+
+# longpdf and print
+
+    Code
+      vdiffr::expect_doppelganger("longpdf and print", flux_plot(slopes0_flag, conc,
+        datetime, f_plotname = "test_exp_plot", print_plot = TRUE, output = "longpdf"))
+    Message
+      Plotting in progress
+      Starting ggsave...
+      Plots saved in f_quality_plots folder.
 

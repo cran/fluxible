@@ -60,6 +60,7 @@ raw_conc <- list.files( # list the files
 
 library(tidyverse)
 
+
 raw_conc <- list.files( #listing all the files
   "ex_data/field_campaign", # at location "ex_data/field_campaign"
   full.names = TRUE
@@ -69,7 +70,7 @@ raw_conc <- list.files( #listing all the files
     read_tsv,
     skip = 3,
     # creates a column with the filename, that we can use as flux ID
-    id = "filename"
+    id = "f_fluxid"
   ) |>
   rename( # a bit of renaming to make the columns more practical
     co2_conc = "CO2 (umol/mol)",
@@ -78,13 +79,18 @@ raw_conc <- list.files( #listing all the files
     pressure = "Pressure (kPa)"
   ) |>
   mutate(
-    datetime = paste(Date, Time),
+    .by = f_fluxid,
+    f_datetime = paste(Date, Time),
     # we get rid of the milliseconds
-    datetime = as.POSIXct(datetime, format="%Y-%m-%d %H:%M:%OS"),
+    f_datetime = as.POSIXct(f_datetime, format = "%Y-%m-%d %H:%M:%OS"),
     pressure = pressure / 101.325, # conversion from kPa to atm
-    filename = basename(filename) # removing folder names
+    f_fluxid = basename(f_fluxid), # removing folder names
+    f_start = min(f_datetime), # start is the smallest datetime of each flux
+    f_end = max(f_datetime) # end is the greatest datetime of each flux
   ) |>
-  select(datetime, co2_conc, h2o_conc, air_temp, pressure, filename)
+  select(
+    f_datetime, co2_conc, h2o_conc, air_temp, pressure, f_fluxid, f_start, f_end
+  )
 
 ## ----rawconc-str3, echo=FALSE-------------------------------------------------
 

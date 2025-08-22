@@ -1,5 +1,10 @@
 #' Calculates GPP
-#' @description to calculate gross primary production (GPP) from net ecosystem
+#' @description
+#' `r lifecycle::badge("superseded")`
+#'
+#' See the more generic \link[fluxible:flux_diff]{flux_diff}
+#'
+#' to calculate gross primary production (GPP) from net ecosystem
 #' (NEE) exchange and ecosystem respiration (ER) as GPP = NEE - ER.
 #' Datetime and other variables to keep will be taken from the NEE measurement.
 #' Fluxes presents in the dataset that are neither NEE nor ER
@@ -38,7 +43,7 @@ flux_gpp <- function(fluxes_df,
                      er_arg = "ER",
                      cols_keep = "none") {
 
-  name <- deparse(substitute(fluxes_df))
+  name <- as_label(enquo(fluxes_df))
 
   fluxes_df_check <- fluxes_df |>
     select({{f_flux}})
@@ -130,6 +135,14 @@ flux_gpp <- function(fluxes_df,
       .data$type == "NEE" |
         .data$type == "ER"
     )
+
+  duplicate_check <- fluxes_gpp |>
+    select("id", {{type_col}}) |>
+    duplicated()
+
+  if (any(duplicate_check)) {
+    stop("The id_cols provided do not form unique pairs of ER and NEE.")
+  }
 
   fluxes_gpp <- fluxes_gpp |>
     rename(

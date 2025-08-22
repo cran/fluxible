@@ -12,7 +12,7 @@ test_that("matching works", {
 })
 
 test_that("time_diff works", {
-  co2_df_short_180 <- co2_df_short %>%
+  co2_df_short_180 <- co2_df_short |>
     dplyr::mutate(
       datetime = datetime - 180 # logger is lagging 3 minutes behind
     )
@@ -30,13 +30,13 @@ test_that("time_diff works", {
 })
 
 test_that("renaming variables works", {
-  co2_df_short <- co2_df_short %>%
+  co2_df_short <- co2_df_short |>
     dplyr::rename(
       CO2_conc = conc,
       date_time = datetime
     )
 
-  record_short <- record_short %>%
+  record_short <- record_short |>
     dplyr::rename(
       starting = start
     )
@@ -76,7 +76,7 @@ test_that("flags on nb of data", {
 # test that the data type checking works (all the error messages)
 
 test_that("error on datetime", {
-  co2_df_short <- co2_df_short %>%
+  co2_df_short <- co2_df_short |>
     dplyr::mutate(
       datetime = lubridate::date(datetime)
     )
@@ -95,7 +95,7 @@ test_that("error on datetime", {
 
 
 test_that("error on start", {
-  record_short <- record_short %>%
+  record_short <- record_short |>
     dplyr::mutate(
       start = lubridate::hour(start)
     )
@@ -155,10 +155,101 @@ test_that("matching works with end col", {
     record_short_end,
     datetime,
     start,
-    end,
-    fixed_length = FALSE
+    end
   ) |>
     dplyr::select(f_fluxid, f_start, f_end) |>
     dplyr::distinct()
+  )
+})
+
+test_that("startcrop deprecated", {
+  expect_error(flux_match(
+    co2_df_short,
+    record_short,
+    datetime,
+    start,
+    measurement_length = 180,
+    startcrop = 10
+  ),
+  "The `startcrop` argument of `flux_match()` was deprecated in fluxible 1.2.1 and is now defunct.",
+  fixed = TRUE
+  )
+})
+
+test_that("ratio_threshold deprecated", {
+  expect_warning(flux_match(
+    co2_df_short,
+    record_short,
+    datetime,
+    start,
+    measurement_length = 180,
+    ratio_threshold = 0.8
+  ),
+  "The `ratio_threshold` argument of `flux_match()` is deprecated as of fluxible 1.2.2.",
+  fixed = TRUE
+  )
+})
+
+test_that("f_conc deprecated", {
+  expect_warning(flux_match(
+    co2_df_short,
+    record_short,
+    datetime,
+    start,
+    measurement_length = 180,
+    f_conc = "conc"
+  ),
+  "The `f_conc` argument of `flux_match()` is deprecated as of fluxible 1.2.2.",
+  fixed = TRUE
+  )
+})
+
+test_that("error on end col", {
+  expect_error(flux_match(
+    co2_df_short,
+    record_short,
+    datetime,
+    start,
+    end_col = turfID
+  ),
+  "Please correct the arguments",
+  )
+})
+
+test_that("fixe length deprecated", {
+  record_short_end <- record_short |>
+    dplyr::mutate(
+      end = dplyr::case_when(
+        type == "ER" ~ start + 120,
+        type == "NEE" ~ start + 180
+      )
+    )
+
+  expect_warning(flux_match(
+    co2_df_short,
+    record_short_end,
+    datetime,
+    start,
+    end,
+    fixed_length = FALSE
+  ),
+  "The `fixed_length` argument of `flux_match()` is deprecated as of fluxible 1.2.7.",
+  fixed = TRUE
+  )
+})
+
+test_that("error when cols have same name", {
+  record_test <- record_short |>
+    dplyr::rename(datetime = start)
+
+  expect_error(
+    flux_match(
+      raw_conc = co2_df_short,
+      field_record = record_test,
+      f_datetime = datetime,
+      start_col = datetime,
+      measurement_length = 180
+    ),
+    "raw_conc and field_record must have different column names"
   )
 })

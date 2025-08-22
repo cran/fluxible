@@ -44,7 +44,7 @@ NEE measurements.
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 
-\code{flux_gep} was renamed \code{flux_gpp} out of consistancy with the litterature.
+\code{flux_gep} was renamed \code{flux_gpp} out of consistency with the literature.
 
 Calculate gross ecosystem production (GEP) from net ecosystem
 (NEE) exchange and ecosystem respiration (ER) as GEP = NEE - ER.
@@ -52,8 +52,4 @@ Datetime and other variables to keep will be taken from the NEE measurement.
 Fluxes presents in the dataset that are neither NEE nor ER
 (soilR, LRC or other) are not lost.
 }
-\examples{
-data(co2_fluxes)
-flux_gep(co2_fluxes, type, f_start, id_cols = "turfID",
-cols_keep = c("temp_soil"))
-}
+\keyword{internal}

@@ -358,7 +358,7 @@ test_that("cutting too much", {
 })
 
 test_that("renaming works", {
-  co2_conc_names <- co2_conc %>%
+  co2_conc_names <- co2_conc |>
     dplyr::rename(
       date_time = datetime,
       finish = f_end,
@@ -508,7 +508,7 @@ test_that("cutting too much", {
 })
 
 test_that("renaming works", {
-  co2_conc_names <- co2_conc %>%
+  co2_conc_names <- co2_conc |>
     dplyr::rename(
       date_time = datetime,
       finish = f_end,
@@ -524,5 +524,97 @@ test_that("renaming works", {
       finish,
       fit_type = "exponential"
     )
+  )
+})
+
+test_that("cut direction from start", {
+  expect_snapshot(
+    flux_fitting(
+      co2_conc,
+      conc,
+      datetime,
+      fit_type = "line",
+      start_cut = 20,
+      end_cut = 60,
+      cut_direction = "from_start"
+    ) |>
+      select(f_fluxid, f_slope) |>
+      distinct()
+  )
+})
+
+test_that("cut direction from end", {
+  expect_snapshot(
+    flux_fitting(
+      co2_conc,
+      conc,
+      datetime,
+      fit_type = "line",
+      start_cut = 60,
+      end_cut = 20,
+      cut_direction = "from_end"
+    ) |>
+      select(f_fluxid, f_slope) |>
+      distinct()
+  )
+})
+
+test_that("cutting too much from start", {
+  expect_error(
+    flux_fitting(
+      co2_conc,
+      conc,
+      datetime,
+      cut_direction = "from_start",
+      start_cut = 120,
+      end_cut = 300,
+      fit_type = "linear"
+    ),
+    "You cannot cut more than the length of the measurements!"
+  )
+})
+
+test_that("cutting too much from end", {
+  expect_error(
+    flux_fitting(
+      co2_conc,
+      conc,
+      datetime,
+      cut_direction = "from_end",
+      start_cut = 300,
+      end_cut = 100,
+      fit_type = "linear"
+    ),
+    "You cannot cut more than the length of the measurements!"
+  )
+})
+
+test_that("from start end cut too small", {
+  expect_error(
+    flux_fitting(
+      co2_conc,
+      conc,
+      datetime,
+      cut_direction = "from_start",
+      start_cut = 120,
+      end_cut = 100,
+      fit_type = "linear"
+    ),
+    "end_cut cannot be smaller than start_cut"
+  )
+})
+
+test_that("from end start cut too small", {
+  expect_error(
+    flux_fitting(
+      co2_conc,
+      conc,
+      datetime,
+      cut_direction = "from_end",
+      start_cut = 100,
+      end_cut = 140,
+      fit_type = "linear"
+    ),
+    "start_cut cannot be smaller than end_cut"
   )
 })

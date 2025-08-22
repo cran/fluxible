@@ -39,7 +39,7 @@ tz_est as starting point.}
 \item{f_fit_slope}{Output of linear model of CO2 concentration passing by
 C(tz) and a slope of slope_tz.}
 \item{f_start_z}{Datetime format of tz}
-\item{f_cor_coef}{Correlation coeffecient of concentration over time.}
+\item{f_cor_coef}{Correlation coefficient of concentration over time.}
 \item{f_RMSE}{RMSE of the fit.}
 \item{f_quality_flag}{Quality flags according to flux_quality.}
 \item{f_slope_corr}{Slope as advised by quality flags.}
@@ -58,4 +58,4 @@ Slopes of C(t) for each flux with air temperature in various units.
 \examples{
 slopes0_temp
 }
-\keyword{datasets}
+\keyword{internal}

@@ -42,6 +42,10 @@ Values of datetime and columns in \code{cols_keep} for GPP row are taken from
 NEE measurements.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
+
+See the more generic \link[fluxible:flux_diff]{flux_diff}
+
 to calculate gross primary production (GPP) from net ecosystem
 (NEE) exchange and ecosystem respiration (ER) as GPP = NEE - ER.
 Datetime and other variables to keep will be taken from the NEE measurement.

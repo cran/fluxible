@@ -40,17 +40,24 @@ flux_lrc(
 \item{par_er}{PAR value to correct the ER fluxes to}
 }
 \value{
-the same dataframe with the additional column \code{PAR_corrected_flux}
+the same dataframe with the additional column \code{par_correction = TRUE}
+for correct fluxes. Corrected fluxes
+are in the same \code{f_flux} column. Non corrected fluxes and other fluxes are
+kept, with NA in \code{par_correction}.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-Calculates light response curves for CO2 fluxes and
+Calculates light response curves (LRC) for CO2 fluxes and
 standardizes CO2 fluxes according to the LRC
 }
 \details{
 The light response curves are calculated with a quadratic of the
 form
 \ifelse{html}{\out{flux(PAR) = a * PAR<sup>2</sup> + b * PAR + c}}{\eqn{flux(PAR) = a * PAR^2 + b * PAR + c}{ASCII}}
+
+The long format of the output with both uncorrected and corrected
+fluxes in the same flux column allows for easier gross primary production
+(GPP) fluxes with \link[fluxible:flux_gpp]{flux_gpp} (\code{par_correction} will
+have to be added to the argument \code{id_cols}).
 }
 \examples{
 data(co2_fluxes_lrc)

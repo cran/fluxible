@@ -5,6 +5,7 @@
 #' @param fit_type type of fit that was applied in flux_fitting. Needs to be
 #' filled only if the df was produced outside of the Fluxible workflow.
 #' @param fit_type_list list of fit types in use with Fluxible.
+#' @keywords internal
 
 flux_fit_type <- function(df,
                           fit_type = c(),

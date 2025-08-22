@@ -4,12 +4,10 @@
 \alias{flux_param_qua}
 \title{prepares text to print in flux_plot}
 \usage{
-flux_param_qua(slopes_df, f_conc)
+flux_param_qua(slopes_df)
 }
 \arguments{
 \item{slopes_df}{the slopes_df that is being provided to flux_plot}
-
-\item{f_conc}{column with gas concentration}
 }
 \description{
 creates a df with quality flags and quality diagnostics
@@ -17,3 +15,4 @@ to print on the plots produced by flux_plot.
 flux_param_lm is for fit in the lm family (linear and quadratic)
 flux_param_exp is for the exponential fit
 }
+\keyword{internal}

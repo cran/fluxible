@@ -1,7 +1,5 @@
 #' Standardizes CO2 fluxes at fixed PAR values
-#' @description
-#' `r lifecycle::badge("experimental")`
-#' Calculates light response curves for CO2 fluxes and
+#' @description Calculates light response curves (LRC) for CO2 fluxes and
 #' standardizes CO2 fluxes according to the LRC
 #' @param fluxes_df a dataframe containing NEE, ER and LRC measurements
 #' @param type_col column containing type of flux (NEE, ER, LRC)
@@ -17,12 +15,20 @@
 #' @details The light response curves are calculated with a quadratic of the
 #' form
 #' \ifelse{html}{\out{flux(PAR) = a * PAR<sup>2</sup> + b * PAR + c}}{\eqn{flux(PAR) = a * PAR^2 + b * PAR + c}{ASCII}}
-#' @return the same dataframe with the additional column `PAR_corrected_flux`
-#' @importFrom dplyr group_by_at filter rename vars select mutate left_join cross_join
-#' case_when
+#' @return the same dataframe with the additional column `par_correction = TRUE`
+#' for correct fluxes. Corrected fluxes
+#' are in the same `f_flux` column. Non corrected fluxes and other fluxes are
+#' kept, with NA in `par_correction`.
+#' @details The long format of the output with both uncorrected and corrected
+#' fluxes in the same flux column allows for easier gross primary production
+#' (GPP) fluxes with \link[fluxible:flux_gpp]{flux_gpp} (`par_correction` will
+#' have to be added to the argument `id_cols`).
+#' @importFrom dplyr group_by_at filter rename vars select mutate left_join
+#' cross_join case_when
 #' @importFrom tidyr nest unnest
 #' @importFrom purrr map
 #' @importFrom broom tidy
+#' @importFrom tibble rowid_to_column
 #' @examples
 #' data(co2_fluxes_lrc)
 #' flux_lrc(
@@ -51,6 +57,28 @@ flux_lrc <- function(fluxes_df,
                      par_nee = 300,
                      par_er = 0) {
 
+  name <- as_label(enquo(fluxes_df))
+
+  args_ok <- flux_fun_check(list(
+    par_nee = par_nee,
+    par_er = par_er
+  ),
+  fn = list(is.numeric, is.numeric),
+  msg = rep("has to be numeric", 2))
+
+  fluxes_df_check <- fluxes_df |>
+    select({{par_ave}}, {{f_flux}})
+
+  fluxes_df_ok <- flux_fun_check(fluxes_df_check,
+                                 fn = list(is.numeric, is.numeric),
+                                 msg = rep("has to be numeric", 2),
+                                 name_df = name)
+
+  if (any(!c(args_ok, fluxes_df_ok)))
+    stop("Please correct the arguments", call. = FALSE)
+
+  fluxes_df <- fluxes_df |>
+    rowid_to_column("rowid") # to keep the user's row order
 
   coefficients_lrc <- fluxes_df |>
     filter(
@@ -94,19 +122,22 @@ flux_lrc <- function(fluxes_df,
 
   flux_corrected_par <- flux_corrected_par |>
     mutate(
-      PAR_corrected_flux =
-        case_when( #we correct only the NEE
+      {{f_flux}} :=
+        case_when( # NEE correction
           type == "NEE" ~
             {{f_flux}} +
               a * (par_nee^2 - {{par_ave}}^2) +
               b * (par_nee - {{par_ave}}),
-          type == "ER" ~
+          type == "ER" ~ # ER correction
             {{f_flux}} +
               a * (par_er^2 - {{par_ave}}^2) +
               b * (par_er - {{par_ave}})
-        )
+        ),
+      par_correction = TRUE
     ) |>
-    select(!c("a", "b"))
+    bind_rows(fluxes_df) |>
+    arrange(.data$rowid) |>
+    select(!c("a", "b", "rowid"))
 
   flux_corrected_par
 }

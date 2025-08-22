@@ -55,7 +55,7 @@ can also be a column in case it is a variable}
 \item{f_fluxid}{column containing the flux IDs}
 
 \item{conc_unit}{unit in which the concentration of gas was measured
-\code{ppm}, \code{ppb}, or \code{ppt}}
+\code{mmol/mol}, \code{ppm}, \code{ppb}, or \code{ppt}}
 
 \item{flux_unit}{desired units for the calculated fluxes. Has to be of the
 form amount/surface/time. Amount can be \code{mol}, \code{mmol}, \code{umol}, \code{nmol} or
@@ -103,12 +103,8 @@ and \code{cols_med}.}
 }
 \value{
 a dataframe containing flux IDs, datetime of measurements' starts,
-fluxes in
-\ifelse{html}{\out{mmol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{mmol*m^{-2}*h^{-1}}{ASCII}}
-or
-\ifelse{html}{\out{micromol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{micromol*m^{-2}*h^{-1}}{ASCII}}
-(\code{f_flux}) according to \code{flux_unit}, temperature average for each flux in
-Kelvin (\code{f_temp_ave}), the model used in
+fluxes (\code{f_flux}) in the units defined with \code{flux_unit}, temperature average
+for each flux in the same unit as the input (\code{f_temp_ave}), the model used in
 \link[fluxible:flux_fitting]{flux_fitting}, any column specified in
 \code{cols_keep}, any column specified in \code{cols_ave}, \code{cols_med} or \code{cols_sum}
 with their values treated accordingly over the measurement after cuts, and a

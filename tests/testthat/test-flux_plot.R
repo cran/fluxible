@@ -58,12 +58,39 @@ test_that("plot for linear fit with jpg extension works", {
     )
 
   expect_snapshot(
-    suppressMessages( # because the progress bar is messing with check()
+    flux_plot(slopes30lin_flag,
+      conc,
+      datetime,
+      f_plotname = "test_lin_plot",
+      print_plot = FALSE,
+      output = "ggsave",
+      ggsave_args = list(device = "jpg")
+    )
+  )
+  # the plots are quite heavy so we do not keep them
+  unlink("f_quality_plots/", recursive = TRUE, force = TRUE)
+})
+
+test_that("ggssave and print", {
+  slopes30lin_flag <- suppressWarnings(flux_fitting(
+    co2_conc,
+    conc,
+    datetime,
+    fit_type = "linear",
+    end_cut = 30
+  )) |>
+    flux_quality(
+      conc
+    )
+
+  expect_snapshot(
+    vdiffr::expect_doppelganger(
+      "ggssave and print",
       flux_plot(slopes30lin_flag,
         conc,
         datetime,
         f_plotname = "test_lin_plot",
-        print_plot = FALSE,
+        print_plot = TRUE,
         output = "ggsave",
         ggsave_args = list(device = "jpg")
       )
@@ -202,3 +229,130 @@ test_that("plot for kappamax fit", {
     )
   )
 })
+
+test_that("plot with custom facet id", {
+  slopes30lin_flag <- suppressWarnings(flux_fitting(
+    co2_conc,
+    conc,
+    datetime,
+    fit_type = "linear",
+    end_cut = 30
+  )) |>
+    flux_quality(
+      conc
+    )
+
+  expect_snapshot(
+    vdiffr::expect_doppelganger(
+      "plot with custom facet id",
+      flux_plot(
+        slopes30lin_flag,
+        conc,
+        datetime,
+        f_facetid = c("type", "turfID")
+      )
+    )
+  )
+})
+
+test_that("error with custom facet id not unique", {
+  slopes30lin_flag <- suppressWarnings(flux_fitting(
+    co2_conc,
+    conc,
+    datetime,
+    fit_type = "linear",
+    end_cut = 30
+  )) |>
+    flux_quality(
+      conc
+    )
+
+  expect_error(
+    flux_plot(
+      slopes30lin_flag,
+      conc,
+      datetime,
+      f_facetid = "turfID"
+    ),
+    "Please use a f_facetid that is unique for each measurement"
+  )
+})
+
+test_that("longpdf works", {
+  slopes0 <- suppressWarnings(flux_fitting(
+    co2_conc,
+    conc,
+    datetime,
+    fit_type = "exp_zhao18"
+  ))
+  slopes0_flag <- suppressMessages(flux_quality(
+    slopes0,
+    conc
+  ))
+
+  expect_snapshot(
+    flux_plot(slopes0_flag,
+      conc,
+      datetime,
+      f_plotname = "test_exp_plot",
+      print_plot = FALSE,
+      output = "longpdf"
+    )
+  )
+  # the plots are quite heavy so we do not keep them
+  unlink("f_quality_plots/", recursive = TRUE, force = TRUE)
+})
+
+test_that("longpdf and print", {
+  slopes0 <- suppressWarnings(flux_fitting(
+    co2_conc,
+    conc,
+    datetime,
+    fit_type = "exp_zhao18"
+  ))
+  slopes0_flag <- suppressMessages(flux_quality(
+    slopes0,
+    conc
+  ))
+
+  expect_snapshot(
+    vdiffr::expect_doppelganger(
+      "longpdf and print",
+      flux_plot(slopes0_flag,
+        conc,
+        datetime,
+        f_plotname = "test_exp_plot",
+        print_plot = TRUE,
+        output = "longpdf"
+      )
+    )
+  )
+  # the plots are quite heavy so we do not keep them
+  unlink("f_quality_plots/", recursive = TRUE, force = TRUE)
+})
+
+test_that("argument error", {
+  slopes0 <- suppressWarnings(flux_fitting(
+    co2_conc,
+    conc,
+    datetime,
+    fit_type = "exp_zhao18"
+  ))
+  slopes0_flag <- suppressMessages(flux_quality(
+    slopes0,
+    conc
+  ))
+
+  expect_error(
+    flux_plot(slopes0_flag,
+      conc,
+      datetime,
+      f_plotname = "test_exp_plot",
+      print_plot = FALSE,
+      output = "pdfpages",
+      y_text_position = "a bit higher"
+    ),
+    "Please correct the arguments"
+  )
+}
+)

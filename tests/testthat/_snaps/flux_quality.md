@@ -67,8 +67,9 @@
 # works for quadratic fitting
 
     Code
-      dplyr::distinct(dplyr::select(flux_quality(slopes30qua, conc), f_fluxid,
-      f_quality_flag, f_pvalue, f_rsquared, f_gfactor))
+      dplyr::distinct(dplyr::mutate(dplyr::select(flux_quality(slopes30qua, conc),
+      f_fluxid, f_quality_flag, f_pvalue, f_rsquared, f_gfactor), f_rsquared = round(
+        f_rsquared, digits = 3)))
     Message
       
        Total number of measurements: 6
@@ -87,8 +88,8 @@
       # A tibble: 12 x 5
          f_fluxid f_quality_flag  f_pvalue f_rsquared f_gfactor
          <fct>    <chr>              <dbl>      <dbl>     <dbl>
-       1 1        ok             9.51e-297      1.00       1.45
-       2 1        <NA>           9.51e-297      1.00      NA   
+       1 1        ok             9.51e-297      1          1.45
+       2 1        <NA>           9.51e-297      1         NA   
        3 2        ok             1.08e-292      0.999      1.26
        4 2        <NA>           1.08e-292      0.999     NA   
        5 3        ok             2.44e-173      0.989      2.11

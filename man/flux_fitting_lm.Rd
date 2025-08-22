@@ -25,3 +25,4 @@ std error, r square and p value of the linear model
 \description{
 fits a linear model to the gas concentration over time
 }
+\keyword{internal}

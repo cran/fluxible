@@ -11,6 +11,7 @@
 #' @importFrom ggforce facet_wrap_paginate n_pages
 #' @importFrom purrr quietly
 #' @importFrom grDevices pdf dev.off
+#' @keywords internal
 
 
 
@@ -18,7 +19,7 @@ flux_plot_lin <- function(slopes_df,
                           f_conc,
                           f_datetime,
                           y_text_position) {
-  param_df <- flux_param_lm(slopes_df, {{f_conc}})
+  param_df <- flux_param_lm(slopes_df)
 
   slopes_df <- flux_plot_flag(slopes_df, param_df)
 
@@ -31,7 +32,7 @@ flux_plot_lin <- function(slopes_df,
     ggplot(aes({{f_datetime}})) +
     theme_bw() +
     geom_point(aes(y = {{f_conc}}, color = .data$f_quality_flag),
-      size = 0.2,
+      size = 0.4,
       na.rm = TRUE
     ) +
     geom_text(

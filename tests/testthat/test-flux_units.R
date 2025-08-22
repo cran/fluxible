@@ -7,6 +7,15 @@ test_that("mmol conversion works", {
   )
 })
 
+test_that("mmol/mol conc", {
+  coef <- flux_units("umol/m2/s", "mmol/mol")
+
+  expect_equal(
+    coef,
+    1000
+  )
+})
+
 test_that("mmol and hours conversion works", {
   coef <- flux_units("mmol/m2/d", "ppm")
 

@@ -11,10 +11,11 @@ flux_fitting(
   f_start = f_start,
   f_end = f_end,
   f_fluxid = f_fluxid,
-  fit_type,
+  fit_type = "exp_zhao18",
   start_cut = 0,
   end_cut = 0,
   t_zero = 0,
+  cut_direction = "none",
   cz_window = 15,
   b_window = 10,
   a_window = 10,
@@ -55,6 +56,11 @@ from Zhao et al (2018).
 \item{t_zero}{time at which the slope should be calculated
 (for \code{quadratic}, \code{exp_tz} and \code{exp_hm} fits)}
 
+\item{cut_direction}{\code{"none"} (default) means that the focus window is
+\code{f_start + start_cut} to \code{f_end - end_cut}; \code{"from_start"} makes it
+\code{f_start + start_cut} to \code{f_start + end_cut}; \code{"from_end"} makes it
+\code{f_end - start_cut} to \code{f_end - end_cut}.}
+
 \item{cz_window}{window used to calculate Cz, at the beginning of cut window
 (\code{exp_zhao18} and \code{exp_tz} fits)}
 
@@ -92,16 +98,16 @@ t_zero = 10, end_cut = 30)
 \references{
 Pedersen, A.R., Petersen, S.O., Schelde, K., 2010.
 A comprehensive approach to soil-atmosphere trace-gas flux estimation with
-static chambers. European Journal of Soil Science 61, 888–902.
+static chambers. European Journal of Soil Science 61, 888-902.
 https://doi.org/10.1111/j.1365-2389.2010.01291.x
 
 Hutchinson, G.L., Mosier, A.R., 1981. Improved Soil Cover Method
 for Field Measurement of Nitrous Oxide Fluxes.
-Soil Science Society of America Journal 45, 311–316.
+Soil Science Society of America Journal 45, 311-316.
 https://doi.org/10.2136/sssaj1981.03615995004500020017x
 
 Zhao, P., Hammerle, A., Zeeman, M., Wohlfahrt, G., 2018.
 On the calculation of daytime CO2 fluxes measured by automated closed
-transparent chambers. Agricultural and Forest Meteorology 263, 267–275.
+transparent chambers. Agricultural and Forest Meteorology 263, 267-275.
 https://doi.org/10.1016/j.agrformet.2018.08.022
 }

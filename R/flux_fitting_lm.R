@@ -15,6 +15,7 @@
 #' @importFrom haven as_factor
 #' @importFrom stringr str_c
 #' @importFrom broom glance
+#' @keywords internal
 
 
 flux_fitting_lm <- function(conc_df_cut,

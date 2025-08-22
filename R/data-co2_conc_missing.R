@@ -22,4 +22,5 @@
 #' }
 #' @examples
 #' co2_conc_missing
+#' @keywords internal
 "co2_conc_missing"

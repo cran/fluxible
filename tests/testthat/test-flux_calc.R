@@ -420,6 +420,43 @@ test_that("volume can be a variable instead of a constant", {
   )
 })
 
+test_that("pressure can be a variable instead of a constant", {
+  slopes0_vol <- suppressWarnings(flux_fitting(
+    co2_conc,
+    conc,
+    datetime,
+    fit_type = "exp_zhao18"
+  )) |>
+    flux_quality(
+      conc
+    ) |>
+    mutate(
+      f_pressure = case_when(
+        f_fluxid == 1 ~ 0.8,
+        f_fluxid == 2 ~ 1,
+        f_fluxid == 3 ~ 1.3,
+        f_fluxid == 4 ~ 1.1,
+        f_fluxid == 5 ~ 0.7,
+        f_fluxid == 6 ~ 1.2
+      )
+    )
+
+  expect_snapshot(
+    flux_calc(
+      slopes0_vol,
+      f_slope,
+      datetime,
+      temp_air,
+      setup_volume = 24.575,
+      conc_unit = "ppm",
+      flux_unit = "mmol/m2/h",
+      atm_pressure = f_pressure,
+      plot_area = 0.0625
+    ) |>
+      dplyr::select(f_fluxid, f_temp_air_ave, datetime, f_flux)
+  )
+})
+
 
 test_that("Fluxible workflow works from start to finish", {
   conc_test <- flux_match(
@@ -488,7 +525,10 @@ test_that("Stupeflux returns the same as step by step workflow", {
     setup_volume = 24.575,
     atm_pressure = 1,
     plot_area = 0.0625
-  )
+  ) |>
+    dplyr::mutate(f_atm_pressure_ave = 1) |>
+    dplyr::relocate(f_fluxid, f_slope_corr, f_temp_air_ave,
+                    f_atm_pressure_ave, datetime, f_flux, f_model)
 
   expect_equal(
     stupeflux(

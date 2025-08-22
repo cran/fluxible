@@ -19,3 +19,4 @@ flux_plot_lin(slopes_df, f_conc, f_datetime, y_text_position)
 plots the fluxes that were fitted
 with a linear model
 }
+\keyword{internal}

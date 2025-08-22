@@ -5,6 +5,7 @@
 #' @param name_df in case args is a df with selected columns to check origdf
 #' is the original df to take the name from for a more obvious error message
 #' @author Adam Klimes
+#' @keywords internal
 
 
 

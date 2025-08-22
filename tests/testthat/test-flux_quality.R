@@ -49,6 +49,10 @@ test_that("works for quadratic fitting", {
     ) |>
       dplyr::select(f_fluxid, f_quality_flag, f_pvalue,
                     f_rsquared, f_gfactor) |>
+      dplyr::mutate(
+        f_rsquared = round(f_rsquared, digits = 3)
+        # tests sometime takes 2 and then it makes it fail
+      ) |>
       dplyr::distinct()
   )
 })

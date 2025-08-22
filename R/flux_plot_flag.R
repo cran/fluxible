@@ -4,12 +4,13 @@
 #' @param slopes_df as provided in flux_plot
 #' @param param_df as provided by flux_param
 #' @importFrom dplyr select left_join mutate case_when
+#' @keywords internal
 
 flux_plot_flag <- function(slopes_df,
                            param_df) {
   slopes_df <- slopes_df |>
     select(!c("f_quality_flag")) |>
-    left_join(param_df, by = "f_fluxid") |>
+    left_join(param_df, by = "f_facetid") |>
     mutate(
       f_quality_flag = case_when(
         f_cut == "cut" ~ f_cut,

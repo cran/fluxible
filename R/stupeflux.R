@@ -1,5 +1,5 @@
 #' From raw gas concentration over time to clean fluxes
-#' @description Wrapper function for the Fluxible workflow. We recommand using
+#' @description Wrapper function for the Fluxible workflow. We recommend using
 #' the step-by-step workflow for more control over the process.
 #' @param raw_conc dataframe of CO2 concentration measured continuously.
 #' Has to contain at least a datetime column in ymd_hms format and
@@ -15,9 +15,7 @@
 #' @param f_datetime datetime column in raw_conc (dmy_hms format)
 #' @param f_conc concentration column in raw_conc
 #' @param start_col start column in field_record (dmy_hms format)
-#' @param end_col end columne in field_record (`ymd_hms` format)
-#' @param fixed_length if `TRUE` (default), the `measurement_length` is used to
-#' create the end column. If `FALSE`, `end_col` has to be provided.
+#' @param end_col end column in field_record (`ymd_hms` format)
 #' @param fit_type `exp_zhao18`, `exp_tz`, `exp_hm`, `quadratic` or `linear.`
 #' `exp_zhao18` is using the exponential model
 #' \ifelse{html}{\out{C(t) = C_m + a (t - t_z) + (C_z - C_m) exp(-b (t - t_z))}}{\eqn{C(t) = C_m + a (t - t_z) + (C_z - C_m) \exp(-b (t - t_z))}{ASCII}}
@@ -69,7 +67,7 @@
 #' Defines a window with its opposite inside which the fit is
 #' considered good enough (`exp_zhao18` and `exp_tz` fits)
 #' @param slope_correction logical. If `TRUE`, the flux will be calculated with
-#' the slope corrected according to the recommandations of the quality flags.
+#' the slope corrected according to the recommendations of the quality flags.
 #' @param conc_unit unit in which the concentration of gas was measured
 #' `ppm` or `ppb`
 #' @param flux_unit unit in which the calculated flux will be
@@ -157,7 +155,6 @@ stupeflux <- function(raw_conc,
                       plot_area,
                       conc_unit,
                       flux_unit,
-                      fixed_length = TRUE,
                       cols_keep = c(),
                       cols_ave = c(),
                       cols_sum = c(),
@@ -190,7 +187,6 @@ stupeflux <- function(raw_conc,
     f_datetime = {{f_datetime}},
     start_col = {{start_col}},
     end_col = {{end_col}},
-    fixed_length = fixed_length,
     measurement_length = measurement_length,
     time_diff = time_diff
   )

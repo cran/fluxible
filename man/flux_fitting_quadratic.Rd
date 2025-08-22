@@ -37,3 +37,4 @@ std error, r square and p value of the quadratic model
 \description{
 fits a quadratic model to the gas concentration over time
 }
+\keyword{internal}

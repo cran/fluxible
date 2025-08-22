@@ -7,7 +7,7 @@
 flux_units(
   flux_units,
   conc_units,
-  conc_units_list = c("ppm", "ppb", "ppt"),
+  conc_units_list = c("mmol/mol", "ppm", "ppb", "ppt"),
   amount_units = c("mol", "mmol", "umol", "nmol", "pmol"),
   surface_units = c("m2", "dm2", "cm2"),
   time_units = c("d", "h", "mn", "s")
@@ -19,7 +19,8 @@ form amount/time/surface. Amount can be \code{mol}, \code{mmol}, \code{umol}, \c
 \code{pmol}. Time can be \code{d} (day), \code{h} (hour), \code{mn} (minute) or \code{s} (seconds).
 Surface can be \code{m2}, \code{dm2} or \code{cm2}.}
 
-\item{conc_units}{units of gas concentration \code{ppm}, \code{ppb} or \code{ppt}.}
+\item{conc_units}{units of gas concentration \code{mmol/mol}, \code{ppm}, \code{ppb} or
+\code{ppt}.}
 
 \item{conc_units_list}{list of possible units for gas concentration.}
 

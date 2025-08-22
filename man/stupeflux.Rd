@@ -19,7 +19,6 @@ stupeflux(
   plot_area,
   conc_unit,
   flux_unit,
-  fixed_length = TRUE,
   cols_keep = c(),
   cols_ave = c(),
   cols_sum = c(),
@@ -61,7 +60,7 @@ and any other column identifying the measurements.}
 
 \item{start_col}{start column in field_record (dmy_hms format)}
 
-\item{end_col}{end columne in field_record (\code{ymd_hms} format)}
+\item{end_col}{end column in field_record (\code{ymd_hms} format)}
 
 \item{f_conc}{concentration column in raw_conc}
 
@@ -98,9 +97,6 @@ can also be a column in case it is a variable}
 \ifelse{html}{\out{mmol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{mmol*m^{-2}*h^{-1}}{ASCII}};
 \code{micromol} outputs fluxes in
 \ifelse{html}{\out{micromol * m<sup>-2</sup> * h<sup>-1</sup>}}{\eqn{micromol*m^{-2}*h^{-1}}{ASCII}}}
-
-\item{fixed_length}{if \code{TRUE} (default), the \code{measurement_length} is used to
-create the end column. If \code{FALSE}, \code{end_col} has to be provided.}
 
 \item{cols_keep}{columns to keep from the input to the output.
 Those columns need to have unique values for each flux,
@@ -187,7 +183,7 @@ since the slope is provided from \link[fluxible:flux_fitting]{flux_fitting},
 but it will influence the values of the columns in \code{cols_ave}.}
 
 \item{slope_correction}{logical. If \code{TRUE}, the flux will be calculated with
-the slope corrected according to the recommandations of the quality flags.}
+the slope corrected according to the recommendations of the quality flags.}
 }
 \value{
 a dataframe containing flux IDs, datetime of measurements' starts,
@@ -203,7 +199,7 @@ Kelvin (\code{f_temp_ave}), the total volume of the setup for each measurement
 their value averaged over the measurement after cuts and discarding NA.
 }
 \description{
-Wrapper function for the Fluxible workflow. We recommand using
+Wrapper function for the Fluxible workflow. We recommend using
 the step-by-step workflow for more control over the process.
 }
 \examples{

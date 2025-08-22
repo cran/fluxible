@@ -24,7 +24,7 @@ test_that("keeping more than one columns", {
 
 
 test_that("GPP calculation works with several id cols", {
-  campaign <- c(1, 1, 2, 2, 3, 3)
+  campaign <- c(1, 1, 2, 2, 2, 2)
   turfid <- c("A", "A", "A", "A", "B", "B")
   type <- c("NEE", "ER", "NEE", "ER", "NEE", "ER")
   flux <- c(3, 5, 2, 7, 9, 11)
@@ -199,5 +199,40 @@ test_that("GPP calculation works with several id cols, and extra fluxes", {
       flux,
       id_cols = c("turfid", "campaign")
     )
+  )
+})
+
+test_that("error with non unique pairs", {
+  campaign <- c(1, 1, 2, 2, 2, 2)
+  turfid <- c("A", "A", "A", "A", "B", "B")
+  type <- c("NEE", "ER", "NEE", "ER", "NEE", "ER")
+  flux <- c(3, 5, 2, 7, 9, 11)
+  datetime <- c(
+    "2024-02-11 10:00:00",
+    "2024-02-11 10:00:10",
+    "2024-02-11 10:00:20",
+    "2024-02-11 10:00:30",
+    "2024-02-11 10:00:40",
+    "2024-02-11 10:00:50"
+  )
+  par <- c(300, 2, 250, 5, 320, 1)
+
+  fluxes <- tibble(
+    campaign,
+    turfid,
+    type,
+    flux,
+    datetime,
+    par
+  )
+
+  expect_error(
+    flux_gpp(fluxes,
+      type,
+      datetime,
+      flux,
+      id_cols = "turfid"
+    ),
+    "The id_cols provided do not form unique pairs of ER and NEE."
   )
 })

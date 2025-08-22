@@ -36,6 +36,7 @@
 #' @importFrom dplyr mutate case_when group_by rowwise summarise ungroup
 #' @importFrom tidyr nest unnest
 #' @importFrom stats cor
+#' @keywords internal
 
 
 

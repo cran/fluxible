@@ -29,6 +29,7 @@
 #' with its opposite outside which the flux will be flagged `discard`.
 #' @return same dataframe with added flag and corrected slopes columns
 #' @importFrom dplyr mutate case_when left_join
+#' @keywords internal
 
 
 

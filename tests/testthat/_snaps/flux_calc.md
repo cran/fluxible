@@ -24,7 +24,7 @@
       Averaging air temperature for each flux...
       Creating a df with the columns from 'cols_keep' argument...
       Calculating fluxes...
-      R constant set to 0.082057
+      R constant set to 0.082057 L * atm * K^-1 * mol^-1
       Concentration was measured in ppm
       Fluxes are in mmol/m2/h
     Output
@@ -51,7 +51,7 @@
       Creating a df with the columns from 'cols_keep' argument...
       Creating a df with the columns from 'cols_ave' argument...
       Calculating fluxes...
-      R constant set to 0.082057
+      R constant set to 0.082057 L * atm * K^-1 * mol^-1
       Concentration was measured in ppm
       Fluxes are in mmol/m2/h
     Output
@@ -123,7 +123,7 @@
     Message
       Averaging air temperature for each flux...
       Calculating fluxes...
-      R constant set to 0.082057
+      R constant set to 0.082057 L * atm * K^-1 * mol^-1
       Concentration was measured in ppm
       Fluxes are in mmol/m2/h
     Output
@@ -147,7 +147,7 @@
     Message
       Averaging air temperature for each flux...
       Calculating fluxes...
-      R constant set to 0.082057
+      R constant set to 0.082057 L * atm * K^-1 * mol^-1
       Concentration was measured in ppm
       Fluxes are in mmol/m2/h
     Output
@@ -172,7 +172,7 @@
       Cutting data according to 'keep_arg'...
       Averaging air temperature for each flux...
       Calculating fluxes...
-      R constant set to 0.082057
+      R constant set to 0.082057 L * atm * K^-1 * mol^-1
       Concentration was measured in ppm
       Fluxes are in mmol/m2/h
     Output
@@ -196,7 +196,7 @@
       Cutting data according to 'keep_arg'...
       Averaging air temperature for each flux...
       Calculating fluxes...
-      R constant set to 0.082057
+      R constant set to 0.082057 L * atm * K^-1 * mol^-1
       Concentration was measured in ppm
       Fluxes are in mmol/m2/h
     Output
@@ -209,6 +209,30 @@
       4 4                  7.77 2022-07-28 23:59:32   68.0
       5 5                  7.71 2022-07-29 00:03:10   14.9
       6 6                  7.75 2022-07-29 00:06:35   37.3
+
+# pressure can be a variable instead of a constant
+
+    Code
+      dplyr::select(flux_calc(slopes0_vol, f_slope, datetime, temp_air, setup_volume = 24.575,
+        conc_unit = "ppm", flux_unit = "mmol/m2/h", atm_pressure = f_pressure,
+        plot_area = 0.0625), f_fluxid, f_temp_air_ave, datetime, f_flux)
+    Message
+      Cutting data according to 'keep_arg'...
+      Averaging air temperature for each flux...
+      Calculating fluxes...
+      R constant set to 0.082057 L * atm * K^-1 * mol^-1
+      Concentration was measured in ppm
+      Fluxes are in mmol/m2/h
+    Output
+      # A tibble: 6 x 4
+        f_fluxid f_temp_air_ave datetime            f_flux
+        <fct>             <dbl> <dttm>               <dbl>
+      1 1                  7.31 2022-07-28 23:43:35   76.5
+      2 2                  7.38 2022-07-28 23:47:22   52.4
+      3 3                  7.46 2022-07-28 23:52:10   24.2
+      4 4                  7.77 2022-07-28 23:59:32   76.3
+      5 5                  7.71 2022-07-29 00:03:10   62.9
+      6 6                  7.75 2022-07-29 00:06:35   31.4
 
 # Fluxible workflow works from start to finish
 
@@ -253,19 +277,20 @@
       Cutting data according to 'keep_arg'...
       Averaging air temperature for each flux...
       Calculating fluxes...
-      R constant set to 0.082057
+      R constant set to 0.082057 L * atm * K^-1 * mol^-1
       Concentration was measured in ppm
       Fluxes are in mmol/m2/h
     Output
-      # A tibble: 6 x 6
-        f_fluxid f_slope f_temp_air_ave datetime            f_flux f_model   
-        <fct>      <dbl>          <dbl> <dttm>               <dbl> <chr>     
-      1 1          0.785           7.28 2022-07-28 23:43:35   48.3 exp_zhao18
-      2 2          0.503           7.37 2022-07-28 23:47:22   30.9 exp_zhao18
-      3 3          0.344           7.45 2022-07-28 23:52:10   21.1 exp_zhao18
-      4 4          0.693           7.77 2022-07-28 23:59:32   42.5 exp_zhao18
-      5 5          1.20            7.69 2022-07-29 00:03:10   74.0 exp_zhao18
-      6 6          0.433           7.74 2022-07-29 00:06:35   26.6 exp_zhao18
+      # A tibble: 6 x 7
+        f_fluxid f_slope f_temp_air_ave f_atm_pressure_ave datetime            f_flux
+        <fct>      <dbl>          <dbl>              <dbl> <dttm>               <dbl>
+      1 1          0.785           7.28                  1 2022-07-28 23:43:35   48.3
+      2 2          0.503           7.37                  1 2022-07-28 23:47:22   30.9
+      3 3          0.344           7.45                  1 2022-07-28 23:52:10   21.1
+      4 4          0.693           7.77                  1 2022-07-28 23:59:32   42.5
+      5 5          1.20            7.69                  1 2022-07-29 00:03:10   74.0
+      6 6          0.433           7.74                  1 2022-07-29 00:06:35   26.6
+      # i 1 more variable: f_model <chr>
 
 # Fluxible workflow works with kappamax
 

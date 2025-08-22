@@ -631,3 +631,36 @@
       #   f_param2 <dbl>, f_rsquared <dbl>, f_adj_rsquared <dbl>, f_intercept <dbl>,
       #   f_pvalue <dbl>, f_slope <dbl>, f_fit <dbl>, f_fit_slope <dbl>, ...
 
+# cut direction from start
+
+    Code
+      distinct(select(flux_fitting(co2_conc, conc, datetime, fit_type = "line",
+        start_cut = 20, end_cut = 60, cut_direction = "from_start"), f_fluxid,
+      f_slope))
+    Output
+      # A tibble: 6 x 2
+        f_fluxid f_slope
+        <fct>      <dbl>
+      1 1          0.571
+      2 2          0.368
+      3 3          0.203
+      4 4          0.465
+      5 5          0.388
+      6 6          0.223
+
+# cut direction from end
+
+    Code
+      distinct(select(flux_fitting(co2_conc, conc, datetime, fit_type = "line",
+        start_cut = 60, end_cut = 20, cut_direction = "from_end"), f_fluxid, f_slope))
+    Output
+      # A tibble: 6 x 2
+        f_fluxid f_slope
+        <fct>      <dbl>
+      1 1        -1.09  
+      2 2        -0.697 
+      3 3         0.0464
+      4 4        -1.42  
+      5 5        -0.548 
+      6 6         0.0361
+
