@@ -47,7 +47,10 @@ flux_plot_exp <- function(slopes_df,
   plot_exp <- slopes_df |>
     ggplot(aes({{f_datetime}})) +
     theme_bw() +
-    geom_vline(xintercept = slopes_df$f_start_z,
+    geom_vline(aes(xintercept = .data$f_start_z),
+               data = distinct(
+                 slopes_df, .data$f_facetid, .keep_all = TRUE
+               ),
                color = "grey", linewidth = 0.5) +
     geom_point(
       aes(y = {{f_conc}}, color = .data$f_quality_flag),

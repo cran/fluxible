@@ -35,6 +35,34 @@
       Saving 10 x 8 in image
       Plots saved in f_quality_plots folder.
 
+# plot for quadratic fit with mid missing data
+
+    Code
+      vdiffr::expect_doppelganger("plot for quadratic fit with mid missing data",
+        flux_plot(flux_quality(flux_fitting(co2_conc_mid_missing, conc, datetime,
+          fit_type = "quadratic", end_cut = 60, t_zero = 20), conc), conc, datetime))
+    Condition
+      Warning in `flux_fitting()`:
+      
+       fluxID 1 : slope was estimated on 139 points out of 150 seconds
+       fluxID 2 : slope was estimated on 114 points out of 150 seconds
+       fluxID 4 : slope was estimated on 103 points out of 150 seconds
+    Message
+      
+       Total number of measurements: 6
+      
+       ok 	 6 	 100 %
+       discard 	 0 	 0 %
+       zero 	 0 	 0 %
+       force_discard 	 0 	 0 %
+       start_error 	 0 	 0 %
+       no_data 	 0 	 0 %
+       force_ok 	 0 	 0 %
+       force_zero 	 0 	 0 %
+       force_lm 	 0 	 0 %
+       no_slope 	 0 	 0 %
+      Plotting in progress
+
 # plot for exp_tz fit
 
     Code
@@ -130,34 +158,6 @@
        no_slope 	 0 	 0 %
       Part of the fit will not be displayed
           because f_ylim_lower is too high.
-      Plotting in progress
-
-# plot for quadratic fit with mid missing data
-
-    Code
-      vdiffr::expect_doppelganger("plot for quadratic fit with mid missing data",
-        flux_plot(flux_quality(flux_fitting(co2_conc_mid_missing, conc, datetime,
-          fit_type = "quadratic", end_cut = 60, t_zero = 20), conc), conc, datetime))
-    Condition
-      Warning in `flux_fitting()`:
-      
-       fluxID 1 : slope was estimated on 139 points out of 150 seconds
-       fluxID 2 : slope was estimated on 114 points out of 150 seconds
-       fluxID 4 : slope was estimated on 103 points out of 150 seconds
-    Message
-      
-       Total number of measurements: 6
-      
-       ok 	 6 	 100 %
-       discard 	 0 	 0 %
-       zero 	 0 	 0 %
-       force_discard 	 0 	 0 %
-       start_error 	 0 	 0 %
-       no_data 	 0 	 0 %
-       force_ok 	 0 	 0 %
-       force_zero 	 0 	 0 %
-       force_lm 	 0 	 0 %
-       no_slope 	 0 	 0 %
       Plotting in progress
 
 # plot for exp_hm fit

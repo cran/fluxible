@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 options(tidyverse.quiet = TRUE)
 ```
 
-In this example we will process a dataset from the Plant Functional Traits Course 6 (PFTC6; Norway, 2022).
+In this example we will process a dataset from the Plant Functional Traits Course 6 [@vandvikPlantTraitsAssociated2025].
 Net ecosystem exchange (NEE), ecosystem respiration (ER), air and soil temperature and photosynthetically active radiation (PAR) were recorded over the course of 24 hours at an experimental site called Liahovden, situated in an alpine grassland in southwestern Norway.
 Those data are available in the `fluxible` R package.
 <!-- This example uses the data that were recorded during the Plant Functional Traits Course 6 (PFTC6) in Norway in 2022 at the site called Liahovden. -->

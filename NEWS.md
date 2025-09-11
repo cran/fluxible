@@ -1,3 +1,11 @@
+# fluxible 1.3.2
+
+* `flux_plot`: fixed a bug, which makes it now much faster
+
+# fluxible 1.3.1
+
+* Vignettes and readme: reference and small fixes
+
 # fluxible 1.3.0
 
 * `flux_match`: checks that the two inputs have different column names

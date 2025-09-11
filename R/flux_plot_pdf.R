@@ -22,28 +22,28 @@ flux_plot_pdf <- function(f_plot,
 
   plot_pages <- ceiling(nb_fluxid / (f_nrow * f_ncol))
 
-    f_plotname <- paste(f_plotname, ".pdf", sep = "")
-    pdf(f_plotname, paper = "a4r", width = 11.7,
-        height = 8.3, title = f_plotname)
-    pb <- progress_bar$new(
-      format =
-        "Printing plots in pdf document [:bar] :current/:total (:percent)",
-      total = plot_pages
-    )
-    pb$tick(0)
-    Sys.sleep(0.5)
-    for (i in 1:plot_pages) {
-      pb$tick()
-      Sys.sleep(0.001)
-      print(f_plot +
-        do.call(facet_wrap_paginate,
-          args = c(
-            facets = ~f_facetid,
-            page = i,
-            facet_wrap_args
-          )
-        ))
-    }
-    quietly(dev.off())
-    message("Plots saved in f_quality_plots folder.")
+  f_plotname <- paste(f_plotname, ".pdf", sep = "")
+  pdf(f_plotname, paper = "a4r", width = 11.7,
+      height = 8.3, title = f_plotname)
+  pb <- progress_bar$new(
+    format =
+      "Printing plots in pdf document [:bar] :current/:total (:percent)",
+    total = plot_pages
+  )
+  pb$tick(0)
+  Sys.sleep(0.5)
+  for (i in 1:plot_pages) {
+    pb$tick()
+    Sys.sleep(0.001)
+    print(f_plot +
+      do.call(facet_wrap_paginate,
+        args = c(
+          facets = ~f_facetid,
+          page = i,
+          facet_wrap_args
+        )
+      ))
+  }
+  quietly(dev.off())
+  message("Plots saved in f_quality_plots folder.")
 }
