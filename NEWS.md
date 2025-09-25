@@ -1,3 +1,7 @@
+# fluxible 1.3.3
+
+* citation: paper published!
+
 # fluxible 1.3.2
 
 * `flux_plot`: fixed a bug, which makes it now much faster
