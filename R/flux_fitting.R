@@ -30,6 +30,8 @@
 #' `f_start + start_cut` to `f_end - end_cut`; `"from_start"` makes it
 #' `f_start + start_cut` to `f_start + end_cut`; `"from_end"` makes it
 #' `f_end - start_cut` to `f_end - end_cut`.
+#' Bug fix since v1.3.4: `"from_start"` was doing `f_start` + `start_cut` to
+#' `f_start` + `start_cut` + `end_cut`
 #' @param end_cut time to discard at the end of the measurements (in seconds)
 #' @param f_start column with datetime when the measurement started (`ymd_hms`)
 #' @param f_end column with datetime when the measurement ended (`ymd_hms`)
@@ -147,7 +149,7 @@ flux_fitting <- function(conc_df,
         "You cannot cut more than the length of the measurements!"
       )
     }
-    if (end_cut < start_cut) {
+    if (end_cut <= start_cut) {
       stop(
         "end_cut cannot be smaller than start_cut"
       )
@@ -160,7 +162,7 @@ flux_fitting <- function(conc_df,
         "You cannot cut more than the length of the measurements!"
       )
     }
-    if (start_cut < end_cut) {
+    if (start_cut <= end_cut) {
       stop(
         "start_cut cannot be smaller than end_cut"
       )
@@ -187,23 +189,28 @@ flux_fitting <- function(conc_df,
         units = "secs"
       ),
       f_time = as.double(.data$f_time),
+      f_start_og = {{f_start}},
       {{f_start}} := case_when(
-        cut_direction %in% c("none", "from_start") ~ {{f_start}} + start_cut,
+        cut_direction %in% c("none", "from_start") ~
+          .data$f_start_og + start_cut,
         cut_direction == "from_end" ~ {{f_end}} - start_cut
       ),
       {{f_end}} := case_when(
         cut_direction %in% c("none", "from_end") ~ {{f_end}} - end_cut,
-        cut_direction == "from_start" ~ {{f_start}} + end_cut
+        cut_direction == "from_start" ~ .data$f_start_og + end_cut
       ),
       f_cut = case_when(
         {{f_datetime}} < {{f_start}} | {{f_datetime}} >= {{f_end}}
         ~ "cut",
         TRUE ~ "keep"
       ),
+      f_time_diff = difftime({{f_start}}, .data$f_start_og, units = "secs"),
+      f_time_diff = as.double(.data$f_time_diff),
       f_cut = as_factor(.data$f_cut),
       f_n_conc = sum(!is.na(.data[[name_conc]])),
       .by = {{f_fluxid}}
-    )
+    ) |>
+    select(!"f_start_og")
 
   conc_df_cut <- conc_df |>
     filter(
@@ -219,7 +226,6 @@ flux_fitting <- function(conc_df,
       f_length_window = max(.data$f_time_cut),
       f_length_flux = difftime({{f_end}}, {{f_start}}, units = "sec"),
       f_start_window = min({{f_datetime}}),
-      f_time_diff = .data$f_time - .data$f_time_cut,
       f_n_conc_cut = sum(!is.na(.data[[name_conc]])),
       .by = {{f_fluxid}}
     )
@@ -228,8 +234,7 @@ flux_fitting <- function(conc_df,
     conc_df_cut,
     conc_df,
     {{f_conc}},
-    {{f_fluxid}},
-    start_cut = start_cut
+    {{f_fluxid}}
   )
 
   if (fit_type != "linear") {
@@ -251,7 +256,6 @@ flux_fitting <- function(conc_df,
       {{f_conc}},
       {{f_start}},
       {{f_fluxid}},
-      start_cut = start_cut,
       cz_window = cz_window,
       b_window = b_window,
       a_window = a_window,
@@ -266,7 +270,6 @@ flux_fitting <- function(conc_df,
       {{f_conc}},
       {{f_start}},
       {{f_fluxid}},
-      start_cut = start_cut,
       t_zero = t_zero,
       cz_window = cz_window,
       b_window = b_window,
@@ -282,7 +285,6 @@ flux_fitting <- function(conc_df,
       {{f_conc}},
       {{f_start}},
       {{f_fluxid}},
-      start_cut = start_cut,
       t_zero = t_zero,
       cz_window = cz_window,
       b_window = b_window,
@@ -298,7 +300,6 @@ flux_fitting <- function(conc_df,
       {{f_conc}},
       {{f_start}},
       {{f_fluxid}},
-      start_cut = start_cut,
       t_zero = t_zero
     )
   }
@@ -350,7 +351,7 @@ flux_fitting <- function(conc_df,
   if (any(!is.na(warnings))) warning(warnings)
 
   conc_fitting <- conc_fitting |>
-    select(!"f_n_conc")
+    select(!c("f_n_conc", "f_time_diff"))
 
   attr(conc_fitting, "fit_type") <- fit_type
 

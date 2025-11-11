@@ -2,11 +2,12 @@
 #' @description Extracts fluxes that were fitted
 #' with a linear model
 #' @param slopes_df dataset containing slopes
+#' @param f_datetime column with datetime of each data point
 #' @importFrom dplyr select distinct mutate
 #' @keywords internal
 
-flux_fortify_lin <- function(slopes_df) {
-  param_df <- flux_param_lm(slopes_df)
+flux_fortify_lin <- function(slopes_df, f_datetime) {
+  param_df <- flux_param_lm(slopes_df, f_datetime = {{f_datetime}})
 
   slopes_df <- flux_plot_flag(slopes_df, param_df)
 

@@ -128,12 +128,16 @@ flux_fortify <- function(slopes_df,
   if (str_detect(fit_type, "exp")) {
     slopes_params <- flux_fortify_exp(
       slopes_df,
-      kappamax = kappamax
+      kappamax = kappamax,
+      f_datetime = {{f_datetime}}
     )
   } else if (fit_type == "linear") {
-    slopes_params <- flux_fortify_lin(slopes_df)
+    slopes_params <- flux_fortify_lin(slopes_df, f_datetime = {{f_datetime}})
   } else if (fit_type == "quadratic") {
-    slopes_params <- flux_fortify_quadratic(slopes_df)
+    slopes_params <- flux_fortify_quadratic(
+      slopes_df,
+      f_datetime = {{f_datetime}}
+    )
   } else {
     stop("Unrecognised plot type:", fit_type)
   }

@@ -16,8 +16,6 @@
 #' @param f_conc column with gas concentration
 #' @param f_start column with datetime when the measurement started
 #' @param f_fluxid column with ID of each flux
-#' @param start_cut time to discard at the start of the measurements
-#' (in seconds)
 #' @param cz_window window used to calculate Cz, at the beginning of cut window
 #' @param b_window window to estimate b. It is an interval after tz
 #' where it is assumed that C fits the data perfectly
@@ -47,7 +45,6 @@ flux_fitting_hm <- function(conc_df_cut,
                             f_conc,
                             f_start,
                             f_fluxid,
-                            start_cut,
                             cz_window,
                             b_window,
                             roll_width,
@@ -138,10 +135,10 @@ flux_fitting_hm <- function(conc_df_cut,
     left_join(fitting_par, by = join_by({{f_fluxid}})) |>
     mutate(
       f_fit = .data$f_Cm + .data$f_slope_z *
-        (exp(-.data$f_b * (.data$f_time - start_cut)) / (-.data$f_b)),
+        (exp(-.data$f_b * (.data$f_time  - .data$f_time_diff)) / (-.data$f_b)),
       f_fit_slope = .data$f_Cm
       + (.data$f_Cz - .data$f_Cm) * exp(-.data$f_b * t_zero)
-      - .data$f_slope * (t_zero - .data$f_time),
+      - .data$f_slope * (t_zero - .data$f_time + .data$f_time_diff),
       f_start_z = {{f_start}} + t_zero
     ) |>
     select(!"f_slope_z")

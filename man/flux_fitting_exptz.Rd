@@ -12,7 +12,6 @@ flux_fitting_exptz(
   f_conc,
   f_start,
   f_fluxid,
-  start_cut,
   cz_window,
   b_window,
   a_window,
@@ -30,9 +29,6 @@ flux_fitting_exptz(
 \item{f_start}{column with datetime when the measurement started}
 
 \item{f_fluxid}{column with ID of each flux}
-
-\item{start_cut}{time to discard at the start of the measurements
-(in seconds)}
 
 \item{cz_window}{window used to calculate Cz, at the beginning of cut window}
 

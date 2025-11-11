@@ -357,3 +357,161 @@ test_that("argument error", {
   )
 }
 )
+
+test_that("flux diff and lm", {
+
+  flux <- co2_liahovden |>
+    filter(
+      datetime >= lubridate::as_datetime("2022-07-27 13:52:00") &
+        datetime <= lubridate::as_datetime("2022-07-27 13:57:00")
+    ) |>
+    mutate(
+      f_fluxid = 1,
+      f_start = lubridate::as_datetime("2022-07-27 13:52:00"),
+      f_end = lubridate::as_datetime("2022-07-27 13:57:00")
+    ) |>
+    rename(
+      f_conc = "conc",
+      f_datetime = "datetime"
+    )
+
+  flux_fit <- flux |>
+    flux_fitting(
+      fit_type = "linear",
+      start_cut = 240,
+      cut_direction = "from_end"
+    )
+
+  flux_flag_lm <- flux_quality(flux_fit)
+
+  expect_snapshot(
+    vdiffr::expect_doppelganger(
+      "flux diff and lm",
+      flux_plot(
+        flux_flag_lm,
+        f_ylim_upper = 500,
+        f_ylim_lower = 350,
+        y_text_position = 450
+      )
+    )
+  )
+})
+
+test_that("slope crosses fit at tz with exp_tz", {
+
+  flux <- co2_liahovden |>
+    filter(
+      datetime >= lubridate::as_datetime("2022-07-27 13:52:00") &
+        datetime <= lubridate::as_datetime("2022-07-27 13:57:00")
+    ) |>
+    mutate(
+      f_fluxid = 1,
+      f_start = lubridate::as_datetime("2022-07-27 13:52:00"),
+      f_end = lubridate::as_datetime("2022-07-27 13:57:00")
+    ) |>
+    rename(
+      f_conc = "conc",
+      f_datetime = "datetime"
+    )
+
+  flux_fit <- flux |>
+    flux_fitting(
+      fit_type = "exp_tz",
+      start_cut = 250,
+      cut_direction = "from_end",
+      t_zero = 20
+    )
+
+  flux_flag_tz <- flux_quality(flux_fit)
+
+  expect_snapshot(
+    vdiffr::expect_doppelganger(
+      "slope crosses fit at tz with exp_tz",
+      flux_plot(
+        flux_flag_tz,
+        f_ylim_upper = 500,
+        f_ylim_lower = 350,
+        y_text_position = 450
+      )
+    )
+  )
+})
+
+test_that("slope crosses fit at tz with exp_hm", {
+
+  flux <- co2_liahovden |>
+    filter(
+      datetime >= lubridate::as_datetime("2022-07-27 13:52:00") &
+        datetime <= lubridate::as_datetime("2022-07-27 13:57:00")
+    ) |>
+    mutate(
+      f_fluxid = 1,
+      f_start = lubridate::as_datetime("2022-07-27 13:52:00"),
+      f_end = lubridate::as_datetime("2022-07-27 13:57:00")
+    ) |>
+    rename(
+      f_conc = "conc",
+      f_datetime = "datetime"
+    )
+
+  flux_fit <- flux |>
+    flux_fitting(
+      fit_type = "exp_hm",
+      start_cut = 250,
+      cut_direction = "from_end",
+      t_zero = 30
+    )
+
+  flux_flag_hm <- flux_quality(flux_fit)
+
+  expect_snapshot(
+    vdiffr::expect_doppelganger(
+      "slope crosses fit at tz with exp_hm",
+      flux_plot(
+        flux_flag_hm,
+        f_ylim_upper = 500,
+        f_ylim_lower = 350,
+        y_text_position = 450
+      )
+    )
+  )
+})
+
+test_that("slope crosses fit at tz with quadratic", {
+
+  flux <- co2_liahovden |>
+    filter(
+      datetime >= lubridate::as_datetime("2022-07-27 13:52:00") &
+        datetime <= lubridate::as_datetime("2022-07-27 13:57:00")
+    ) |>
+    mutate(
+      f_fluxid = 1,
+      f_start = lubridate::as_datetime("2022-07-27 13:52:00"),
+      f_end = lubridate::as_datetime("2022-07-27 13:57:00")
+    ) |>
+    rename(
+      f_conc = "conc",
+      f_datetime = "datetime"
+    )
+
+  flux_fit <- flux |>
+    flux_fitting(
+      fit_type = "quadratic",
+      start_cut = 240,
+      cut_direction = "from_end"
+    )
+
+  flux_flag_zhao18 <- flux_quality(flux_fit)
+
+  expect_snapshot(
+    vdiffr::expect_doppelganger(
+      "slope crosses fit at tz with quadratic",
+      flux_plot(
+        flux_flag_zhao18,
+        f_ylim_upper = 500,
+        f_ylim_lower = 350,
+        y_text_position = 450
+      )
+    )
+  )
+})

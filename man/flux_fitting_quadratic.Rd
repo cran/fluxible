@@ -4,15 +4,7 @@
 \alias{flux_fitting_quadratic}
 \title{quadratic fit to gas concentration over time}
 \usage{
-flux_fitting_quadratic(
-  conc_df_cut,
-  conc_df,
-  f_conc,
-  f_start,
-  f_fluxid,
-  start_cut,
-  t_zero
-)
+flux_fitting_quadratic(conc_df_cut, conc_df, f_conc, f_start, f_fluxid, t_zero)
 }
 \arguments{
 \item{conc_df_cut}{dataframe of gas concentration over time, cut}
@@ -24,9 +16,6 @@ flux_fitting_quadratic(
 \item{f_start}{column with datetime when the measurement started}
 
 \item{f_fluxid}{column with ID of each flux}
-
-\item{start_cut}{time to discard at the start of the measurements
-(in seconds)}
 
 \item{t_zero}{time at which the slope should be calculated}
 }

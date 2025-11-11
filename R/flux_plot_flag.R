@@ -10,7 +10,7 @@ flux_plot_flag <- function(slopes_df,
                            param_df) {
   slopes_df <- slopes_df |>
     select(!c("f_quality_flag")) |>
-    left_join(param_df, by = join_by("f_facetid", "f_start")) |>
+    left_join(param_df, by = join_by("f_facetid")) |>
     mutate(
       f_quality_flag = case_when(
         f_cut == "cut" ~ f_cut,

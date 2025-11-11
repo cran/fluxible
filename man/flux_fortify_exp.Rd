@@ -4,10 +4,12 @@
 \alias{flux_fortify_exp}
 \title{Fortify fluxes with exponential fit}
 \usage{
-flux_fortify_exp(slopes_df, f_conc, f_datetime, y_text_position, kappamax)
+flux_fortify_exp(slopes_df, f_datetime, kappamax)
 }
 \arguments{
 \item{slopes_df}{dataset containing slopes}
+
+\item{f_datetime}{column with datetime of each data point}
 
 \item{kappamax}{indicating if kappamax was applied}
 }

@@ -1,3 +1,8 @@
+# fluxible 1.3.4
+
+* `flux_fitting`, bug fix: when using `cut_direction = "from_start"`, the focus window is now start + `start_cut` to start + `end_cut`. Previously was doing start + `start_cut` to start + `start_cut` + `end_cut`
+* `flux_plot`, bug fix: slopes and flags were displayed at the wrong location on the plot when using `start_cut`, with no effect on the output data.
+
 # fluxible 1.3.3
 
 * citation: paper published!

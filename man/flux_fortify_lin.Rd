@@ -4,10 +4,12 @@
 \alias{flux_fortify_lin}
 \title{Fortify fluxes with linear fit}
 \usage{
-flux_fortify_lin(slopes_df)
+flux_fortify_lin(slopes_df, f_datetime)
 }
 \arguments{
 \item{slopes_df}{dataset containing slopes}
+
+\item{f_datetime}{column with datetime of each data point}
 }
 \description{
 Extracts fluxes that were fitted

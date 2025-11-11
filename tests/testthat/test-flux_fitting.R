@@ -538,8 +538,12 @@ test_that("cut direction from start", {
       end_cut = 60,
       cut_direction = "from_start"
     ) |>
+      filter(f_cut == "keep") |>
       select(f_fluxid, f_slope) |>
-      distinct()
+      summarize(
+        nrow = dplyr::n(),
+        .by = c(f_fluxid, f_slope)
+      )
   )
 })
 
@@ -554,8 +558,12 @@ test_that("cut direction from end", {
       end_cut = 20,
       cut_direction = "from_end"
     ) |>
+      filter(f_cut == "keep") |>
       select(f_fluxid, f_slope) |>
-      distinct()
+      summarize(
+        nrow = dplyr::n(),
+        .by = c(f_fluxid, f_slope)
+      )
   )
 })
 
@@ -613,6 +621,21 @@ test_that("from end start cut too small", {
       cut_direction = "from_end",
       start_cut = 100,
       end_cut = 140,
+      fit_type = "linear"
+    ),
+    "start_cut cannot be smaller than end_cut"
+  )
+})
+
+test_that("equal cuts", {
+  expect_error(
+    flux_fitting(
+      co2_conc,
+      conc,
+      datetime,
+      cut_direction = "from_end",
+      start_cut = 20,
+      end_cut = 20,
       fit_type = "linear"
     ),
     "start_cut cannot be smaller than end_cut"

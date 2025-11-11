@@ -4,14 +4,20 @@
 #' flux_param_lm is for fit in the lm family (linear and quadratic)
 #' flux_param_exp is for the exponential fit
 #' @param slopes_df the slopes_df that is being provided to flux_plot
+#' @param f_datetime column with datetime of each data point
 #' @importFrom dplyr select group_by mutate ungroup distinct filter
 #' @keywords internal
 
-flux_param_lm <- function(slopes_df) {
+flux_param_lm <- function(slopes_df, f_datetime) {
   param_df <- slopes_df |>
     select(
-      "f_start", "f_facetid", "f_rsquared", "f_pvalue",
+      {{f_datetime}}, "f_facetid", "f_rsquared", "f_pvalue",
       "f_quality_flag", "f_cut"
+    ) |>
+    mutate(
+      .by = "f_facetid",
+      .keep = "unused",
+      f_start_og = min({{f_datetime}})
     ) |>
     filter(.data$f_cut != "cut") |>
     distinct() |>
@@ -24,7 +30,7 @@ flux_param_lm <- function(slopes_df) {
         sep = ""
       )
     ) |>
-    select("f_start", "f_facetid", "print_col", "f_quality_flag")
+    select("f_start_og", "f_facetid", "print_col", "f_quality_flag")
 
   param_df
 }

@@ -4,8 +4,6 @@
 #' @param conc_df_cut dataframe of gas concentration over time, cut
 #' @param f_conc column with gas concentration
 #' @param f_fluxid column with ID of each flux
-#' @param start_cut time to discard at the start of the measurements
-#' (in seconds)
 #' @return a df with the modeled gas concentration, slope, intercept,
 #' std error, r square and p value of the linear model
 #' @importFrom rlang .data
@@ -21,8 +19,7 @@
 flux_fitting_lm <- function(conc_df_cut,
                             conc_df,
                             f_conc,
-                            f_fluxid,
-                            start_cut) {
+                            f_fluxid) {
 
   name_conc <- names(select(conc_df, {{f_conc}}))
 
@@ -56,7 +53,7 @@ flux_fitting_lm <- function(conc_df_cut,
   conc_fitting <- conc_df |>
     left_join(fitting_par, by = join_by({{f_fluxid}})) |>
     mutate(
-      f_fit = .data$f_intercept + .data$f_slope * (.data$f_time - start_cut)
+      f_fit = .data$f_intercept + .data$f_slope * (.data$f_time - .data$f_time_diff)
     )
 
 

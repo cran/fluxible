@@ -59,7 +59,9 @@ from Zhao et al (2018).
 \item{cut_direction}{\code{"none"} (default) means that the focus window is
 \code{f_start + start_cut} to \code{f_end - end_cut}; \code{"from_start"} makes it
 \code{f_start + start_cut} to \code{f_start + end_cut}; \code{"from_end"} makes it
-\code{f_end - start_cut} to \code{f_end - end_cut}.}
+\code{f_end - start_cut} to \code{f_end - end_cut}.
+Bug fix since v1.3.4: \code{"from_start"} was doing \code{f_start} + \code{start_cut} to
+\code{f_start} + \code{start_cut} + \code{end_cut}}
 
 \item{cz_window}{window used to calculate Cz, at the beginning of cut window
 (\code{exp_zhao18} and \code{exp_tz} fits)}
