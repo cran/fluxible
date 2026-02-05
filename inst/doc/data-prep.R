@@ -56,6 +56,21 @@ raw_conc <- list.files( # list the files
   ) |>
   select(datetime, conc)
 
+## ----units-row, message=FALSE, eval=FALSE-------------------------------------
+# library(tidyverse)
+# 
+# co2 <- read_delim(
+#   "raw_data/NatuRA_raw_CO2_2026-01-18.data",
+#   skip = 5 # skipping the first 5 rows (instrument info)
+#   ) |>
+#   slice(-1) |> # we slice the first row (units)
+#   select(c(DATE, TIME, CO2)) |> # and select what we want
+# mutate(
+#   datetime = ymd_hms(paste(DATE, TIME)), # lubridate function to create datetime
+#                      CO2 = as.double(CO2),  # converting CO2 to numeric
+#                     .keep = "unused" # we remove DATE and TIME columns
+#                      )
+
 ## ----one-file-one-flux, message=FALSE-----------------------------------------
 
 library(tidyverse)

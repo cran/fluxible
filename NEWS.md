@@ -1,3 +1,11 @@
+# fluxible 1.3.6
+
+* fixed the use of `case_when()` to avoid warnings with `dplyr 1.2.0`.
+
+# fluxible 1.3.5
+
+* added minimum version of `rlang 0.4.0` in DESCRIPTION to avoid issues with `as_label()`.
+
 # fluxible 1.3.4
 
 * `flux_fitting`, bug fix: when using `cut_direction = "from_start"`, the focus window is now start + `start_cut` to start + `end_cut`. Previously was doing start + `start_cut` to start + `start_cut` + `end_cut`

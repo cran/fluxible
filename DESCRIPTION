@@ -1,7 +1,7 @@
 Package: fluxible
 Title: Ecosystem Gas Fluxes Calculations for Closed Loop Chamber Setup
-Version: 1.3.4
-Date: 2025-10-13
+Version: 1.3.6
+Date: 2026-02-05
 Authors@R: 
     c(person(given = "Joseph", family = "Gaudard", , "joseph.gaudard@pm.me", role = c("aut", "cre"),
             comment = c(ORCID = "0000-0002-6989-7624")),
@@ -28,9 +28,9 @@ RoxygenNote: 7.3.3
 Suggests: knitr, rmarkdown, testthat (>= 3.0.0), vdiffr, tidyverse, fs,
         licoread, readr
 Config/testthat/edition: 3
-Imports: broom, dplyr, ggforce, ggplot2, haven, lubridate, rlang,
-        purrr, stats, stringr, tidyr, zoo, progress, purrrlyr,
-        tidyselect, lifecycle, forcats, tibble
+Imports: broom, dplyr (>= 1.0.10), ggforce, ggplot2, haven, lubridate,
+        rlang (>= 0.4.0), purrr, stats, stringr, tidyr, zoo, progress,
+        purrrlyr, tidyselect, lifecycle, forcats, tibble
 Depends: R (>= 4.1)
 LazyData: true
 URL: https://plant-functional-trait-course.github.io/fluxible/,
@@ -38,11 +38,11 @@ URL: https://plant-functional-trait-course.github.io/fluxible/,
 VignetteBuilder: knitr
 BugReports: https://github.com/Plant-Functional-Trait-Course/fluxible/issues
 NeedsCompilation: no
-Packaged: 2025-11-11 07:47:56 UTC; jga051
+Packaged: 2026-02-05 14:40:53 UTC; jga051
 Author: Joseph Gaudard [aut, cre] (ORCID:
     <https://orcid.org/0000-0002-6989-7624>),
   Richard James Telford [aut] (ORCID:
     <https://orcid.org/0000-0001-9826-3076>)
 Maintainer: Joseph Gaudard <joseph.gaudard@pm.me>
 Repository: CRAN
-Date/Publication: 2025-11-11 08:10:09 UTC
+Date/Publication: 2026-02-05 15:10:02 UTC
